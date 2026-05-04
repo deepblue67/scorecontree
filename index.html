@@ -116,12 +116,7 @@
     #ej-action-grid { grid-column: 2 !important; grid-row: 2 !important; display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 4px !important; padding: 0 !important; max-width: none !important; margin: 0 !important; width: 100% !important; }
     #ej-action-grid .btn { font-size: 10px !important; padding: 7px 3px !important; }
 
-    /* ── MODALES : centrer en iPad paysage ── */
-    #confirm-modal { 
-      align-items: center !important;
-      justify-content: center !important;
-      padding: 20px !important;
-    }
+    /* ── MODALES : centrées par défaut (style inline corrigé) ── */
     #players-modal { padding: 50px 16px 70px !important; }
 
     /* ── TABS OVERLAY (contrat, score, historique, marque) ── */
@@ -729,16 +724,20 @@
   .mec-team-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: .06em; }
   .mec-team-score { font-size: 40px; font-weight: 800; color: #fff; line-height: 1; }
   .mec-need { font-size: 11px; color: rgba(255,255,255,0.5); }
-  /* Carte cliquable — animation pulsation */
+  /* Carte centre table — même animation que bouton Saisir score */
   @keyframes svgCardPulse {
-    0%   { filter: drop-shadow(0 0 2px rgba(200,168,74,0.5)); }
-    50%  { filter: drop-shadow(0 0 16px rgba(200,168,74,1)) drop-shadow(0 0 6px rgba(255,220,100,0.8)); }
-    100% { filter: drop-shadow(0 0 2px rgba(200,168,74,0.5)); }
+    0%, 100% {
+      filter: drop-shadow(0 0 0px rgba(255,255,255,0.8)) drop-shadow(0 0 0px rgba(255,220,0,0.6));
+      opacity: 1;
+    }
+    50% {
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)) drop-shadow(0 0 16px rgba(255,220,0,0.7));
+      opacity: 0.7;
+    }
   }
   #contract-card-group {
-    animation: svgCardPulse 3.5s ease-in-out infinite;
-    transform-box: fill-box;
-    transform-origin: center;
+    animation: svgCardPulse 2.5s ease infinite;
+    cursor: pointer;
   }
   @keyframes card-pulse {
     0%   { box-shadow: 0 0 0 0 rgba(200,168,74,0.8), 0 8px 32px rgba(0,0,0,0.4); transform: scale(1); }
@@ -1004,7 +1003,7 @@
       <button onclick="eid('players-modal').style.cssText='display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;padding:110px 16px 70px;overflow-y:auto;'" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Liste des joueurs">👥</button>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
-        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20250424_1820</span></div>
+        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20250428_2350</span></div>
       </div>
     </div>
     <div class="body">
@@ -1464,7 +1463,7 @@
   </div>
 
   <!-- MODALE CONFIRMATION — niveau app pour être visible partout -->
-  <div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9998;align-items:flex-end;justify-content:center;padding:20px;">
+  <div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;padding:20px 20px calc(20px + env(safe-area-inset-bottom, 0px));">
     <div style="background:#1a2e1a;border-radius:var(--radius);padding:22px;width:100%;max-width:420px;border:1px solid rgba(255,255,255,0.15);">
       <div id="confirm-msg" style="font-size:16px;font-weight:600;color:#fff;text-align:center;margin-bottom:20px;"></div>
       <div style="display:flex;gap:10px;">
@@ -3416,7 +3415,11 @@ function showMancheSummary(ps, mancheJouee, onConfirm) {
 
 function initiales(name) {
   if(typeof name !== 'string' || !name) return '?';
-  return name.split('&').map(p => p.trim()[0] ? p.trim()[0].toUpperCase() : '?').join('&');
+  return name.split('&').map(p => {
+    const t = p.trim();
+    if(!t) return '?';
+    return t.charAt(0).toUpperCase() + t.slice(1,3).toLowerCase();
+  }).join('&');
 }
 
 function renderFeuille() {
