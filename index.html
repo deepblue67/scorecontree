@@ -25,6 +25,7 @@
     --gold-light: #fdf3d0;
     --blue: #1a5295;
     --blue-light: #e8f0fb;
+    /* Mode sombre (défaut) */
     --bg: #2e6b28;
     --panel: #1a3318;
     --card: #f0ede6;
@@ -40,6 +41,72 @@
     --radius-pill: 99px;
     --shadow: 0 4px 20px rgba(0,0,0,0.3);
     --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+    --nav-bg: #1a3318;
+    --header-bg: rgba(0,0,0,0.35);
+    --score-team-bg: rgba(255,255,255,0.12);
+    --body-bg-pattern: rgba(0,0,0,0.06);
+  }
+
+  /* ══ MODE CLAIR — suit les préférences système iOS/iPadOS ══ */
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #e8f0e4;
+      --panel: #2e6b28;
+      --card: #ffffff;
+      --card-dark: #e0ead8;
+      --border: rgba(0,0,0,0.1);
+      --border-light: #c0c8bc;
+      --text: #1a1a1a;
+      --text-light: #ffffff;
+      --text2: #4a5c46;
+      --text3: #7a8c76;
+      --shadow: 0 4px 20px rgba(0,0,0,0.12);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+      --nav-bg: #2e6b28;
+      --header-bg: rgba(46,107,40,0.95);
+      --score-team-bg: rgba(46,107,40,0.12);
+      --body-bg-pattern: rgba(0,0,0,0.03);
+    }
+    html, body { background: var(--bg) !important; }
+    body {
+      background-image:
+        repeating-linear-gradient(45deg, var(--body-bg-pattern) 0, var(--body-bg-pattern) 1px, transparent 1px, transparent 8px),
+        repeating-linear-gradient(-45deg, var(--body-bg-pattern) 0, var(--body-bg-pattern) 1px, transparent 1px, transparent 8px) !important;
+    }
+    .header { background: var(--header-bg) !important; }
+    .bottom-nav { background: var(--nav-bg) !important; }
+    /* Cartes en mode clair */
+    .card { background: #ffffff !important; box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important; }
+    .card-dark { background: var(--card-dark) !important; color: #1a3318 !important; }
+    /* Scores */
+    .score-team { background: var(--score-team-bg) !important; }
+    .t-name { color: rgba(255,255,255,0.75) !important; }
+    /* Table SVG — fond vert maintenu (c'est une table de jeu) */
+    #ej-table-svg, #setup-table-wrap svg { filter: none !important; }
+    /* Inputs en mode clair */
+    .card input, .card select, .card .sv {
+      background: #f4f7f2 !important;
+      border-color: #b0c4aa !important;
+      color: #1a1a1a !important;
+    }
+    /* Boutons outline */
+    .btn-outline { background: rgba(46,107,40,0.1) !important; color: #1a4a1a !important; border-color: rgba(46,107,40,0.3) !important; }
+    /* Chips */
+    .chip { border-color: rgba(46,107,40,0.4) !important; }
+    .chip.selected-green { background: rgba(46,107,40,0.15) !important; }
+    /* Stepper */
+    .card .stepper button { background: #d8e8d4 !important; color: #1a3318 !important; }
+    /* Quick vals */
+    .card span[onclick] { background: #eaf2e6 !important; border-color: #b0c4aa !important; color: #1a3318 !important; }
+    /* Score board sous la table */
+    #ej-score-wrap { background: rgba(46,107,40,0.15) !important; border-color: rgba(46,107,40,0.2) !important; }
+    /* Historique / feuille */
+    #tab-history, #tab-feuille, #tab-stats, #tab-marque { background: var(--bg) !important; }
+    /* Suit buttons */
+    .suit-btn { background: #ffffff !important; box-shadow: 0 2px 6px rgba(0,0,0,0.1) !important; }
+    .suit-btn.selected { background: #eaf2e6 !important; }
+    /* Modales */
+    #confirm-modal > div { background: #ffffff !important; }
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { 
@@ -1008,7 +1075,7 @@
       <button onclick="eid('players-modal').style.cssText='display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;padding:110px 16px 70px;overflow-y:auto;'" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Liste des joueurs">👥</button>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
-        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260504_2220</span></div>
+        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260504_2230</span></div>
       </div>
 
     </div>
