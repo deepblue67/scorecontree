@@ -1008,22 +1008,9 @@
       <button onclick="eid('players-modal').style.cssText='display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;padding:110px 16px 70px;overflow-y:auto;'" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Liste des joueurs">👥</button>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
-        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260504_2210</span></div>
+        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260504_2215</span></div>
       </div>
-      <!-- Bouton micro setup -->
-      <button id="btn-micro-setup" onclick="startVoiceSetup()" title="Placer les joueurs à la voix" style="
-        position:absolute;right:12px;top:50%;transform:translateY(-50%);
-        background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);
-        border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;
-        display:flex;align-items:center;justify-content:center;transition:all .2s;">
-        <span id="micro-setup-icon">🎤</span>
-      </button>
-      <!-- Barre feedback setup -->
-      <div id="micro-setup-bar" style="display:none;position:absolute;left:0;right:0;top:100%;
-        background:rgba(0,0,0,0.75);padding:6px 14px;z-index:200;text-align:center;">
-        <div id="micro-setup-transcript" style="font-size:12px;color:rgba(255,255,255,0.7);font-style:italic;"></div>
-        <div id="micro-setup-feedback" style="font-size:12px;color:rgba(255,220,100,0.95);font-weight:700;margin-top:2px;"></div>
-      </div>
+
     </div>
     <div class="body">
 
@@ -1121,20 +1108,6 @@
       <div style="text-align:center;">
         <h1 id="game-title">Belote Contrée</h1>
         <div class="sub" id="game-sub" style="display:none;"></div>
-      </div>
-      <!-- BOUTON MICRO dans le header -->
-      <button id="btn-micro" onclick="startVoiceContrat()" title="Commande vocale" style="
-        position:absolute;right:12px;top:50%;transform:translateY(-50%);
-        background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.25);
-        border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;
-        display:flex;align-items:center;justify-content:center;transition:all .2s;">
-        <span id="micro-icon">🎤</span>
-      </button>
-      <!-- Feedback vocal (sous le header) -->
-      <div id="micro-bar" style="display:none;position:absolute;left:0;right:0;top:100%;
-        background:rgba(0,0,0,0.7);padding:6px 14px;z-index:200;text-align:center;">
-        <div id="micro-transcript" style="font-size:12px;color:rgba(255,255,255,0.7);font-style:italic;"></div>
-        <div id="micro-feedback" style="font-size:12px;color:rgba(255,220,100,0.95);font-weight:700;margin-top:2px;"></div>
       </div>
     </div>
 
