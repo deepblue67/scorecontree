@@ -1189,10 +1189,10 @@
 
       <!-- Modale liste des joueurs -->
       <!-- ══ MODAL RÉGLAGES ══ -->
-      <div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;overflow-y:auto;padding:60px 16px 30px;">
+      <div id="settings-modal" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:flex-start;overflow-y:auto;padding:16px;">
         <div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:440px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-            <div style="font-size:17px;font-weight:800;color:var(--text);">⚙️ Réglages <span style="font-size:10px;font-weight:400;color:var(--text2);opacity:0.6;">v20260506_1220</span></div>
+            <div style="font-size:17px;font-weight:800;color:var(--text);">⚙️ Réglages <span style="font-size:10px;font-weight:400;color:var(--text2);opacity:0.6;">v20260506_1225</span></div>
             <button onclick="closeSettings()" style="background:rgba(0,0,0,0.08);border:none;border-radius:99px;width:34px;height:34px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
           </div>
 
@@ -5069,7 +5069,12 @@ function openSettings() {
       if(btn) btn.style.borderColor = k===cur ? '#c8960a' : 'transparent';
     });
   } catch(e) {}
-  eid('settings-modal').style.display = 'flex';
+  // Positionner le modal juste sous le header de l'appli
+  const modal = eid('settings-modal');
+  const header = document.querySelector('.header');
+  const headerBottom = header ? header.getBoundingClientRect().bottom : 80;
+  modal.style.top = headerBottom + 'px';
+  modal.style.display = 'flex';
 }
 
 function closeSettings() {
