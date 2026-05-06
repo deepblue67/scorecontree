@@ -1005,10 +1005,10 @@
   <div id="screen-setup" class="screen active">
     <div class="header" style="padding:12px 16px;justify-content:center;position:relative;">
       <!-- Icône groupe joueurs haut-gauche — clignotant -->
-      <button onclick="eid('players-modal').style.cssText='display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;padding:110px 16px 70px;overflow-y:auto;'" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Liste des joueurs">👥</button>
+      <button onclick="openSettings()" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Réglages">⚙️</button>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
-        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260505_2115</span></div>
+        <div class="sub">Configuration de la partie &nbsp;<span style="font-size:10px;opacity:0.5;font-weight:400;">v20260506_1115</span></div>
       </div>
 
     </div>
@@ -1021,7 +1021,7 @@
         <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;border-radius:16px;">
           <defs>
             <pattern id="sp-quilted" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-              <rect width="10" height="10" fill="#2a6b26"/>
+              <rect id="sp-quilted-bg" width="10" height="10" fill="#2a6b26"/>
               <path d="M5,0L10,5L5,10L0,5Z" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="0.5"/>
             </pattern>
           </defs>
@@ -1081,6 +1081,83 @@
       </div>
 
       <!-- Modale liste des joueurs -->
+      <!-- ══ MODAL RÉGLAGES ══ -->
+      <div id="settings-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.82);z-index:9999;align-items:flex-start;justify-content:center;padding:80px 16px 70px;overflow-y:auto;">
+        <div style="background:var(--card);border-radius:20px;padding:22px;width:100%;max-width:420px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+            <div style="font-size:18px;font-weight:800;color:var(--text);">⚙️ Réglages</div>
+            <button onclick="closeSettings()" style="background:rgba(0,0,0,0.08);border:none;border-radius:99px;width:32px;height:32px;font-size:16px;cursor:pointer;">✕</button>
+          </div>
+
+          <!-- Section Joueurs -->
+          <div style="margin-bottom:20px;">
+            <!-- En-tête accordéon -->
+            <button onclick="togglePlayerAccordion()" id="player-accordion-btn" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:10px 14px;cursor:pointer;font-family:inherit;margin-bottom:0;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:14px;">👥</span>
+                <span id="player-accordion-label" style="font-size:14px;font-weight:700;color:var(--text);">Liste des joueurs</span>
+              </div>
+              <span id="player-accordion-arrow" style="font-size:12px;color:var(--text2);">▼</span>
+            </button>
+            <!-- Contenu dépliable -->
+            <div id="player-accordion-content" style="display:none;margin-top:8px;">
+              <div style="display:flex;gap:8px;margin-bottom:8px;">
+                <input id="settings-player-inp" class="inp" type="text" placeholder="Prénom du joueur" maxlength="18" onkeydown="if(event.key==='Enter')addPlayerFromSettings()" style="flex:1;">
+                <button class="btn btn-green" onclick="addPlayerFromSettings()">Ajouter</button>
+              </div>
+              <div id="settings-players-list" style="max-height:260px;overflow-y:auto;border:1px solid rgba(0,0,0,0.08);border-radius:10px;"></div>
+            </div>
+          </div>
+
+          <div style="height:1px;background:rgba(0,0,0,0.1);margin-bottom:20px;"></div>
+
+          <!-- Section Thèmes -->
+          <div style="margin-bottom:20px;">
+            <div style="font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">🎨 Thème du tapis</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+              <button onclick="setTheme('green')" id="theme-btn-green" style="border-radius:14px;border:3px solid transparent;padding:0;overflow:hidden;cursor:pointer;aspect-ratio:1;">
+                <div style="background:linear-gradient(135deg,#1a3318,#2e6b28);width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px;">
+                  <span style="font-size:22px;">♠</span>
+                  <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.8);">Vert</span>
+                </div>
+              </button>
+              <button onclick="setTheme('blue')" id="theme-btn-blue" style="border-radius:14px;border:3px solid transparent;padding:0;overflow:hidden;cursor:pointer;aspect-ratio:1;">
+                <div style="background:linear-gradient(135deg,#0a1a3a,#1a3a7a);width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px;">
+                  <span style="font-size:22px;">♠</span>
+                  <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.8);">Bleu</span>
+                </div>
+              </button>
+              <button onclick="setTheme('red')" id="theme-btn-red" style="border-radius:14px;border:3px solid transparent;padding:0;overflow:hidden;cursor:pointer;aspect-ratio:1;">
+                <div style="background:linear-gradient(135deg,#2a0a0a,#6b1a1a);width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px;">
+                  <span style="font-size:22px;">♠</span>
+                  <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.8);">Rouge</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div style="height:1px;background:rgba(0,0,0,0.1);margin-bottom:20px;"></div>
+
+          <!-- Section Aide à la marque -->
+          <div style="margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">📜 Aide à la marque</div>
+            <button onclick="closeSettings();showTab('marque');renderMarque();" class="btn btn-outline-dark btn-full" style="font-size:14px;padding:12px;">
+              📜 Consulter l'aide à la marque
+            </button>
+          </div>
+
+          <div style="height:1px;background:rgba(0,0,0,0.1);margin-bottom:16px;"></div>
+
+          <!-- Section Comment utiliser -->
+          <div style="margin-bottom:8px;">
+            <div style="font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">❓ Comment utiliser l'application</div>
+            <button onclick="closeSettings();showHelpScreen();" class="btn btn-outline-dark btn-full" style="font-size:14px;padding:12px;">
+              ❓ Voir le guide d'utilisation
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div id="players-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;padding:110px 16px 70px;overflow-y:auto;">
         <div style="background:var(--card);border-radius:var(--radius);padding:20px;width:100%;max-width:440px;overflow-y:auto;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
@@ -1384,7 +1461,7 @@
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <div id="feuille-title" class="card-title" style="margin-bottom:0;font-size:14px;line-height:1.4;">Feuille de score</div>
-          <button onclick="showTab('marque');renderMarque();" style="background:rgba(0,0,0,0.08);border:1px solid var(--border-light);border-radius:10px;padding:6px 10px;font-size:20px;cursor:pointer;font-family:inherit;" title="Aide à la marque">📜</button>
+
         </div>
         <div id="feuille-content"></div>
       </div>
@@ -1421,6 +1498,16 @@
   </div>
 
   <!-- ════════════════════════════════ SCREEN: WINNER ════════════════════════════════ -->
+  <!-- ════════ SCREEN: AIDE ════════ -->
+  <div id="screen-help" class="screen" style="background:var(--bg);">
+    <div class="header" style="position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px;padding:12px 16px;">
+      <button onclick="hideHelpScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
+      <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">Guide d'utilisation</h1>
+      <div style="width:70px;"></div>
+    </div>
+    <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;max-width:540px;margin:0 auto;" id="help-content"></div>
+  </div>
+
   <div id="screen-winner" class="screen">
     <div class="winner-screen">
       <div class="winner-trophy">🏆</div>
@@ -3188,7 +3275,7 @@ function renderEnjeu() {
     <defs>
       <!-- Motif losanges quilted -->
       <pattern id="quilted" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-        <rect width="20" height="20" fill="#2a6b26"/>
+        <rect width="20" height="20" fill="${getFeltColor()}"/>
         <path d="M10,0 L20,10 L10,20 L0,10 Z" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="0.8"/>
         <circle cx="10" cy="10" r="1.2" fill="rgba(0,0,0,0.15)"/>
         <circle cx="0"  cy="0"  r="1.2" fill="rgba(0,0,0,0.15)"/>
@@ -3964,6 +4051,7 @@ function fixSetupTableSize() {
 window.addEventListener('load', fixSetupTableSize);
 window.addEventListener('resize', fixSetupTableSize);
 requestAnimationFrame(() => requestAnimationFrame(fixSetupTableSize));
+loadTheme();
 
 // Splash screen — disparaît après 1.5s
 
@@ -4265,7 +4353,7 @@ function parseVoiceSetup(text) {
 
   // ── Récupérer la liste des joueurs disponibles ──
   let joueurs = [];
-  try { joueurs = JSON.parse(localStorage.getItem('bct_players') || '[]'); } catch(e) {}
+  try { joueurs = JSON.parse(localStorage.getItem('belote_players') || '[]'); } catch(e) {}
 
   // ── Détecter la position cardinale ──
   const posMap = {
@@ -4326,6 +4414,382 @@ function parseVoiceSetup(text) {
     }
     refreshTeamPreview();
   }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// RÉGLAGES — THÈMES & JOUEURS
+// ═══════════════════════════════════════════════════════════
+function getFeltColor() {
+  try {
+    const t = localStorage.getItem('bct_theme') || 'green';
+    return THEMES[t] ? THEMES[t].felt1 : '#2a6b26';
+  } catch(e) { return '#2a6b26'; }
+}
+
+const THEMES = {
+  green: {
+    bg: '#2e6b28', panel: '#1a3318',
+    felt1: '#2e6b28', felt2: '#1a4a1a',
+    pattern: 'rgba(0,0,0,0.08)',
+    border: 'rgba(200,150,10,0.6)',
+    themeColor: '#2e6b28'
+  },
+  blue: {
+    bg: '#1a3a7a', panel: '#0a1a3a',
+    felt1: '#1a3a7a', felt2: '#0a1a4a',
+    pattern: 'rgba(0,0,0,0.1)',
+    border: 'rgba(180,150,80,0.6)',
+    themeColor: '#1a3a7a'
+  },
+  red: {
+    bg: '#6b1a1a', panel: '#2a0a0a',
+    felt1: '#6b1a1a', felt2: '#4a0a0a',
+    pattern: 'rgba(0,0,0,0.1)',
+    border: 'rgba(180,130,60,0.6)',
+    themeColor: '#6b1a1a'
+  }
+};
+
+function applyTheme(name) {
+  const t = THEMES[name] || THEMES.green;
+  const r = document.documentElement.style;
+  r.setProperty('--bg', t.bg);
+  r.setProperty('--panel', t.panel);
+  // Fond body
+  document.body.style.background = t.bg;
+  // Mettre à jour meta theme-color
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.content = t.themeColor;
+  // Mettre à jour les SVG quilted (tapis)
+  updateFeltColor(t);
+  // Surligner le bouton actif
+  ['green','blue','red'].forEach(k => {
+    const btn = eid('theme-btn-'+k);
+    if(btn) btn.style.borderColor = k===name ? '#c8960a' : 'transparent';
+  });
+  try { localStorage.setItem('bct_theme', name); } catch(e) {}
+}
+
+function updateFeltColor(t) {
+  document.documentElement.style.setProperty('--bg', t.bg);
+  document.documentElement.style.setProperty('--panel', t.panel);
+  document.body.style.background = t.bg;
+  // Tapis setup SVG
+  const spBg = eid('sp-quilted-bg');
+  if(spBg) spBg.setAttribute('fill', t.felt1);
+  // Tapis jeu SVG — re-render si visible
+  const ejWrap = eid('ej-table-wrap');
+  if(ejWrap && ejWrap.offsetParent !== null && typeof renderEnjeu === 'function') renderEnjeu();
+}
+
+function loadTheme() {
+  try {
+    const saved = localStorage.getItem('bct_theme') || 'green';
+    applyTheme(saved);
+  } catch(e) {}
+}
+
+function showHelpScreen() {
+  renderHelpContent();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  eid('screen-help').classList.add('active');
+  eid('screen-help').querySelector('[id="help-content"]').scrollTop = 0;
+}
+
+function hideHelpScreen() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  eid('screen-setup').classList.add('active');
+}
+
+function renderHelpContent() {
+  const el = eid('help-content');
+  if(!el) return;
+
+  function step(n, txt) {
+    return `<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">
+      <div style="background:var(--green);color:#fff;font-size:12px;font-weight:900;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">${n}</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.5;">${txt}</div>
+    </div>`;
+  }
+
+  function card(icon, title, body, svgHtml) {
+    svgHtml = svgHtml || '';
+    body = body || '';
+    return `<div style="background:var(--card);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:${svgHtml||body?'12px':'0'};">
+        <div style="font-size:28px;line-height:1;">${icon}</div>
+        <div style="font-size:16px;font-weight:800;color:var(--text);">${title}</div>
+      </div>
+      ${svgHtml ? `<div style="margin-bottom:12px;border-radius:12px;overflow:hidden;">${svgHtml}</div>` : ''}
+      ${body ? `<div style="font-size:14px;color:var(--text2);line-height:1.7;">${body}</div>` : ''}
+    </div>`;
+  }
+
+  const svgSetup = `<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:12px;">
+    <rect width="320" height="180" fill="#1a3318"/>
+    <rect x="40" y="10" width="240" height="160" rx="12" fill="#2a6b26" stroke="#c8a84a" stroke-width="2"/>
+    <rect x="110" y="16" width="100" height="32" rx="8" fill="#1a5c3a"/>
+    <text x="160" y="30" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9" font-weight="800" fill="#fff">Christophe</text>
+    <text x="160" y="41" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">NORD</text>
+    <rect x="110" y="132" width="100" height="32" rx="8" fill="#1a5c3a"/>
+    <text x="160" y="146" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9" font-weight="800" fill="#fff">Mika</text>
+    <text x="160" y="157" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">SUD</text>
+    <rect x="46" y="79" width="80" height="32" rx="8" fill="#1a3580"/>
+    <text x="86" y="93" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9" font-weight="800" fill="#fff">Rakhel</text>
+    <text x="86" y="104" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">OUEST</text>
+    <rect x="194" y="79" width="80" height="32" rx="8" fill="#1a3580"/>
+    <text x="234" y="93" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9" font-weight="800" fill="#fff">Daniel</text>
+    <text x="234" y="104" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">EST</text>
+    <text x="160" y="172" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="rgba(200,168,74,0.8)">Christophe &amp; Mika vs Daniel &amp; Rakhel</text>
+  </svg>`;
+
+  const svgContrat = `<svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:12px;">
+    <rect width="320" height="140" fill="#f0ede6" rx="12"/>
+    <text x="16" y="28" font-family="-apple-system,sans-serif" font-size="10" font-weight="800" fill="#5a5650" letter-spacing="1">CONTRAT</text>
+    <rect x="12" y="36" width="140" height="30" rx="8" fill="#2e6b28"/>
+    <text x="82" y="55" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" font-weight="800" fill="#fff">Christophe &amp; Mika</text>
+    <rect x="162" y="36" width="146" height="30" rx="8" fill="rgba(0,0,0,0.07)"/>
+    <text x="235" y="55" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#5a5650">Daniel &amp; Rakhel</text>
+    <rect x="12" y="76" width="40" height="24" rx="6" fill="rgba(0,0,0,0.07)"/>
+    <text x="32" y="92" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#333">80</text>
+    <rect x="58" y="76" width="40" height="24" rx="6" fill="rgba(0,0,0,0.07)"/>
+    <text x="78" y="92" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#333">90</text>
+    <rect x="104" y="76" width="40" height="24" rx="6" fill="#2e6b28"/>
+    <text x="124" y="92" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" font-weight="800" fill="#fff">100</text>
+    <rect x="150" y="76" width="40" height="24" rx="6" fill="rgba(0,0,0,0.07)"/>
+    <text x="170" y="92" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#333">110</text>
+    <rect x="12" y="108" width="60" height="24" rx="6" fill="rgba(200,0,0,0.12)" stroke="rgba(200,0,0,0.5)" stroke-width="1.5"/>
+    <text x="42" y="124" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" fill="#cc1f1f">&#9829;</text>
+    <rect x="80" y="108" width="60" height="24" rx="6" fill="rgba(0,0,0,0.07)"/>
+    <text x="110" y="124" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" fill="#cc1f1f">&#9830;</text>
+    <rect x="148" y="108" width="60" height="24" rx="6" fill="rgba(0,0,0,0.07)"/>
+    <text x="178" y="124" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" fill="#111">&#9827;</text>
+    <rect x="216" y="108" width="60" height="24" rx="6" fill="rgba(0,0,0,0.07)"/>
+    <text x="246" y="124" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" fill="#111">&#9824;</text>
+  </svg>`;
+
+  const svgTable = `<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:12px;">
+    <rect width="320" height="180" fill="#1a3318"/>
+    <rect x="40" y="10" width="240" height="160" rx="12" fill="#2a6b26" stroke="#c8a84a" stroke-width="2"/>
+    <rect x="122" y="48" width="76" height="106" rx="10" fill="#f5f0e8" stroke="#c8a84a" stroke-width="2"/>
+    <text x="160" y="75" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" fill="#cc1f1f">&#9829;</text>
+    <text x="160" y="105" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="24" font-weight="900" fill="#cc1f1f">100</text>
+    <text x="160" y="122" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="#5a4a00">Chr &amp; Mika</text>
+    <circle cx="160" cy="101" r="48" fill="none" stroke="rgba(200,168,74,0.35)" stroke-width="2"/>
+    <text x="160" y="22" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">Appuyer sur la carte pour agrandir</text>
+    <rect x="44" y="150" width="108" height="16" rx="4" fill="rgba(0,0,0,0.3)"/>
+    <text x="98" y="161" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="#7ddd82">CHR &amp; MIKA  320</text>
+    <rect x="168" y="150" width="108" height="16" rx="4" fill="rgba(0,0,0,0.3)"/>
+    <text x="222" y="161" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="#fff">DAN &amp; RAK  210</text>
+  </svg>`;
+
+  const svgScore = `<svg viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:12px;">
+    <rect width="320" height="130" fill="#f0ede6" rx="12"/>
+    <text x="16" y="22" font-family="-apple-system,sans-serif" font-size="10" font-weight="800" fill="#5a5650" letter-spacing="1">SAISIE DU SCORE</text>
+    <text x="16" y="46" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" fill="#333">Christophe &amp; Mika</text>
+    <rect x="16" y="52" width="60" height="30" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+    <text x="46" y="72" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" font-weight="900" fill="#333">130</text>
+    <text x="170" y="46" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" fill="#333">Daniel &amp; Rakhel</text>
+    <rect x="170" y="52" width="60" height="30" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+    <text x="200" y="72" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" font-weight="900" fill="#333">32</text>
+    <rect x="16" y="88" width="14" height="14" rx="3" fill="#2e6b28"/>
+    <text x="23" y="99" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#fff">&#10003;</text>
+    <text x="36" y="99" font-family="-apple-system,sans-serif" font-size="10" fill="#5a5650">Belote (+20 pts)</text>
+    <rect x="16" y="108" width="136" height="18" rx="6" fill="#2e6b28"/>
+    <text x="84" y="120" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9" font-weight="700" fill="#fff">Calculer le resultat</text>
+  </svg>`;
+
+  const svgHistorique = `<svg viewBox="0 0 320 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:12px;">
+    <rect width="320" height="110" fill="#f0ede6" rx="12"/>
+    <text x="16" y="18" font-family="-apple-system,sans-serif" font-size="8" fill="#888" font-weight="700">#</text>
+    <text x="40" y="18" font-family="-apple-system,sans-serif" font-size="8" fill="#888" font-weight="700">CONTRAT</text>
+    <text x="128" y="18" font-family="-apple-system,sans-serif" font-size="8" fill="#888" font-weight="700">RESULTAT</text>
+    <text x="210" y="18" font-family="-apple-system,sans-serif" font-size="8" fill="#888" font-weight="700">C&amp;G</text>
+    <text x="260" y="18" font-family="-apple-system,sans-serif" font-size="8" fill="#888" font-weight="700">D&amp;R</text>
+    <line x1="12" y1="22" x2="308" y2="22" stroke="#ddd" stroke-width="1"/>
+    <text x="16" y="38" font-family="-apple-system,sans-serif" font-size="9" fill="#999">01</text>
+    <text x="40" y="38" font-family="-apple-system,sans-serif" font-size="9" font-weight="700" fill="#333">100 &#9829;</text>
+    <rect x="128" y="27" width="36" height="14" rx="4" fill="#1a5c1a"/>
+    <text x="146" y="38" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" font-weight="700" fill="#7ddd82">FAIT</text>
+    <text x="210" y="38" font-family="-apple-system,sans-serif" font-size="11" font-weight="900" fill="#1a6b3c">220</text>
+    <text x="260" y="38" font-family="-apple-system,sans-serif" font-size="11" font-weight="900" fill="#cc2222">40</text>
+    <text x="16" y="58" font-family="-apple-system,sans-serif" font-size="9" fill="#999">02</text>
+    <text x="40" y="58" font-family="-apple-system,sans-serif" font-size="9" font-weight="700" fill="#333">120 &#9827;</text>
+    <rect x="128" y="47" width="46" height="14" rx="4" fill="#5c1a1a"/>
+    <text x="151" y="58" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" font-weight="700" fill="#ff8080">CHUTE</text>
+    <text x="210" y="58" font-family="-apple-system,sans-serif" font-size="11" font-weight="900" fill="#cc2222">0</text>
+    <text x="260" y="58" font-family="-apple-system,sans-serif" font-size="11" font-weight="900" fill="#1a6b3c">280</text>
+    <line x1="12" y1="66" x2="308" y2="66" stroke="#ddd" stroke-width="1"/>
+    <text x="40" y="80" font-family="-apple-system,sans-serif" font-size="9" font-weight="800" fill="#333">Total manche</text>
+    <text x="210" y="80" font-family="-apple-system,sans-serif" font-size="13" font-weight="900" fill="#1a5295">220</text>
+    <text x="260" y="80" font-family="-apple-system,sans-serif" font-size="13" font-weight="900" fill="#1a5295">320</text>
+    <rect x="12" y="90" width="78" height="16" rx="5" fill="#e8e4dc" stroke="#ccc"/>
+    <text x="51" y="101" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="#555">&#128203; Copier</text>
+    <rect x="100" y="90" width="78" height="16" rx="5" fill="#e8e4dc" stroke="#ccc"/>
+    <text x="139" y="101" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="#555">&#128228; Texte</text>
+    <rect x="188" y="90" width="120" height="16" rx="5" fill="#c8960a"/>
+    <text x="248" y="101" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" font-weight="700" fill="#fff">&#128248; Partager image</text>
+  </svg>`;
+
+  el.innerHTML = `
+    <div style="text-align:center;padding:8px 0 20px;">
+      <div style="font-size:40px;margin-bottom:8px;">&#127183;</div>
+      <div style="font-size:20px;font-weight:900;color:var(--text-light);margin-bottom:6px;">Belote Contree</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;">
+        Application de comptage des scores<br>
+        <strong style="color:rgba(255,255,255,0.7);">Optimisee iPhone &amp; iPad</strong><br>
+        Portrait et Paysage &bull; Reglement de Cannes
+      </div>
+    </div>
+
+    ${card('1&#65039;&#8419;', 'Configurer les joueurs',
+      step(1, 'Appuyez sur <strong>&#9881;&#65039;</strong> en haut a gauche pour ouvrir les Reglages.') +
+      step(2, 'Dans la section <strong>Joueurs</strong>, ajoutez les prenoms de vos joueurs habituels. La liste est memorisee entre les parties.') +
+      step(3, 'Fermez les Reglages, puis sur la table, selectionnez un joueur pour chaque position : <strong>Nord, Sud, Est, Ouest</strong>.') +
+      '<div style="margin-top:8px;padding:8px 12px;background:rgba(200,150,10,0.1);border-left:3px solid #c8960a;border-radius:0 8px 8px 0;font-size:13px;color:var(--text2);">Nord &amp; Sud jouent ensemble &bull; Est &amp; Ouest jouent ensemble</div>',
+      svgSetup
+    )}
+
+    ${card('2&#65039;&#8419;', 'Demarrer la partie',
+      step(1, 'Une fois les 4 joueurs places, appuyez sur <strong>Commencer la partie</strong>.') +
+      step(2, 'Le donneur du premier tour est tire au sort automatiquement. A chaque manche, le donneur tourne dans le sens inverse des aiguilles.') +
+      '<div style="margin-top:8px;padding:8px 12px;background:rgba(61,139,61,0.1);border-left:3px solid #2e6b28;border-radius:0 8px 8px 0;font-size:13px;color:var(--text2);">La partie se joue en <strong>2001 points</strong>. La premiere equipe a les atteindre gagne !</div>'
+    )}
+
+    ${card('3&#65039;&#8419;', 'Saisir le contrat', '', svgContrat)}
+    <div style="background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;margin-top:-10px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
+      <div style="font-size:14px;color:var(--text2);line-height:1.7;">
+        ${step(1, 'Appuyez sur <strong>Contrat</strong> dans la barre du bas.')}
+        ${step(2, 'Selectionnez l\'equipe preneuse en haut.')}
+        ${step(3, 'Choisissez la <strong>hauteur</strong> (80 a Capot) et la <strong>couleur</strong>.')}
+        ${step(4, 'Activez <strong>Contre x2</strong> ou <strong>Surcontre x3</strong> si applicable.')}
+        ${step(5, 'Appuyez sur <strong>Confirmer le contrat</strong>.')}
+        <div style="margin-top:8px;padding:8px 12px;background:rgba(200,150,10,0.1);border-left:3px solid #c8960a;border-radius:0 8px 8px 0;font-size:13px;color:var(--text2);">Appuyez sur la <strong>carte clignotante</strong> au centre de la table pour agrandir le contrat pendant le jeu !</div>
+      </div>
+    </div>
+
+    ${card('4&#65039;&#8419;', 'Suivre la partie en cours', '', svgTable)}
+    <div style="background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;margin-top:-10px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
+      <div style="font-size:14px;color:var(--text2);line-height:1.7;">
+        La page <strong>Table</strong> affiche en permanence :<br><br>
+        &bull; La <strong>carte clignotante</strong> avec le contrat (valeur + couleur + equipe preneuse)<br>
+        &bull; Le <strong>jeton D</strong> sur le donneur de la manche<br>
+        &bull; Les scores cumules des deux equipes<br><br>
+        Appuyez sur la carte pour la vue agrandie avec le contrat en grand.
+      </div>
+    </div>
+
+    ${card('5&#65039;&#8419;', 'Saisir le score', '', svgScore)}
+    <div style="background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;margin-top:-10px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
+      <div style="font-size:14px;color:var(--text2);line-height:1.7;">
+        ${step(1, 'Appuyez sur <strong>Resultat</strong> dans la barre du bas.')}
+        ${step(2, 'Entrez les <strong>points de plis</strong> de chaque equipe (total = 162 pts).')}
+        ${step(3, 'Cochez <strong>Belote</strong> si annoncee (+20 pts, non doubles).')}
+        ${step(4, 'Appuyez sur <strong>Calculer</strong> — le resultat FAIT ou CHUTE est calcule automatiquement.')}
+        ${step(5, 'Validez pour passer a la manche suivante.')}
+      </div>
+    </div>
+
+    ${card('6&#65039;&#8419;', 'Historique, Stats &amp; Score', '', svgHistorique)}
+    <div style="background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;margin-top:-10px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
+      <div style="font-size:14px;color:var(--text2);line-height:1.7;">
+        <strong>Historique</strong> — toutes les manches avec modification et suppression possibles.<br><br>
+        <strong>Stats</strong> — statistiques detaillees par equipe et par couleur.<br><br>
+        <strong>Score</strong> — feuille partageable en 3 formats : texte copie, partage iMessage/WhatsApp, ou <strong>image a partager</strong> directement.
+      </div>
+    </div>
+
+    ${card('&#9881;&#65039;', 'Reglages',
+      step(1, 'Appuyez sur <strong>&#9881;&#65039;</strong> en haut a gauche de la page de configuration.') +
+      step(2, '<strong>Joueurs</strong> — gerez votre liste de joueurs habituels.') +
+      step(3, '<strong>Theme</strong> — choisissez la couleur du tapis : Vert, Bleu ou Rouge.') +
+      step(4, '<strong>Aide a la marque</strong> — tableau complet des scores selon le reglement de Cannes.') +
+      step(5, '<strong>Ce guide</strong> — accessible a tout moment depuis les reglages.')
+    )}
+
+    <div style="background:rgba(200,150,10,0.12);border:1px solid rgba(200,150,10,0.3);border-radius:14px;padding:16px;margin-bottom:14px;text-align:center;">
+      <div style="font-size:22px;margin-bottom:6px;">&#128242;</div>
+      <div style="font-size:14px;font-weight:800;color:var(--text-light);margin-bottom:4px;">Optimisee iPhone &amp; iPad</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;">
+        Fonctionne en mode <strong style="color:rgba(255,255,255,0.8);">Portrait</strong> et <strong style="color:rgba(255,255,255,0.8);">Paysage</strong><br>
+        Ajoutez l\'application a votre ecran d\'accueil pour une experience plein ecran
+      </div>
+    </div>
+  `;
+}
+
+
+function openSettings() {
+  renderSettingsPlayers();
+  try {
+    const cur = localStorage.getItem('bct_theme') || 'green';
+    ['green','blue','red'].forEach(k => {
+      const btn = eid('theme-btn-'+k);
+      if(btn) btn.style.borderColor = k===cur ? '#c8960a' : 'transparent';
+    });
+  } catch(e) {}
+  eid('settings-modal').style.display = 'flex';
+}
+
+function closeSettings() {
+  eid('settings-modal').style.display = 'none';
+}
+
+function setTheme(name) {
+  applyTheme(name);
+  // Feedback
+  const names = {green:'Vert 🌿', blue:'Bleu 🌊', red:'Rouge 🔴'};
+  showToast('Thème ' + (names[name]||name) + ' appliqué');
+}
+
+function togglePlayerAccordion() {
+  const content = eid('player-accordion-content');
+  const arrow = eid('player-accordion-arrow');
+  const isOpen = content.style.display !== 'none';
+  content.style.display = isOpen ? 'none' : 'block';
+  arrow.textContent = isOpen ? '▼' : '▲';
+  if(!isOpen) renderSettingsPlayers();
+}
+
+function renderSettingsPlayers() {
+  const label = eid('player-accordion-label');
+  const n = S.players.length;
+  if(label) label.textContent = 'Liste des joueurs (' + n + ')';
+
+  const list = eid('settings-players-list');
+  if(!list) return;
+  const players = [...S.players].sort((a,b) => a.localeCompare(b,'fr'));
+  if(!players.length) {
+    list.innerHTML = '<div style="padding:12px 14px;font-size:13px;color:var(--text2);">Aucun joueur — ajoutez-en ci-dessus</div>';
+    return;
+  }
+  list.innerHTML = players.map(function(p, i) {
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:' + (i<players.length-1?'1px solid rgba(0,0,0,0.06)':'none') + ';">' +
+      '<span style="font-size:14px;font-weight:600;color:var(--text);">&#128100; ' + p + '</span>' +
+      '<button onclick="removePlayerFromSettings(&quot;' + p + '&quot;)" style="background:rgba(200,30,30,0.08);border:1px solid rgba(200,30,30,0.2);border-radius:8px;padding:4px 10px;font-size:12px;color:#cc1f1f;cursor:pointer;font-family:inherit;">Retirer</button>' +
+      '</div>';
+  }).join('');
+}
+
+function addPlayerFromSettings() {
+  const inp = eid('settings-player-inp');
+  const name = (inp.value||'').trim();
+  if(!name) return;
+  if(S.players.includes(name)) { showToast('Joueur déjà dans la liste'); return; }
+  S.players.push(name);
+  S.players.sort((a,b) => a.localeCompare(b,'fr'));
+  savePlayers();
+  inp.value = '';
+  renderSettingsPlayers();
+  refreshSelects();
+}
+
+function removePlayerFromSettings(name) {
+  S.players = S.players.filter(p => p !== name);
+  savePlayers();
+  renderSettingsPlayers();
+  refreshSelects();
 }
 
 setTimeout(() => {
