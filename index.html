@@ -1066,6 +1066,8 @@
     #ej-action-grid .btn { font-size: 16px !important; padding: 18px 8px !important; }
     #ej-score-wrap { max-width: none !important; margin: 0 !important; }
 
+    /* Selects EST/OUEST : positionnés dynamiquement par JS sur PC */
+
     /* ── PAGE SETUP ── */
     #screen-setup .body {
       display: grid !important;
@@ -1177,7 +1179,7 @@
         </div>
 
         <!-- Select OUEST -->
-        <div style="position:absolute;top:50%;left:8%;transform:translateY(-50%);width:22%;max-width:130px;display:flex;flex-direction:column;align-items:center;gap:4px;" class="setup-sel-wrap setup-sel-eo">
+        <div id="setup-wrap-ouest" style="position:absolute;top:50%;left:8%;transform:translateY(-50%);width:22%;max-width:130px;display:flex;flex-direction:column;align-items:center;gap:4px;" class="setup-sel-wrap setup-sel-eo">
           <select id="sel-ouest" onchange="refreshTeamPreview()" class="setup-sel" style="width:100%;padding:8px 4px;font-size:13px;font-weight:700;border-radius:12px;border:2px solid #1a5295;background:#0e1e3e;color:#fff;text-align:center;-webkit-appearance:none;appearance:none;cursor:pointer;text-align-last:center;">
             <option value="">♦ Joueur…</option>
           </select>
@@ -1185,7 +1187,7 @@
         </div>
 
         <!-- Select EST -->
-        <div style="position:absolute;top:50%;right:8%;transform:translateY(-50%);width:22%;max-width:130px;display:flex;flex-direction:column;align-items:center;gap:4px;" class="setup-sel-wrap setup-sel-eo">
+        <div id="setup-wrap-est" style="position:absolute;top:50%;right:8%;transform:translateY(-50%);width:22%;max-width:130px;display:flex;flex-direction:column;align-items:center;gap:4px;" class="setup-sel-wrap setup-sel-eo">
           <select id="sel-est" onchange="refreshTeamPreview()" class="setup-sel" style="width:100%;padding:8px 4px;font-size:13px;font-weight:700;border-radius:12px;border:2px solid #1a5295;background:#0e1e3e;color:#fff;text-align:center;-webkit-appearance:none;appearance:none;cursor:pointer;text-align-last:center;">
             <option value="">♥ Joueur…</option>
           </select>
@@ -1205,7 +1207,7 @@
       <div id="settings-modal" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:flex-start;overflow-y:auto;padding:16px;">
         <div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:440px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-            <div style="font-size:17px;font-weight:800;color:var(--text);">⚙️ Réglages <span style="font-size:10px;font-weight:400;color:var(--text2);opacity:0.6;">v20260510_2120</span></div>
+            <div style="font-size:17px;font-weight:800;color:var(--text);">⚙️ Réglages <span style="font-size:10px;font-weight:400;color:var(--text2);opacity:0.6;">v20260510_2125</span></div>
             <button onclick="closeSettings()" style="background:rgba(0,0,0,0.08);border:none;border-radius:99px;width:34px;height:34px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
           </div>
 
@@ -4194,6 +4196,31 @@ refreshTeamPreview();
 checkAutoSave();
 
 // Fix iPad paysage : taille calculée dynamiquement depuis le DOM réel
+function fixEastWestPC() {
+  if(window.innerWidth < 1025) return;
+  const wrap = eid('setup-table-wrap');
+  const svg = wrap ? wrap.querySelector('svg') : null;
+  if(!svg) return;
+  const svgRect = svg.getBoundingClientRect();
+  const wrapRect = wrap.getBoundingClientRect();
+  // Offset de la SVG dans le wrapper
+  const svgOffsetLeft = svgRect.left - wrapRect.left;
+  const svgOffsetRight = wrapRect.right - svgRect.right;
+  const svgWidth = svgRect.width;
+  // Positionner EST et OUEST à 8% de la largeur SVG depuis les bords de la SVG
+  const margin = svgWidth * 0.06;
+  const ouest = eid('setup-wrap-ouest');
+  const est = eid('setup-wrap-est');
+  if(ouest) {
+    ouest.style.left = (svgOffsetLeft + margin) + 'px';
+    ouest.style.right = 'auto';
+  }
+  if(est) {
+    est.style.right = (svgOffsetRight + margin) + 'px';
+    est.style.left = 'auto';
+  }
+}
+
 function fixSetupTableSize() {
   const wrap = eid('setup-table-wrap');
   if (!wrap) return;
@@ -4222,9 +4249,9 @@ function fixSetupTableSize() {
     svg.style.cssText = 'width:' + size + 'px;height:' + size + 'px;display:block;border-radius:16px;';
   }
 }
-window.addEventListener('load', fixSetupTableSize);
-window.addEventListener('resize', fixSetupTableSize);
-requestAnimationFrame(() => requestAnimationFrame(fixSetupTableSize));
+window.addEventListener('load', () => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); });
+window.addEventListener('resize', () => { fixSetupTableSize(); fixEastWestPC(); });
+requestAnimationFrame(() => requestAnimationFrame(() => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); }));
 loadTheme();
 
 // Splash screen — disparaît après 1.5s
