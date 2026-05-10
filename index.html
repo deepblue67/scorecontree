@@ -1149,7 +1149,7 @@
   <div id="screen-setup" class="screen active">
     <div class="header" style="padding:12px 16px;justify-content:center;position:relative;">
       <!-- Icône groupe joueurs haut-gauche — clignotant -->
-      <button onclick="openSettings()" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Réglages">⚙️</button>
+      <button onclick="showSettingsScreen()" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Réglages">⚙️</button>
       <div style="text-align:center;">
         <h1>Belote Contrée</h1>
         <div class="sub">Configuration de la partie</div>
@@ -1226,97 +1226,7 @@
 
       <!-- Modale liste des joueurs -->
       <!-- ══ MODAL RÉGLAGES ══ -->
-      <div id="settings-modal" style="display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:flex-start;overflow-y:auto;padding:16px;">
-        <div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:440px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-            <div style="font-size:17px;font-weight:800;color:var(--text);">⚙️ Réglages <span style="font-size:10px;font-weight:400;color:var(--text2);opacity:0.6;">v20260510_2200</span></div>
-            <button onclick="closeSettings()" style="background:rgba(0,0,0,0.08);border:none;border-radius:99px;width:34px;height:34px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
-          </div>
 
-          <!-- Section Joueurs -->
-          <div style="margin-bottom:20px;">
-            <!-- En-tête accordéon -->
-            <button onclick="togglePlayerAccordion()" id="player-accordion-btn" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:10px 14px;cursor:pointer;font-family:inherit;margin-bottom:0;">
-              <div style="display:flex;align-items:center;gap:8px;">
-                <span style="font-size:14px;">👥</span>
-                <span id="player-accordion-label" style="font-size:14px;font-weight:700;color:var(--text);">Liste des joueurs</span>
-              </div>
-              <span id="player-accordion-arrow" style="font-size:12px;color:var(--text2);">▼</span>
-            </button>
-            <!-- Contenu dépliable -->
-            <div id="player-accordion-content" style="display:none;margin-top:8px;">
-              <div style="display:flex;gap:8px;margin-bottom:8px;">
-                <input id="settings-player-inp" class="inp" type="text" placeholder="Prénom du joueur" maxlength="18" onkeydown="if(event.key==='Enter')addPlayerFromSettings()" style="flex:1;">
-                <button class="btn btn-green" onclick="addPlayerFromSettings()">Ajouter</button>
-              </div>
-              <div id="settings-players-list" style="max-height:260px;overflow-y:auto;border:1px solid rgba(0,0,0,0.08);border-radius:10px;"></div>
-            </div>
-          </div>
-
-          <div style="height:1px;background:rgba(0,0,0,0.1);margin-bottom:20px;"></div>
-
-          <!-- Section Thèmes -->
-          <div style="margin-bottom:20px;">
-            <div style="font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">🎨 Thème du tapis</div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
-              <button onclick="setTheme('green')" id="theme-btn-green" style="border-radius:14px;border:3px solid transparent;padding:0;overflow:hidden;cursor:pointer;aspect-ratio:1;">
-                <div style="background:linear-gradient(135deg,#1a3318,#2e6b28);width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px;">
-                  <span style="font-size:22px;">♠</span>
-                  <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.8);">Vert</span>
-                </div>
-              </button>
-              <button onclick="setTheme('blue')" id="theme-btn-blue" style="border-radius:14px;border:3px solid transparent;padding:0;overflow:hidden;cursor:pointer;aspect-ratio:1;">
-                <div style="background:linear-gradient(135deg,#0a1a3a,#1a3a7a);width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px;">
-                  <span style="font-size:22px;">♠</span>
-                  <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.8);">Bleu</span>
-                </div>
-              </button>
-              <button onclick="setTheme('red')" id="theme-btn-red" style="border-radius:14px;border:3px solid transparent;padding:0;overflow:hidden;cursor:pointer;aspect-ratio:1;">
-                <div style="background:linear-gradient(135deg,#2a0a0a,#6b1a1a);width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px;">
-                  <span style="font-size:22px;">♠</span>
-                  <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.8);">Rouge</span>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <div style="height:1px;background:rgba(0,0,0,0.1);margin-bottom:20px;"></div>
-
-          <!-- Section Aide à la marque -->
-          <div style="margin-bottom:16px;">
-            <div style="font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">📜 Aide à la marque</div>
-            <button onclick="closeSettings();showMarqueModal();" class="btn btn-outline-dark btn-full" style="font-size:14px;padding:12px;">
-              📜 Consulter l'aide à la marque
-            </button>
-          </div>
-
-          <div style="height:1px;background:rgba(0,0,0,0.1);margin-bottom:16px;"></div>
-
-          <!-- Section Synchronisation -->
-          <div style="margin-bottom:16px;">
-            <div style="font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">🔄 Synchronisation entre appareils</div>
-            <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.5;">Transférez joueurs, historique et réglages vers un autre iPhone ou iPad.</div>
-            <div style="display:flex;gap:8px;">
-              <button onclick="showSyncExport()" class="btn btn-outline-dark btn-full" style="font-size:13px;padding:11px;flex:1;">
-                📤 Exporter
-              </button>
-              <button onclick="showSyncImport()" class="btn btn-outline-dark btn-full" style="font-size:13px;padding:11px;flex:1;">
-                📥 Importer
-              </button>
-            </div>
-          </div>
-
-          <div style="height:1px;background:rgba(0,0,0,0.1);margin-bottom:16px;"></div>
-
-          <!-- Section Comment utiliser -->
-          <div style="margin-bottom:8px;">
-            <div style="font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">❓ Comment utiliser l'application</div>
-            <button onclick="closeSettings();showHelpScreen();" class="btn btn-outline-dark btn-full" style="font-size:14px;padding:12px;">
-              ❓ Voir le guide d'utilisation
-            </button>
-          </div>
-        </div>
-      </div>
 
       <div id="players-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:flex-start;justify-content:center;padding:110px 16px 70px;overflow-y:auto;">
         <div style="background:var(--card);border-radius:var(--radius);padding:20px;width:100%;max-width:440px;overflow-y:auto;">
@@ -1675,6 +1585,101 @@
   </div>
 
   <!-- ════════════════════════════════ SCREEN: WINNER ════════════════════════════════ -->
+  <!-- ════════ SCREEN: RÉGLAGES ════════ -->
+  <div id="screen-settings" class="screen" style="background:var(--bg);">
+    <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
+      <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
+      <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260510_2210</div>
+    </div>
+    <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
+      <div style="max-width:500px;margin:0 auto;">
+
+        <!-- ── Joueurs ── -->
+        <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">👥 Liste des joueurs</div>
+        <div style="background:var(--card);border-radius:16px;padding:16px;margin-bottom:20px;">
+          <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <input id="settings-player-inp" class="inp" type="text" placeholder="Ajouter un joueur..." maxlength="18" onkeydown="if(event.key==='Enter')addPlayerFromSettings()" style="flex:1;margin-bottom:0;">
+            <button class="btn btn-green" onclick="addPlayerFromSettings()" style="flex-shrink:0;padding:12px 16px;">Ajouter</button>
+          </div>
+          <div id="settings-players-list" style="border-radius:10px;border:1px solid rgba(0,0,0,0.08);overflow:hidden;"></div>
+          <div id="player-accordion-label" style="font-size:12px;color:var(--text2);margin-top:8px;text-align:right;"></div>
+        </div>
+
+        <!-- ── Thème ── -->
+        <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">🎨 Thème du tapis</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
+          <button onclick="setTheme('green')" id="theme-btn-green" style="border-radius:14px;border:3px solid #c8960a;padding:0;overflow:hidden;cursor:pointer;aspect-ratio:1;">
+            <div style="background:linear-gradient(135deg,#1a3318,#2e6b28);width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:12px;">
+              <span style="font-size:28px;">♠</span>
+              <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);">Vert</span>
+            </div>
+          </button>
+          <button onclick="setTheme('blue')" id="theme-btn-blue" style="border-radius:14px;border:3px solid transparent;padding:0;overflow:hidden;cursor:pointer;aspect-ratio:1;">
+            <div style="background:linear-gradient(135deg,#0a1a3a,#1a3a7a);width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:12px;">
+              <span style="font-size:28px;">♠</span>
+              <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);">Bleu</span>
+            </div>
+          </button>
+          <button onclick="setTheme('red')" id="theme-btn-red" style="border-radius:14px;border:3px solid transparent;padding:0;overflow:hidden;cursor:pointer;aspect-ratio:1;">
+            <div style="background:linear-gradient(135deg,#2a0a0a,#6b1a1a);width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:12px;">
+              <span style="font-size:28px;">♠</span>
+              <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);">Rouge</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- ── Aide à la marque ── -->
+        <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">📜 Aide à la marque</div>
+        <div style="background:var(--card);border-radius:16px;overflow:hidden;margin-bottom:20px;">
+          <button onclick="showMarqueModal()" style="width:100%;display:flex;align-items:center;gap:14px;padding:16px;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left;">
+            <span style="font-size:24px;">📜</span>
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:700;color:var(--text);">Consulter l'aide à la marque</div>
+              <div style="font-size:12px;color:var(--text2);">Tableau complet des scores — Règlement de Cannes</div>
+            </div>
+            <span style="color:var(--text2);font-size:18px;">›</span>
+          </button>
+        </div>
+
+        <!-- ── Synchronisation ── -->
+        <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">🔄 Synchronisation entre appareils</div>
+        <div style="background:var(--card);border-radius:16px;overflow:hidden;margin-bottom:20px;">
+          <button onclick="showSyncExport()" style="width:100%;display:flex;align-items:center;gap:14px;padding:16px;background:none;border:none;border-bottom:1px solid rgba(0,0,0,0.06);cursor:pointer;font-family:inherit;text-align:left;">
+            <span style="font-size:24px;">📤</span>
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:700;color:var(--text);">Exporter mes données</div>
+              <div style="font-size:12px;color:var(--text2);">QR Code ou code texte à envoyer</div>
+            </div>
+            <span style="color:var(--text2);font-size:18px;">›</span>
+          </button>
+          <button onclick="showSyncImport()" style="width:100%;display:flex;align-items:center;gap:14px;padding:16px;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left;">
+            <span style="font-size:24px;">📥</span>
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:700;color:var(--text);">Importer des données</div>
+              <div style="font-size:12px;color:var(--text2);">Coller le code reçu d'un autre appareil</div>
+            </div>
+            <span style="color:var(--text2);font-size:18px;">›</span>
+          </button>
+        </div>
+
+        <!-- ── Guide ── -->
+        <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">❓ Guide d'utilisation</div>
+        <div style="background:var(--card);border-radius:16px;overflow:hidden;margin-bottom:20px;">
+          <button onclick="showHelpScreen()" style="width:100%;display:flex;align-items:center;gap:14px;padding:16px;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left;">
+            <span style="font-size:24px;">❓</span>
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:700;color:var(--text);">Comment utiliser l'application</div>
+              <div style="font-size:12px;color:var(--text2);">Guide illustré pas à pas</div>
+            </div>
+            <span style="color:var(--text2);font-size:18px;">›</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- ════════ SCREEN: AIDE ════════ -->
   <div id="screen-help" class="screen" style="background:var(--bg);">
     <div class="header" style="position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px;padding:12px 16px;">
@@ -4869,12 +4874,16 @@ function showHelpScreen() {
   renderHelpContent();
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   eid('screen-help').classList.add('active');
-  eid('screen-help').querySelector('[id="help-content"]').scrollTop = 0;
+  const hc = eid('help-content');
+  if(hc) hc.scrollTop = 0;
 }
 
 function hideHelpScreen() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  eid('screen-setup').classList.add('active');
+  // Retour vers réglages ou setup selon d'où on vient
+  const prev = eid('screen-settings');
+  if(prev) eid('screen-settings').classList.add('active');
+  else eid('screen-setup').classList.add('active');
 }
 
 function renderHelpContent() {
@@ -4882,217 +4891,99 @@ function renderHelpContent() {
   if(!el) return;
 
   function step(n, txt) {
-    return `<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">
-      <div style="background:var(--green);color:#fff;font-size:12px;font-weight:900;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">${n}</div>
-      <div style="font-size:14px;color:var(--text2);line-height:1.5;">${txt}</div>
-    </div>`;
+    return '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">' +
+      '<div style="background:var(--green);color:#fff;font-size:12px;font-weight:900;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">' + n + '</div>' +
+      '<div style="font-size:14px;color:var(--text2);line-height:1.6;">' + txt + '</div></div>';
   }
 
-  function card(icon, title, body, svgHtml) {
-    svgHtml = svgHtml || '';
-    body = body || '';
-    return `<div style="background:var(--card);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:${svgHtml||body?'12px':'0'};">
-        <div style="font-size:28px;line-height:1;">${icon}</div>
-        <div style="font-size:16px;font-weight:800;color:var(--text);">${title}</div>
-      </div>
-      ${svgHtml ? `<div style="margin-bottom:12px;border-radius:12px;overflow:hidden;">${svgHtml}</div>` : ''}
-      ${body ? `<div style="font-size:14px;color:var(--text2);line-height:1.7;">${body}</div>` : ''}
-    </div>`;
+  function section(icon, title, body) {
+    return '<div style="background:var(--card);border-radius:16px;padding:18px;margin-bottom:14px;">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">' +
+      '<span style="font-size:26px;">' + icon + '</span>' +
+      '<span style="font-size:16px;font-weight:800;color:var(--text);">' + title + '</span></div>' +
+      body + '</div>';
   }
 
-  const svgSetup = `<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:12px;">
-    <rect width="320" height="180" fill="#1a3318"/>
-    <rect x="40" y="10" width="240" height="160" rx="12" fill="#2a6b26" stroke="#c8a84a" stroke-width="2"/>
-    <rect x="110" y="16" width="100" height="32" rx="8" fill="#1a5c3a"/>
-    <text x="160" y="30" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9" font-weight="800" fill="#fff">Christophe</text>
-    <text x="160" y="41" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">NORD</text>
-    <rect x="110" y="132" width="100" height="32" rx="8" fill="#1a5c3a"/>
-    <text x="160" y="146" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9" font-weight="800" fill="#fff">Mika</text>
-    <text x="160" y="157" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">SUD</text>
-    <rect x="46" y="79" width="80" height="32" rx="8" fill="#1a3580"/>
-    <text x="86" y="93" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9" font-weight="800" fill="#fff">Rakhel</text>
-    <text x="86" y="104" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">OUEST</text>
-    <rect x="194" y="79" width="80" height="32" rx="8" fill="#1a3580"/>
-    <text x="234" y="93" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9" font-weight="800" fill="#fff">Daniel</text>
-    <text x="234" y="104" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">EST</text>
-    <text x="160" y="172" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="rgba(200,168,74,0.8)">Christophe &amp; Mika vs Daniel &amp; Rakhel</text>
-  </svg>`;
+  function tip(txt) {
+    return '<div style="margin-top:10px;padding:10px 12px;background:rgba(200,150,10,0.1);border-left:3px solid #c8960a;border-radius:0 8px 8px 0;font-size:13px;color:var(--text2);line-height:1.5;">' + txt + '</div>';
+  }
 
-  const svgContrat = `<svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:12px;">
-    <rect width="320" height="140" fill="#f0ede6" rx="12"/>
-    <text x="16" y="28" font-family="-apple-system,sans-serif" font-size="10" font-weight="800" fill="#5a5650" letter-spacing="1">CONTRAT</text>
-    <rect x="12" y="36" width="140" height="30" rx="8" fill="#2e6b28"/>
-    <text x="82" y="55" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" font-weight="800" fill="#fff">Christophe &amp; Mika</text>
-    <rect x="162" y="36" width="146" height="30" rx="8" fill="rgba(0,0,0,0.07)"/>
-    <text x="235" y="55" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#5a5650">Daniel &amp; Rakhel</text>
-    <rect x="12" y="76" width="40" height="24" rx="6" fill="rgba(0,0,0,0.07)"/>
-    <text x="32" y="92" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#333">80</text>
-    <rect x="58" y="76" width="40" height="24" rx="6" fill="rgba(0,0,0,0.07)"/>
-    <text x="78" y="92" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#333">90</text>
-    <rect x="104" y="76" width="40" height="24" rx="6" fill="#2e6b28"/>
-    <text x="124" y="92" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" font-weight="800" fill="#fff">100</text>
-    <rect x="150" y="76" width="40" height="24" rx="6" fill="rgba(0,0,0,0.07)"/>
-    <text x="170" y="92" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#333">110</text>
-    <rect x="12" y="108" width="60" height="24" rx="6" fill="rgba(200,0,0,0.12)" stroke="rgba(200,0,0,0.5)" stroke-width="1.5"/>
-    <text x="42" y="124" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" fill="#cc1f1f">&#9829;</text>
-    <rect x="80" y="108" width="60" height="24" rx="6" fill="rgba(0,0,0,0.07)"/>
-    <text x="110" y="124" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" fill="#cc1f1f">&#9830;</text>
-    <rect x="148" y="108" width="60" height="24" rx="6" fill="rgba(0,0,0,0.07)"/>
-    <text x="178" y="124" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" fill="#111">&#9827;</text>
-    <rect x="216" y="108" width="60" height="24" rx="6" fill="rgba(0,0,0,0.07)"/>
-    <text x="246" y="124" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" fill="#111">&#9824;</text>
-  </svg>`;
+  function note(txt) {
+    return '<div style="margin-top:10px;padding:10px 12px;background:rgba(61,139,61,0.1);border-left:3px solid var(--green);border-radius:0 8px 8px 0;font-size:13px;color:var(--text2);line-height:1.5;">' + txt + '</div>';
+  }
 
-  const svgTable = `<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:12px;">
-    <rect width="320" height="180" fill="#1a3318"/>
-    <rect x="40" y="10" width="240" height="160" rx="12" fill="#2a6b26" stroke="#c8a84a" stroke-width="2"/>
-    <rect x="122" y="48" width="76" height="106" rx="10" fill="#f5f0e8" stroke="#c8a84a" stroke-width="2"/>
-    <text x="160" y="75" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" fill="#cc1f1f">&#9829;</text>
-    <text x="160" y="105" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="24" font-weight="900" fill="#cc1f1f">100</text>
-    <text x="160" y="122" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="#5a4a00">Chr &amp; Mika</text>
-    <circle cx="160" cy="101" r="48" fill="none" stroke="rgba(200,168,74,0.35)" stroke-width="2"/>
-    <text x="160" y="22" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">Appuyer sur la carte pour agrandir</text>
-    <rect x="44" y="150" width="108" height="16" rx="4" fill="rgba(0,0,0,0.3)"/>
-    <text x="98" y="161" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="#7ddd82">CHR &amp; MIKA  320</text>
-    <rect x="168" y="150" width="108" height="16" rx="4" fill="rgba(0,0,0,0.3)"/>
-    <text x="222" y="161" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="#fff">DAN &amp; RAK  210</text>
-  </svg>`;
+  el.innerHTML =
+    '<div style="text-align:center;padding:8px 0 20px;">' +
+      '<div style="font-size:38px;margin-bottom:8px;">&#127183;</div>' +
+      '<div style="font-size:20px;font-weight:900;color:var(--text-light);margin-bottom:6px;">Belote Contree</div>' +
+      '<div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;">Application de comptage des scores<br>' +
+      '<strong style="color:rgba(255,255,255,0.75);">Optimisee iPhone &bull; iPad &bull; PC</strong><br>' +
+      'Portrait et Paysage &bull; Reglement de Cannes</div>' +
+    '</div>' +
 
-  const svgScore = `<svg viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:12px;">
-    <rect width="320" height="130" fill="#f0ede6" rx="12"/>
-    <text x="16" y="22" font-family="-apple-system,sans-serif" font-size="10" font-weight="800" fill="#5a5650" letter-spacing="1">SAISIE DU SCORE</text>
-    <text x="16" y="46" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" fill="#333">Christophe &amp; Mika</text>
-    <rect x="16" y="52" width="60" height="30" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
-    <text x="46" y="72" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" font-weight="900" fill="#333">130</text>
-    <text x="170" y="46" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" fill="#333">Daniel &amp; Rakhel</text>
-    <rect x="170" y="52" width="60" height="30" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
-    <text x="200" y="72" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="18" font-weight="900" fill="#333">32</text>
-    <rect x="16" y="88" width="14" height="14" rx="3" fill="#2e6b28"/>
-    <text x="23" y="99" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#fff">&#10003;</text>
-    <text x="36" y="99" font-family="-apple-system,sans-serif" font-size="10" fill="#5a5650">Belote (+20 pts)</text>
-    <rect x="16" y="108" width="136" height="18" rx="6" fill="#2e6b28"/>
-    <text x="84" y="120" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9" font-weight="700" fill="#fff">Calculer le resultat</text>
-  </svg>`;
+    section('1&#65039;&#8419;', 'Configurer les joueurs',
+      step(1, 'Appuyez sur <strong>&#9881;&#65039; Reglages</strong> en haut a gauche.') +
+      step(2, 'Ajoutez les prenoms de vos joueurs dans <strong>Liste des joueurs</strong> — ils sont memorises entre les parties.') +
+      step(3, 'Fermez les Reglages, puis sur la table de configuration choisissez un joueur par position : <strong>Nord, Sud, Est, Ouest</strong>.') +
+      note('Nord &amp; Sud jouent ensemble &bull; Est &amp; Ouest jouent ensemble')
+    ) +
 
-  const svgHistorique = `<svg viewBox="0 0 320 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:12px;">
-    <rect width="320" height="110" fill="#f0ede6" rx="12"/>
-    <text x="16" y="18" font-family="-apple-system,sans-serif" font-size="8" fill="#888" font-weight="700">#</text>
-    <text x="40" y="18" font-family="-apple-system,sans-serif" font-size="8" fill="#888" font-weight="700">CONTRAT</text>
-    <text x="128" y="18" font-family="-apple-system,sans-serif" font-size="8" fill="#888" font-weight="700">RESULTAT</text>
-    <text x="210" y="18" font-family="-apple-system,sans-serif" font-size="8" fill="#888" font-weight="700">C&amp;G</text>
-    <text x="260" y="18" font-family="-apple-system,sans-serif" font-size="8" fill="#888" font-weight="700">D&amp;R</text>
-    <line x1="12" y1="22" x2="308" y2="22" stroke="#ddd" stroke-width="1"/>
-    <text x="16" y="38" font-family="-apple-system,sans-serif" font-size="9" fill="#999">01</text>
-    <text x="40" y="38" font-family="-apple-system,sans-serif" font-size="9" font-weight="700" fill="#333">100 &#9829;</text>
-    <rect x="128" y="27" width="36" height="14" rx="4" fill="#1a5c1a"/>
-    <text x="146" y="38" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" font-weight="700" fill="#7ddd82">FAIT</text>
-    <text x="210" y="38" font-family="-apple-system,sans-serif" font-size="11" font-weight="900" fill="#1a6b3c">220</text>
-    <text x="260" y="38" font-family="-apple-system,sans-serif" font-size="11" font-weight="900" fill="#cc2222">40</text>
-    <text x="16" y="58" font-family="-apple-system,sans-serif" font-size="9" fill="#999">02</text>
-    <text x="40" y="58" font-family="-apple-system,sans-serif" font-size="9" font-weight="700" fill="#333">120 &#9827;</text>
-    <rect x="128" y="47" width="46" height="14" rx="4" fill="#5c1a1a"/>
-    <text x="151" y="58" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" font-weight="700" fill="#ff8080">CHUTE</text>
-    <text x="210" y="58" font-family="-apple-system,sans-serif" font-size="11" font-weight="900" fill="#cc2222">0</text>
-    <text x="260" y="58" font-family="-apple-system,sans-serif" font-size="11" font-weight="900" fill="#1a6b3c">280</text>
-    <line x1="12" y1="66" x2="308" y2="66" stroke="#ddd" stroke-width="1"/>
-    <text x="40" y="80" font-family="-apple-system,sans-serif" font-size="9" font-weight="800" fill="#333">Total manche</text>
-    <text x="210" y="80" font-family="-apple-system,sans-serif" font-size="13" font-weight="900" fill="#1a5295">220</text>
-    <text x="260" y="80" font-family="-apple-system,sans-serif" font-size="13" font-weight="900" fill="#1a5295">320</text>
-    <rect x="12" y="90" width="78" height="16" rx="5" fill="#e8e4dc" stroke="#ccc"/>
-    <text x="51" y="101" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="#555">&#128203; Copier</text>
-    <rect x="100" y="90" width="78" height="16" rx="5" fill="#e8e4dc" stroke="#ccc"/>
-    <text x="139" y="101" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" fill="#555">&#128228; Texte</text>
-    <rect x="188" y="90" width="120" height="16" rx="5" fill="#c8960a"/>
-    <text x="248" y="101" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="8" font-weight="700" fill="#fff">&#128248; Partager image</text>
-  </svg>`;
-
-  el.innerHTML = `
-    <div style="text-align:center;padding:8px 0 20px;">
-      <div style="font-size:40px;margin-bottom:8px;">&#127183;</div>
-      <div style="font-size:20px;font-weight:900;color:var(--text-light);margin-bottom:6px;">Belote Contree</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;">
-        Application de comptage des scores<br>
-        <strong style="color:rgba(255,255,255,0.7);">Optimisee iPhone &amp; iPad</strong><br>
-        Portrait et Paysage &bull; Reglement de Cannes
-      </div>
-    </div>
-
-    ${card('1&#65039;&#8419;', 'Configurer les joueurs',
-      step(1, 'Appuyez sur <strong>&#9881;&#65039;</strong> en haut a gauche pour ouvrir les Reglages.') +
-      step(2, 'Dans la section <strong>Joueurs</strong>, ajoutez les prenoms de vos joueurs habituels. La liste est memorisee entre les parties.') +
-      step(3, 'Fermez les Reglages, puis sur la table, selectionnez un joueur pour chaque position : <strong>Nord, Sud, Est, Ouest</strong>.') +
-      '<div style="margin-top:8px;padding:8px 12px;background:rgba(200,150,10,0.1);border-left:3px solid #c8960a;border-radius:0 8px 8px 0;font-size:13px;color:var(--text2);">Nord &amp; Sud jouent ensemble &bull; Est &amp; Ouest jouent ensemble</div>',
-      svgSetup
-    )}
-
-    ${card('2&#65039;&#8419;', 'Demarrer la partie',
+    section('2&#65039;&#8419;', 'Demarrer la partie',
       step(1, 'Une fois les 4 joueurs places, appuyez sur <strong>Commencer la partie</strong>.') +
-      step(2, 'Le donneur du premier tour est tire au sort automatiquement. A chaque manche, le donneur tourne dans le sens inverse des aiguilles.') +
-      '<div style="margin-top:8px;padding:8px 12px;background:rgba(61,139,61,0.1);border-left:3px solid #2e6b28;border-radius:0 8px 8px 0;font-size:13px;color:var(--text2);">La partie se joue en <strong>2001 points</strong>. La premiere equipe a les atteindre gagne !</div>'
-    )}
+      step(2, 'Le donneur est tire au sort. A chaque manche suivante, le donneur change automatiquement.') +
+      note('La partie se joue en <strong>2001 points</strong>.')
+    ) +
 
-    ${card('3&#65039;&#8419;', 'Saisir le contrat', '', svgContrat)}
-    <div style="background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;margin-top:-10px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
-      <div style="font-size:14px;color:var(--text2);line-height:1.7;">
-        ${step(1, 'Appuyez sur <strong>Contrat</strong> dans la barre du bas.')}
-        ${step(2, 'Selectionnez l\'equipe preneuse en haut.')}
-        ${step(3, 'Choisissez la <strong>hauteur</strong> (80 a Capot) et la <strong>couleur</strong>.')}
-        ${step(4, 'Activez <strong>Contre x2</strong> ou <strong>Surcontre x3</strong> si applicable.')}
-        ${step(5, 'Appuyez sur <strong>Confirmer le contrat</strong>.')}
-        <div style="margin-top:8px;padding:8px 12px;background:rgba(200,150,10,0.1);border-left:3px solid #c8960a;border-radius:0 8px 8px 0;font-size:13px;color:var(--text2);">Appuyez sur la <strong>carte clignotante</strong> au centre de la table pour agrandir le contrat pendant le jeu !</div>
-      </div>
-    </div>
+    section('3&#65039;&#8419;', 'Saisir le contrat',
+      step(1, 'Appuyez sur <strong>Contrat</strong> dans la barre du bas.') +
+      step(2, 'Selectionnez l\'equipe preneuse.') +
+      step(3, 'Choisissez la hauteur (80 a Capot) et la couleur (&#9829; &#9830; &#9827; &#9824;).') +
+      step(4, 'Activez <strong>Contre x2</strong> ou <strong>Surcontre x3</strong> si necessaire.') +
+      step(5, 'Appuyez sur <strong>Confirmer le contrat</strong>.') +
+      tip('La carte clignotante au centre de la table affiche le contrat. Appuyez dessus pour l\'agrandir !')
+    ) +
 
-    ${card('4&#65039;&#8419;', 'Suivre la partie en cours', '', svgTable)}
-    <div style="background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;margin-top:-10px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
-      <div style="font-size:14px;color:var(--text2);line-height:1.7;">
-        La page <strong>Table</strong> affiche en permanence :<br><br>
-        &bull; La <strong>carte clignotante</strong> avec le contrat (valeur + couleur + equipe preneuse)<br>
-        &bull; Le <strong>jeton D</strong> sur le donneur de la manche<br>
-        &bull; Les scores cumules des deux equipes<br><br>
-        Appuyez sur la carte pour la vue agrandie avec le contrat en grand.
-      </div>
-    </div>
+    section('4&#65039;&#8419;', 'Saisir le score',
+      step(1, 'Appuyez sur <strong>Resultat</strong> dans la barre du bas.') +
+      step(2, 'Saisissez les points de plis d\'une equipe — l\'autre se calcule automatiquement.') +
+      step(3, 'Si un score se termine par 6, il est arrondi a la dizaine superieure. Utilisez le <strong>toggle 160/170</strong> pour ajuster le total.') +
+      step(4, 'Cochez <strong>Belote</strong> si annoncee (+20 pts).') +
+      step(5, 'Appuyez sur <strong>Calculer</strong> puis <strong>Valider</strong>.') +
+      tip('Sans contrat saisi, le bouton Resultat est grise.')
+    ) +
 
-    ${card('5&#65039;&#8419;', 'Saisir le score', '', svgScore)}
-    <div style="background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;margin-top:-10px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
-      <div style="font-size:14px;color:var(--text2);line-height:1.7;">
-        ${step(1, 'Appuyez sur <strong>Resultat</strong> dans la barre du bas.')}
-        ${step(2, 'Entrez les <strong>points de plis</strong> de chaque equipe (total = 162 pts).')}
-        ${step(3, 'Cochez <strong>Belote</strong> si annoncee (+20 pts, non doubles).')}
-        ${step(4, 'Appuyez sur <strong>Calculer</strong> — le resultat FAIT ou CHUTE est calcule automatiquement.')}
-        ${step(5, 'Validez pour passer a la manche suivante.')}
-      </div>
-    </div>
+    section('5&#65039;&#8419;', 'Onglet Parties — Historique &amp; Score',
+      step(1, 'Appuyez sur <strong>Parties</strong> dans la barre du bas.') +
+      step(2, '<strong>En cours</strong> — feuille de score de la partie en cours avec toutes les manches et les totaux.') +
+      step(3, '<strong>Historique</strong> — detail de chaque manche jouee. Modifier &#9999;&#65039; ou supprimer &#128465; une manche si necessaire.') +
+      tip('Depuis l\'onglet En cours, partagez la feuille en texte ou en image (WhatsApp, iMessage...)')
+    ) +
 
-    ${card('6&#65039;&#8419;', 'Historique, Stats &amp; Score', '', svgHistorique)}
-    <div style="background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;margin-top:-10px;box-shadow:0 2px 12px rgba(0,0,0,0.15);">
-      <div style="font-size:14px;color:var(--text2);line-height:1.7;">
-        <strong>Historique</strong> — toutes les manches avec modification et suppression possibles.<br><br>
-        <strong>Stats</strong> — statistiques detaillees par equipe et par couleur.<br><br>
-        <strong>Score</strong> — feuille partageable en 3 formats : texte copie, partage iMessage/WhatsApp, ou <strong>image a partager</strong> directement.
-      </div>
-    </div>
+    section('6&#65039;&#8419;', 'Onglet Stats',
+      '<div style="font-size:14px;color:var(--text2);line-height:1.7;">' +
+      'Statistiques de la partie en cours et de toutes les parties precedentes : meilleure manche, nombre de chutes, evolution des scores par equipe.' +
+      '</div>'
+    ) +
 
-    ${card('&#9881;&#65039;', 'Reglages',
-      step(1, 'Appuyez sur <strong>&#9881;&#65039;</strong> en haut a gauche de la page de configuration.') +
-      step(2, '<strong>Joueurs</strong> — gerez votre liste de joueurs habituels.') +
-      step(3, '<strong>Theme</strong> — choisissez la couleur du tapis : Vert, Bleu ou Rouge.') +
-      step(4, '<strong>Aide a la marque</strong> — tableau complet des scores selon le reglement de Cannes.') +
-      step(5, '<strong>Ce guide</strong> — accessible a tout moment depuis les reglages.')
-    )}
+    section('&#9881;&#65039;', 'Reglages',
+      step(1, '<strong>Joueurs</strong> — liste persistante de vos joueurs habituels.') +
+      step(2, '<strong>Theme</strong> — choisissez la couleur du tapis : Vert, Bleu ou Rouge.') +
+      step(3, '<strong>Aide a la marque</strong> — tableau complet des scores (reglement de Cannes).') +
+      step(4, '<strong>Synchronisation</strong> — transferez vos donnees vers un autre appareil via QR Code.') +
+      step(5, '<strong>Ce guide</strong> — accessible a tout moment depuis les Reglages.')
+    ) +
 
-    <div style="background:rgba(200,150,10,0.12);border:1px solid rgba(200,150,10,0.3);border-radius:14px;padding:16px;margin-bottom:14px;text-align:center;">
-      <div style="font-size:22px;margin-bottom:6px;">&#128242;</div>
-      <div style="font-size:14px;font-weight:800;color:var(--text-light);margin-bottom:4px;">Optimisee iPhone &amp; iPad</div>
-      <div style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;">
-        Fonctionne en mode <strong style="color:rgba(255,255,255,0.8);">Portrait</strong> et <strong style="color:rgba(255,255,255,0.8);">Paysage</strong><br>
-        Ajoutez l\'application a votre ecran d\'accueil pour une experience plein ecran
-      </div>
-    </div>
-  `;
+    '<div style="background:rgba(200,150,10,0.12);border:1px solid rgba(200,150,10,0.3);border-radius:14px;padding:16px;margin-bottom:14px;text-align:center;">' +
+      '<div style="font-size:22px;margin-bottom:6px;">&#128242;</div>' +
+      '<div style="font-size:14px;font-weight:800;color:var(--text-light);margin-bottom:4px;">Optimisee iPhone &bull; iPad &bull; PC</div>' +
+      '<div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">' +
+      'Portrait et Paysage sur iOS<br>' +
+      'Plein ecran sur ordinateur (Chrome, Safari, Firefox)<br>' +
+      'Ajoutez l\'appli a votre ecran d\'accueil pour l\'experience optimale' +
+      '</div>' +
+    '</div>';
 }
+
 
 
 function showMarqueModal() {
@@ -5288,7 +5179,7 @@ function showSyncImport() {
   modal.style.display = 'flex';
 }
 
-function openSettings() {
+function showSettingsScreen() {
   renderSettingsPlayers();
   try {
     const cur = localStorage.getItem('bct_theme') || 'green';
@@ -5297,16 +5188,17 @@ function openSettings() {
       if(btn) btn.style.borderColor = k===cur ? '#c8960a' : 'transparent';
     });
   } catch(e) {}
-  // Positionner le modal juste sous le header de l'appli
-  const modal = eid('settings-modal');
-  const header = document.querySelector('.header');
-  const headerBottom = header ? header.getBoundingClientRect().bottom : 80;
-  modal.style.top = headerBottom + 'px';
-  modal.style.display = 'flex';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  eid('screen-settings').classList.add('active');
 }
 
-function closeSettings() {
-  eid('settings-modal').style.display = 'none';
+function openSettings() { showSettingsScreen(); }
+
+function closeSettings() { hideSettingsScreen(); }
+
+function hideSettingsScreen() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  eid('screen-setup').classList.add('active');
 }
 
 function setTheme(name) {
@@ -5328,7 +5220,7 @@ function togglePlayerAccordion() {
 function renderSettingsPlayers() {
   const label = eid('player-accordion-label');
   const n = S.players.length;
-  if(label) label.textContent = 'Liste des joueurs (' + n + ')';
+  if(label) label.textContent = n + ' joueur' + (n>1?'s':'') + ' enregistré' + (n>1?'s':'');
 
   const list = eid('settings-players-list');
   if(!list) return;
