@@ -1601,7 +1601,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260510_2225</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260510_2345</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -5324,11 +5324,46 @@ function renderSettingsPlayers() {
     return;
   }
   list.innerHTML = players.map(function(p, i) {
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:' + (i<players.length-1?'1px solid rgba(0,0,0,0.06)':'none') + ';">' +
-      '<span style="font-size:14px;font-weight:600;color:var(--text);">&#128100; ' + p + '</span>' +
-      '<button onclick="removePlayerFromSettings(&quot;' + p + '&quot;)" style="background:rgba(200,30,30,0.08);border:1px solid rgba(200,30,30,0.2);border-radius:8px;padding:4px 10px;font-size:12px;color:#cc1f1f;cursor:pointer;font-family:inherit;">Retirer</button>' +
+    const border = i < players.length-1 ? '1px solid rgba(0,0,0,0.06)' : 'none';
+    const pid = 'player-row-' + i;
+    return '<div id="' + pid + '" style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:' + border + ';">' +
+      '<span style="font-size:16px;">&#128100;</span>' +
+      '<span id="player-name-' + i + '" style="flex:1;font-size:14px;font-weight:600;color:var(--text);">' + p + '</span>' +
+      '<input id="player-inp-' + i + '" type="text" value="' + p + '" maxlength="18" style="display:none;flex:1;border:1.5px solid var(--green);border-radius:8px;padding:5px 8px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;" onkeydown="if(event.key===\'Enter\')confirmRenamePlayer(\'' + p + '\','+ i +');">' +
+      '<button onclick="startRenamePlayer(\'' + p + '\',' + i + ')" id="btn-edit-' + i + '" title="Modifier" style="background:rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:4px 9px;font-size:13px;cursor:pointer;flex-shrink:0;">✏️</button>' +
+      '<button onclick="confirmRenamePlayer(\'' + p + '\',' + i + ')" id="btn-ok-' + i + '" style="display:none;background:var(--green);border:none;border-radius:8px;padding:4px 9px;font-size:13px;cursor:pointer;color:#fff;font-weight:700;flex-shrink:0;">OK</button>' +
+      '<button onclick="removePlayerFromSettings(\'' + p + '\')" title="Supprimer" style="background:rgba(200,30,30,0.08);border:1px solid rgba(200,30,30,0.2);border-radius:8px;padding:4px 9px;font-size:13px;color:#cc1f1f;cursor:pointer;flex-shrink:0;">🗑</button>' +
       '</div>';
   }).join('');
+}
+
+function startRenamePlayer(name, idx) {
+  const nameEl = eid('player-name-' + idx);
+  const inpEl  = eid('player-inp-' + idx);
+  const btnEdit= eid('btn-edit-' + idx);
+  const btnOk  = eid('btn-ok-' + idx);
+  if(!nameEl || !inpEl) return;
+  nameEl.style.display = 'none';
+  inpEl.style.display  = 'block';
+  btnEdit.style.display= 'none';
+  btnOk.style.display  = 'block';
+  inpEl.focus();
+  inpEl.select();
+}
+
+function confirmRenamePlayer(oldName, idx) {
+  const inpEl = eid('player-inp-' + idx);
+  if(!inpEl) return;
+  const newName = inpEl.value.trim();
+  if(!newName) { showToast('Prénom vide'); return; }
+  if(newName === oldName) { renderSettingsPlayers(); return; }
+  if(S.players.includes(newName)) { showToast('Ce prénom existe déjà'); return; }
+  S.players = S.players.map(p => p === oldName ? newName : p);
+  S.players.sort((a,b) => a.localeCompare(b,'fr'));
+  savePlayers();
+  renderSettingsPlayers();
+  refreshSelects();
+  showToast('✅ ' + oldName + ' → ' + newName);
 }
 
 function addPlayerFromSettings() {
