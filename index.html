@@ -1581,7 +1581,7 @@
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <div class="card-title" style="margin-bottom:0;">Aide à la marque</div>
-          <button onclick="showTab('feuille');renderFeuille();" style="background:rgba(0,0,0,0.08);border:1px solid var(--border-light);border-radius:10px;padding:6px 10px;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;">← Feuille de score</button>
+
         </div>
         <div class="info-note" style="margin-bottom:12px;font-size:12px;">
           Total cartes = 162 pts (arrondi à 6). Chute = annonce × mult + 160. Belote = +20 pts (non doublé/triplé). Partie = 2001 pts.
@@ -1596,12 +1596,22 @@
   </div>
 
   <!-- ════════════════════════════════ SCREEN: WINNER ════════════════════════════════ -->
+  <!-- ════════ SCREEN: AIDE À LA MARQUE ════════ -->
+  <div id="screen-marque" class="screen" style="background:var(--bg);">
+    <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;">
+      <button onclick="hideMarqueScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
+      <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">📜 Aide à la marque</h1>
+      <div style="width:80px;"></div>
+    </div>
+    <div style="overflow-y:auto;flex:1;padding:0 0 80px;" id="screen-marque-content"></div>
+  </div>
+
   <!-- ════════ SCREEN: RÉGLAGES ════════ -->
   <div id="screen-settings" class="screen" style="background:var(--bg);">
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_2110</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_2115</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1653,7 +1663,7 @@
         <!-- ── Aide à la marque ── -->
         <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">📜 Aide à la marque</div>
         <div style="background:var(--card);border-radius:16px;overflow:hidden;margin-bottom:20px;">
-          <button onclick="showMarqueModal()" style="width:100%;display:flex;align-items:center;gap:14px;padding:16px;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left;">
+          <button onclick="showMarqueScreen()" style="width:100%;display:flex;align-items:center;gap:14px;padding:16px;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left;">
             <span style="font-size:24px;">📜</span>
             <div style="flex:1;">
               <div style="font-size:15px;font-weight:700;color:var(--text);">Consulter l'aide à la marque</div>
@@ -1764,15 +1774,7 @@
 
   <!-- MODALE CONFIRMATION — niveau app pour être visible partout -->
   <!-- MODAL AIDE À LA MARQUE -->
-  <div id="marque-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:10001;align-items:flex-start;justify-content:center;padding:60px 16px 20px;overflow-y:auto;">
-    <div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:480px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div style="font-size:16px;font-weight:800;color:var(--text);">📜 Aide à la marque</div>
-        <button onclick="eid('marque-modal').style.display='none'" style="background:rgba(0,0,0,0.08);border:none;border-radius:99px;width:32px;height:32px;font-size:16px;cursor:pointer;">✕</button>
-      </div>
-      <div id="marque-modal-content"></div>
-    </div>
-  </div>
+
 
   <!-- MODAL SYNCHRONISATION -->
   <div id="sync-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:10002;align-items:center;justify-content:center;padding:20px;">
@@ -5095,25 +5097,23 @@ function renderHelpContent() {
 
 
 
-function showMarqueModal() {
-  const el = eid('marque-modal-content');
+function showMarqueScreen() {
+  // Rendre le contenu dans le screen dédié
+  const el = eid('screen-marque-content');
   if(el) {
-    renderMarqueInEl(el);
+    renderMarque();
+    const tabMarque = eid('tab-marque');
+    if(tabMarque) el.innerHTML = tabMarque.innerHTML;
   }
-  eid('marque-modal').style.display = 'flex';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  eid('screen-marque').classList.add('active');
+  const sc = eid('screen-marque');
+  if(sc) sc.scrollTop = 0;
 }
 
-function renderMarqueInEl(el) {
-  // Récupérer le contenu de renderMarque() dans un div temporaire
-  const tmp = document.createElement('div');
-  const originalEl = eid('tab-marque');
-  // Forcer le rendu dans le modal
-  if(typeof renderMarque === 'function') {
-    const savedEl = eid('tab-marque');
-    // Appeler renderMarque normalement puis copier le contenu
-    renderMarque();
-    if(savedEl) el.innerHTML = savedEl.innerHTML;
-  }
+function hideMarqueScreen() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  eid('screen-settings').classList.add('active');
 }
 
 
