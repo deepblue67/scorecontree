@@ -1601,7 +1601,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_0010</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_2104</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -4369,6 +4369,22 @@ function fixSetupTableSize() {
 }
 window.addEventListener('load', () => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); });
 window.addEventListener('resize', () => { fixSetupTableSize(); fixEastWestPC(); });
+
+// Re-rendre la page active quand on tourne le téléphone (initiales 3↔6 chars)
+let _lastOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+window.addEventListener('resize', () => {
+  const newOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+  if(newOrientation !== _lastOrientation) {
+    _lastOrientation = newOrientation;
+    // Re-rendre la page active pour recalculer les initiales
+    const activeTab = document.querySelector('#tab-feuille[style*="flex"], #tab-history[style*="flex"], #tab-parties[style*="flex"], #tab-stats[style*="flex"]');
+    if(eid('tab-feuille') && eid('tab-feuille').style.display !== 'none') renderFeuille();
+    else if(eid('tab-history') && eid('tab-history').style.display !== 'none') { renderHistory(); renderPastHistory(); }
+    else if(eid('tab-parties') && eid('tab-parties').style.display !== 'none') showSubTab(currentSubTab);
+    else if(eid('tab-stats') && eid('tab-stats').style.display !== 'none') renderStats();
+    else if(eid('tab-enjeu') && eid('tab-enjeu').style.display !== 'none') renderEnjeu();
+  }
+});
 requestAnimationFrame(() => requestAnimationFrame(() => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); }));
 loadTheme();
 
