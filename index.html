@@ -1582,7 +1582,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_2120</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_2125</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -4440,25 +4440,24 @@ function showSubTab(sub) {
     btn.style.fontWeight = active ? '800' : '700';
   });
 
-  // Rendre directement dans le conteneur (pas de clone)
+  // Vider le conteneur et créer un div dédié
+  container.innerHTML = '<div id="sub-inner"></div>';
+  const inner = eid('sub-inner');
+
   if(sub==='history') {
-    // Déplacer temporairement tab-history dans le conteneur
-    const tabHist = eid('tab-history');
-    if(tabHist) {
-      container.innerHTML = '';
-      tabHist.style.display = 'block';
-      container.appendChild(tabHist);
-      renderHistory();
-      renderPastHistory();
-    }
+    // Créer les éléments nécessaires directement dans inner
+    inner.innerHTML = '<div id="history-content"></div><div id="past-history-content"></div>';
+    renderHistory();
+    renderPastHistory();
   } else if(sub==='feuille') {
-    const tabFeuille = eid('tab-feuille');
-    if(tabFeuille) {
-      container.innerHTML = '';
-      tabFeuille.style.display = 'block';
-      container.appendChild(tabFeuille);
-      renderFeuille();
-    }
+    inner.innerHTML = '<div id="feuille-title" class="card-title" style="margin-bottom:0;font-size:14px;line-height:1.4;">Feuille de score</div>' +
+      '<div id="feuille-content"></div>' +
+      '<div style="display:flex;gap:10px;margin-top:4px;">' +
+      '<button onclick="exportFeuille(\'copy\')" class="btn btn-outline btn-full" style="flex:1;font-size:14px;padding:13px;">📋 Copier</button>' +
+      '<button onclick="exportFeuille(\'share\')" class="btn btn-green btn-full" style="flex:1;font-size:14px;padding:13px;">📤 Texte</button>' +
+      '<button onclick="exportFeuilleImage()" class="btn btn-gold btn-full" style="flex:1;font-size:14px;padding:13px;">📸 Image</button>' +
+      '</div>';
+    renderFeuille();
   }
 }
 
