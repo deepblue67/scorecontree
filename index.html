@@ -1472,35 +1472,6 @@
           <div id="past-history-content"></div>
         </div>
       </div>
-      <!-- Modale d'édition inline -->
-      <div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;padding:20px;">
-        <div style="background:var(--card);border-radius:var(--radius);padding:20px;width:100%;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
-          <div style="font-size:14px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Modifier la manche</div>
-          <div id="edit-modal-title" style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:16px;"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-            <div>
-              <label id="edit-lbl-t1" style="display:block;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Équipe 1</label>
-              <div class="stepper" style="background:#e8e4dc;border-color:#bbb8b0;">
-                <button onclick="stepEdit('t1',-10)" type="button" style="background:#d8d4cc;color:var(--text);">−</button>
-                <input class="sv" type="number" id="edit-pts-t1" min="0" max="500" step="10" style="color:var(--text);font-size:16px;">
-                <button onclick="stepEdit('t1',10)" type="button" style="background:#d8d4cc;color:var(--text);">+</button>
-              </div>
-            </div>
-            <div>
-              <label id="edit-lbl-t2" style="display:block;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Équipe 2</label>
-              <div class="stepper" style="background:#e8e4dc;border-color:#bbb8b0;">
-                <button onclick="stepEdit('t2',-10)" type="button" style="background:#d8d4cc;color:var(--text);">−</button>
-                <input class="sv" type="number" id="edit-pts-t2" min="0" max="500" step="10" style="color:var(--text);font-size:16px;">
-                <button onclick="stepEdit('t2',10)" type="button" style="background:#d8d4cc;color:var(--text);">+</button>
-              </div>
-            </div>
-          </div>
-          <div style="display:flex;gap:10px;">
-            <button class="btn btn-green" onclick="saveEdit()" style="flex:1;font-size:14px;">✓ Valider</button>
-            <button class="btn btn-outline-dark" onclick="closeEdit()" style="flex:1;font-size:14px;">Annuler</button>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- TAB: PARTIES (Résultat + Historique fusionnés) -->
@@ -1611,7 +1582,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_2115</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_2120</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1779,6 +1750,36 @@
   <!-- MODAL SYNCHRONISATION -->
   <div id="sync-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:10002;align-items:center;justify-content:center;padding:20px;">
     <div id="sync-modal-content" style="background:var(--card);border-radius:20px;padding:22px;width:100%;max-width:420px;max-height:85dvh;overflow-y:auto;text-align:center;"></div>
+  </div>
+
+  <!-- MODALE ÉDITION MANCHE (niveau racine) -->
+  <div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:10500;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--card);border-radius:var(--radius);padding:20px;width:100%;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
+      <div style="font-size:14px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Modifier la manche</div>
+      <div id="edit-modal-title" style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:16px;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div>
+          <label id="edit-lbl-t1" style="display:block;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Équipe 1</label>
+          <div class="stepper" style="background:#e8e4dc;border-color:#bbb8b0;">
+            <button onclick="stepEdit('t1',-10)" type="button" style="background:#d8d4cc;color:var(--text);">−</button>
+            <input class="sv" type="number" id="edit-pts-t1" min="0" max="500" step="10" style="color:var(--text);font-size:16px;">
+            <button onclick="stepEdit('t1',10)" type="button" style="background:#d8d4cc;color:var(--text);">+</button>
+          </div>
+        </div>
+        <div>
+          <label id="edit-lbl-t2" style="display:block;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Équipe 2</label>
+          <div class="stepper" style="background:#e8e4dc;border-color:#bbb8b0;">
+            <button onclick="stepEdit('t2',-10)" type="button" style="background:#d8d4cc;color:var(--text);">−</button>
+            <input class="sv" type="number" id="edit-pts-t2" min="0" max="500" step="10" style="color:var(--text);font-size:16px;">
+            <button onclick="stepEdit('t2',10)" type="button" style="background:#d8d4cc;color:var(--text);">+</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-green" onclick="saveEdit()" style="flex:1;font-size:14px;">✓ Valider</button>
+        <button class="btn btn-outline-dark" onclick="closeEdit()" style="flex:1;font-size:14px;">Annuler</button>
+      </div>
+    </div>
   </div>
 
   <div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;padding:20px 20px calc(20px + env(safe-area-inset-bottom, 0px));">
@@ -4425,10 +4426,6 @@ function dismissOnboarding() {
 let currentSubTab = 'saisie';
 
 function showSubTab(sub) {
-  // Bloquer saisie sans contrat
-  if(sub==='saisie' && !S.contract) {
-    sub = 'history';
-  }
   currentSubTab = sub;
   const container = eid('sub-content-parties');
   if(!container) return;
@@ -4443,25 +4440,23 @@ function showSubTab(sub) {
     btn.style.fontWeight = active ? '800' : '700';
   });
 
-  // Rendre le contenu
+  // Rendre directement dans le conteneur (pas de clone)
   if(sub==='history') {
-    container.innerHTML = '';
+    // Déplacer temporairement tab-history dans le conteneur
     const tabHist = eid('tab-history');
     if(tabHist) {
-      const clone = tabHist.cloneNode(true);
-      clone.style.display = 'block';
-      clone.id = 'tab-history-clone';
-      container.appendChild(clone);
+      container.innerHTML = '';
+      tabHist.style.display = 'block';
+      container.appendChild(tabHist);
       renderHistory();
+      renderPastHistory();
     }
   } else if(sub==='feuille') {
-    container.innerHTML = '';
     const tabFeuille = eid('tab-feuille');
     if(tabFeuille) {
-      const clone = tabFeuille.cloneNode(true);
-      clone.style.display = 'block';
-      clone.id = 'tab-feuille-clone';
-      container.appendChild(clone);
+      container.innerHTML = '';
+      tabFeuille.style.display = 'block';
+      container.appendChild(tabFeuille);
       renderFeuille();
     }
   }
@@ -4725,48 +4720,6 @@ function dismissOnboarding() {
 // SOUS-ONGLETS PARTIES
 // ═══════════════════════════════════════════════════════════
 
-function showSubTab(sub) {
-  // Bloquer saisie sans contrat
-  if(sub==='saisie' && !S.contract) {
-    sub = 'history';
-  }
-  currentSubTab = sub;
-  const container = eid('sub-content-parties');
-  if(!container) return;
-
-  // Mettre à jour les boutons sous-onglets
-  ['history','feuille'].forEach(s => {
-    const btn = eid('sub-tab-'+s);
-    if(!btn) return;
-    const active = s===sub;
-    btn.style.background = active ? 'var(--green)' : 'transparent';
-    btn.style.color = active ? '#fff' : 'rgba(255,255,255,0.6)';
-    btn.style.fontWeight = active ? '800' : '700';
-  });
-
-  // Rendre le contenu
-  if(sub==='history') {
-    container.innerHTML = '';
-    const tabHist = eid('tab-history');
-    if(tabHist) {
-      const clone = tabHist.cloneNode(true);
-      clone.style.display = 'block';
-      clone.id = 'tab-history-clone';
-      container.appendChild(clone);
-      renderHistory();
-    }
-  } else if(sub==='feuille') {
-    container.innerHTML = '';
-    const tabFeuille = eid('tab-feuille');
-    if(tabFeuille) {
-      const clone = tabFeuille.cloneNode(true);
-      clone.style.display = 'block';
-      clone.id = 'tab-feuille-clone';
-      container.appendChild(clone);
-      renderFeuille();
-    }
-  }
-}
 
 // ═══════════════════════════════════════════════════════════
 // RECONNAISSANCE VOCALE — CONFIGURATION
