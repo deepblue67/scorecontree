@@ -377,6 +377,7 @@
     #setup-donneur-wrap { grid-column: 2; grid-row: 1; justify-content: flex-start !important; }
     #setup-donneur-wrap > div { width: 100%; font-size: 13px !important; }
     #setup-start-btn { grid-column: 2; grid-row: 2; font-size: 14px !important; }
+    #setup-mode-label { grid-column: 2; grid-row: 3; display: block !important; }
     /* Selects config plus petits */
     .setup-sel { font-size: 11px !important; padding: 5px 4px !important; }
     .setup-dir-label { font-size: 8px !important; }
@@ -523,6 +524,11 @@
     #setup-start-btn {
       grid-column: 2 !important;
       grid-row: 2 !important;
+    }
+    #setup-mode-label {
+      grid-column: 2 !important;
+      grid-row: 3 !important;
+      display: block !important;
     }
 
     .body { padding: 20px 32px; gap: 20px; }
@@ -1084,7 +1090,7 @@
     #screen-setup .body {
       display: grid !important;
       grid-template-columns: 1fr 420px !important;
-      grid-template-rows: auto auto !important;
+      grid-template-rows: auto auto auto !important;
       column-gap: 48px !important; row-gap: 20px !important;
       align-items: center !important;
       padding: 20px 48px !important;
@@ -1104,6 +1110,7 @@
     #setup-donneur-wrap { grid-column: 2 !important; grid-row: 1 !important; justify-content: flex-start !important; }
     #setup-donneur-wrap > div { width: 100%; }
     #setup-start-btn { grid-column: 2 !important; grid-row: 2 !important; }
+    #setup-mode-label { grid-column: 2 !important; grid-row: 3 !important; display: block !important; }
 
     /* ── MANCHE EN COURS ── */
     #screen-mancheencours .mec-body {
@@ -1593,7 +1600,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_2220</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260511_2225</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -3236,14 +3243,14 @@ function saveEdit() {
 
   closeEdit();
   renderHistory();
-  // Toujours re-rendre feuille et enjeu
-  renderFeuille();
   renderEnjeu();
   updateScoreDisplay();
-  // Re-rendre le sous-onglet actif si on est dans Parties
+  // Toujours recréer le sous-onglet actif dans Parties
   const partiesTab = eid('tab-parties');
   if(partiesTab && partiesTab.style.display !== 'none') {
-    if(currentSubTab==='feuille') showSubTab('feuille');
+    showSubTab(currentSubTab);
+  } else {
+    renderFeuille();
   }
 }
 
@@ -3961,7 +3968,7 @@ function initiales(name) {
 function renderFeuille() {
   const el = eid('feuille-content');
   const titleEl = eid('feuille-title');
-  if(titleEl) titleEl.innerHTML = S.t1.name + '<br><span style="font-size:11px;color:#888;font-weight:600;">VS</span><br>' + S.t2.name + '<div style="margin-bottom:12px;"></div>';
+  if(titleEl) titleEl.innerHTML = S.t1.name + '<br><span style="font-size:11px;color:#888;font-weight:600;">VS</span><br>' + S.t2.name + '<br>&nbsp;<br>&nbsp;';
 
   if(!S.history.length) {
     el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);">Aucune manche jouée</div>';
