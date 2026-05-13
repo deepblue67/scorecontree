@@ -445,9 +445,9 @@
   @media (min-width: 900px) and (min-height: 600px) and (orientation: landscape) and (pointer: coarse) {
     html, body { background: var(--bg) !important; }
     #app { max-width: 100%; width: 100%; min-height: 100dvh; padding-top: 0 !important; }
-    .bottom-nav { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; max-width: none !important; transform: none !important; border-radius: 0 !important; height: 56px !important; z-index: 9999 !important; padding-bottom: env(safe-area-inset-bottom, 0px) !important; background: var(--panel) !important; }
-    .nav-item { padding: 4px 8px 3px !important; font-size: 9px !important; height: 56px !important; }
-    .nav-item .ni-icon { font-size: 20px !important; }
+    .bottom-nav { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; max-width: none !important; transform: none !important; border-radius: 0 !important; height: 48px !important; z-index: 9999 !important; padding-bottom: 0 !important; background: var(--panel) !important; }
+    .nav-item { padding: 3px 8px 2px !important; font-size: 9px !important; height: 48px !important; min-height: 0 !important; }
+    .nav-item .ni-icon { font-size: 18px !important; line-height: 1 !important; }
     .header { padding-top: max(10px, env(safe-area-inset-top, 10px)) !important; padding-bottom: 10px !important; }
     /* En paysage, les tabs non-enjeu s'affichent en overlay plein écran */
     #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties {
@@ -476,9 +476,9 @@
       grid-template-rows: auto auto auto;
       column-gap: 20px;
       row-gap: 14px;
-      padding: 12px 20px 68px !important;
+      padding: 12px 20px 56px !important;
       align-items: center;
-      min-height: calc(100dvh - 130px);
+      min-height: calc(100dvh - 118px);
     }
     #ej-table-wrap {
       grid-column: 1 !important;
@@ -489,8 +489,8 @@
     }
     #ej-table-wrap svg {
       width: auto !important;
-      height: calc(100dvh - 130px) !important;
-      max-height: calc(100dvh - 130px) !important;
+      height: calc(100dvh - 118px) !important;
+      max-height: calc(100dvh - 118px) !important;
       max-width: 100% !important;
       display: block !important;
     }
@@ -554,8 +554,8 @@
     .stepper .sv { font-size: 30px; }
     .chip { font-size: 16px; padding: 12px 22px; }
     .header h1 { font-size: 26px; }
-    .nav-item { padding: 16px 12px 14px !important; font-size: 13px !important; height: auto !important; }
-    .nav-item .ni-icon { font-size: 36px !important; }
+    .nav-item { padding: 3px 8px 2px !important; font-size: 9px !important; height: 48px !important; min-height: 0 !important; }
+    .nav-item .ni-icon { font-size: 18px !important; line-height: 1 !important; }
     .marque-table { font-size: 15px; }
     .marque-table td { padding: 10px 8px; }
     .hi-contract { font-size: 16px; }
@@ -1612,7 +1612,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1135</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1145</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
