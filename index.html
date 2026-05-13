@@ -481,21 +481,22 @@
       min-height: 0;
     }
     #ej-table-wrap {
-      grid-column: 1 !important;
-      grid-row: 1 / 4 !important;
-      max-width: 100% !important;
-      padding: 0 !important;
-      align-self: stretch;
-    }
-    #ej-table-wrap svg {
-      width: auto !important;
-      height: auto !important;
-      max-height: calc(100vh - 160px) !important;
-      max-width: 100% !important;
-      display: block !important;
-    }
-    #tab-enjeu > div:nth-child(2) { grid-column: 2; grid-row: 1; align-self: center; }
-    #tab-enjeu > div:nth-child(3) { grid-column: 2; grid-row: 2; align-self: center; }
+     #ej-table-wrap {
+       grid-column: 1 !important;
+       grid-row: 1 / 4 !important;
+       max-width: 100% !important;
+       padding: 0 !important;
+       align-self: center;
+       max-height: calc(100vh - 108px) !important;
+       overflow: hidden;
+     }
+     #ej-table-wrap svg {
+       width: auto !important;
+       height: 100% !important;
+       max-height: calc(100vh - 108px) !important;
+       max-width: 100% !important;
+       display: block !important;
+     }
     /* Score-teams en colonne, style natif conservé */
     #tab-enjeu > div:nth-child(2) .score-board { grid-template-columns: 1fr !important; gap: 8px; }
     #tab-enjeu > div:nth-child(2) .score-team { display: flex !important; align-items: center !important; justify-content: space-between !important; text-align: left !important; padding: 14px 16px !important; }
@@ -1612,7 +1613,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1150</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1155</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
