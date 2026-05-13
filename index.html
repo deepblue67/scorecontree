@@ -443,7 +443,7 @@
 
   /* ══ IPAD PAYSAGE (900px+) ══ */
   @media (min-width: 900px) and (min-height: 600px) and (orientation: landscape) and (pointer: coarse) {
-    html, body { background: var(--bg) !important; }
+
     #app { max-width: 100%; width: 100%; min-height: 100dvh; padding-top: 0 !important; }
     .bottom-nav { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; max-width: none !important; transform: none !important; border-radius: 0 !important; height: 48px !important; z-index: 9999 !important; padding-bottom: 0 !important; background: var(--panel) !important; }
     .nav-item { padding: 3px 8px 2px !important; font-size: 9px !important; height: 48px !important; min-height: 0 !important; }
@@ -476,26 +476,24 @@
       grid-template-rows: auto auto auto;
       column-gap: 20px;
       row-gap: 14px;
-      padding: 12px 20px 60px !important;
+      padding: 12px 20px 12px !important;
       align-items: center;
-      min-height: 0;
+      min-height: calc(100vh - 180px);
     }
     #ej-table-wrap {
-     #ej-table-wrap {
-       grid-column: 1 !important;
-       grid-row: 1 / 4 !important;
-       max-width: 100% !important;
-       padding: 0 !important;
-       align-self: center;
-       max-height: calc(100vh - 108px) !important;
-       overflow: hidden;
-     }
-     #ej-table-wrap svg {
-       width: auto !important;
-       height: 100% !important;
-       max-height: calc(100vh - 108px) !important;
-       max-width: 100% !important;
-       display: block !important;
+      grid-column: 1 !important;
+      grid-row: 1 / 4 !important;
+      max-width: 100% !important;
+      padding: 0 !important;
+      align-self: stretch;
+    }
+    #ej-table-wrap svg {
+      width: auto !important;
+      height: calc(100dvh - 160px) !important;
+      max-height: 580px !important;
+      max-width: 100% !important;
+      display: block !important;
+    }
      }
     /* Score-teams en colonne, style natif conservé */
     #tab-enjeu > div:nth-child(2) .score-board { grid-template-columns: 1fr !important; gap: 8px; }
@@ -1613,7 +1611,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1155</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1200</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
