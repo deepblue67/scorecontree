@@ -1309,7 +1309,7 @@
         <button id="btn-action-saisie" class="btn btn-green" onclick="showTab('saisie');updateSaisieForm();" style="font-size:13px;padding:10px 6px;">📊 Saisir score</button>
         <button class="btn btn-outline" onclick="askNewGame()" style="font-size:12px;padding:10px 6px;">Nouvelle partie</button>
         <button class="btn btn-outline" onclick="askChangeTeams()" style="font-size:12px;padding:10px 6px;opacity:0.8;">Changement d'équipe</button>
-        <button class="btn btn-outline" onclick="askEndGame()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;color:#b05010;border-color:rgba(176,80,16,0.4);background:rgba(176,80,16,0.07);">🏁 Terminer la partie</button>
+        <button class="btn btn-outline" onclick="askEndGame()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">🏁 Terminer la partie</button>
       </div>
 
     </div>
@@ -1554,7 +1554,7 @@
         <div id="feuille-content"></div>
       </div>
       <div style="display:flex;gap:10px;margin-top:4px;">
-        <button onclick="askEndGame()" class="btn btn-outline btn-full" style="flex:1;font-size:14px;padding:13px;color:#b05010;border-color:rgba(176,80,16,0.4);background:rgba(176,80,16,0.07);">
+        <button onclick="askEndGame()" class="btn btn-outline btn-full" style="flex:1;font-size:14px;padding:13px;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">
           🏁 Terminer
         </button>
         <button onclick="exportFeuille('share')" class="btn btn-green btn-full" style="flex:1;font-size:14px;padding:13px;">
@@ -1601,7 +1601,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1000</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1015</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1748,8 +1748,8 @@
           <div class="ws-val" id="w-s2">0</div>
         </div>
       </div>
-      <button class="btn btn-gold btn-full" onclick="newGame()" style="font-size:16px;padding:16px;margin-top:8px;">
-        Nouvelle partie
+      <button class="btn btn-gold btn-full" onclick="goToScoreSheet()" style="font-size:16px;padding:16px;margin-top:8px;">
+        📋 Visualiser la feuille des scores
       </button>
     </div>
   </div>
@@ -1794,17 +1794,18 @@
   </div>
 
   <!-- MODAL: TERMINER LA PARTIE -->
-  <div id="end-game-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10600;align-items:center;justify-content:center;padding:24px;">
-    <div style="background:var(--card);border-radius:24px;padding:28px 24px;width:100%;max-width:400px;box-shadow:0 12px 48px rgba(0,0,0,0.4);">
-      <div style="font-size:22px;font-weight:900;color:var(--text);margin-bottom:10px;">🏁 Terminer la partie ?</div>
-      <div id="end-game-msg" style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:24px;"></div>
-      <button onclick="confirmEndGame('same')" class="btn btn-green btn-full" style="font-size:15px;padding:16px;margin-bottom:10px;">
+  <div id="end-game-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:10600;align-items:flex-end;justify-content:center;padding:0;">
+    <div style="background:var(--card);border-radius:24px 24px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-width:500px;box-shadow:0 -8px 40px rgba(0,0,0,0.35);">
+      <div style="width:40px;height:4px;background:rgba(0,0,0,0.15);border-radius:2px;margin:0 auto 20px;"></div>
+      <div style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px;">🏁 Terminer la partie ?</div>
+      <div id="end-game-msg" style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:20px;"></div>
+      <button onclick="confirmEndGame('same')" class="btn btn-green btn-full" style="font-size:15px;padding:15px;margin-bottom:8px;">
         Confirmer 🎉
       </button>
-      <button onclick="confirmEndGame('change')" class="btn btn-outline btn-full" style="font-size:14px;padding:13px;margin-bottom:10px;opacity:0.85;">
+      <button onclick="confirmEndGame('change')" class="btn btn-outline btn-full" style="font-size:14px;padding:12px;margin-bottom:8px;">
         Confirmer &amp; changer d'équipe
       </button>
-      <button onclick="closeEndGame()" class="btn btn-outline btn-full" style="font-size:14px;padding:13px;">
+      <button onclick="closeEndGame()" class="btn btn-outline btn-full" style="font-size:14px;padding:12px;color:#888;border-color:#ccc;">
         Continuer la partie
       </button>
     </div>
@@ -4578,6 +4579,12 @@ loadTheme();
 // ═══════════════════════════════════════════════════════════
 // TERMINER LA PARTIE MANUELLEMENT
 // ═══════════════════════════════════════════════════════════
+function goToScoreSheet() {
+  showScreen('game');
+  showTab('parties');
+  setTimeout(() => showSubTab('feuille'), 50);
+}
+
 function askEndGame() {
   const s1 = S.score.t1, s2 = S.score.t2;
   const winner = s1 > s2 ? S.t1.name : s2 > s1 ? S.t2.name : null;
@@ -4696,7 +4703,7 @@ function showSubTab(sub) {
         '<div id="feuille-content"></div>' +
       '</div>' +
       '<div style="display:flex;gap:10px;margin-top:4px;">' +
-        '<button onclick="askEndGame()" class="btn btn-outline btn-full" style="flex:1;font-size:14px;padding:13px;color:#b05010;border-color:rgba(176,80,16,0.4);background:rgba(176,80,16,0.07);">🏁 Terminer</button>' +
+        '<button onclick="askEndGame()" class="btn btn-outline btn-full" style="flex:1;font-size:14px;padding:13px;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">🏁 Terminer</button>' +
         '<button onclick="exportFeuille(\'share\')" class="btn btn-green btn-full" style="flex:1;font-size:14px;padding:13px;">📤 Texte</button>' +
         '<button onclick="exportFeuilleImage()" class="btn btn-gold btn-full" style="flex:1;font-size:14px;padding:13px;">📸 Image</button>' +
       '</div>';
@@ -4938,16 +4945,6 @@ function parseVoiceContrat(text) {
 // ═══════════════════════════════════════════════════════════
 // TERMINER LA PARTIE MANUELLEMENT
 // ═══════════════════════════════════════════════════════════
-function askEndGame() {
-  const s1 = S.score.t1, s2 = S.score.t2;
-  const winner = s1 > s2 ? S.t1.name : s2 > s1 ? S.t2.name : null;
-  const winPts = s1 > s2 ? s1 : s2;
-  const msg = winner
-    ? `Le gagnant est <strong style="color:var(--green);">${winner}</strong> avec <strong>${winPts} pts</strong>.`
-    : `Égalité — <strong>${s1} pts</strong> partout.`;
-  eid('end-game-msg').innerHTML = msg;
-  eid('end-game-modal').style.display = 'flex';
-}
 
 function closeEndGame() {
   eid('end-game-modal').style.display = 'none';
