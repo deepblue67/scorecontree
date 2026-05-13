@@ -1610,7 +1610,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1100</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1105</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1800,11 +1800,11 @@
   </div>
 
   <!-- MODAL: TERMINER LA PARTIE -->
-  <div id="end-game-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:10600;align-items:flex-end;justify-content:center;padding:0;">
-    <div style="background:var(--card);border-radius:24px 24px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-width:500px;box-shadow:0 -8px 40px rgba(0,0,0,0.35);">
+  <div id="end-game-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:10600;align-items:center;justify-content:center;padding:24px;">
+    <div style="background:var(--card);border-radius:24px;padding:24px 20px;width:100%;max-width:400px;box-shadow:0 12px 48px rgba(0,0,0,0.4);">
       <div style="width:40px;height:4px;background:rgba(0,0,0,0.15);border-radius:2px;margin:0 auto 20px;"></div>
       <div style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:8px;">🏁 Terminer la partie ?</div>
-      <div id="end-game-msg" style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:20px;"></div>
+      <div id="end-game-msg" style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:20px;"></div>
       <button onclick="confirmEndGame('same')" class="btn btn-green btn-full" style="font-size:15px;padding:15px;margin-bottom:8px;">
         Confirmer 🎉
       </button>
