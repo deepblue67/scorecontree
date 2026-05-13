@@ -1307,8 +1307,6 @@
       <div id="ej-action-grid" style="padding:6px 8px 0;display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:420px;margin:0 auto;width:100%;">
         <button id="btn-action-contrat" class="btn btn-outline" onclick="showTab('contrat')" style="font-size:13px;padding:10px 6px;">✏️ Contrat</button>
         <button id="btn-action-saisie" class="btn btn-green" onclick="showTab('saisie');updateSaisieForm();" style="font-size:13px;padding:10px 6px;">📊 Saisir score</button>
-        <button class="btn btn-outline" onclick="askNewGame()" style="font-size:12px;padding:10px 6px;">Nouvelle partie</button>
-        <button class="btn btn-outline" onclick="askChangeTeams()" style="font-size:12px;padding:10px 6px;opacity:0.8;">Changement d'équipe</button>
         <button class="btn btn-outline" onclick="askEndGame()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">🏁 Terminer la partie</button>
       </div>
 
@@ -1601,7 +1599,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1015</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1025</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1802,7 +1800,7 @@
       <button onclick="confirmEndGame('same')" class="btn btn-green btn-full" style="font-size:15px;padding:15px;margin-bottom:8px;">
         Confirmer 🎉
       </button>
-      <button onclick="confirmEndGame('change')" class="btn btn-outline btn-full" style="font-size:14px;padding:12px;margin-bottom:8px;">
+      <button onclick="confirmEndGame('change')" class="btn btn-outline btn-full" style="font-size:14px;padding:12px;margin-bottom:8px;color:var(--text);border-color:var(--border-light);">
         Confirmer &amp; changer d'équipe
       </button>
       <button onclick="closeEndGame()" class="btn btn-outline btn-full" style="font-size:14px;padding:12px;color:#888;border-color:#ccc;">
