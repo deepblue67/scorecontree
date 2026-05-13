@@ -442,12 +442,10 @@
   }
 
   /* ══ IPAD PAYSAGE (900px+) ══ */
-  @media (min-width: 900px) and (min-height: 600px) and (orientation: landscape) and (pointer: coarse) {
-
+  @media (min-width: 900px) and (max-width: 1024px) and (orientation: landscape) {
+    html { background: var(--panel) !important; }
     #app { max-width: 100%; width: 100%; min-height: 100dvh; padding-top: 0 !important; }
-    .bottom-nav { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; max-width: none !important; transform: none !important; border-radius: 0 !important; height: 48px !important; z-index: 9999 !important; padding-bottom: 0 !important; background: var(--panel) !important; }
-    .nav-item { padding: 3px 8px 2px !important; font-size: 9px !important; height: 48px !important; min-height: 0 !important; }
-    .nav-item .ni-icon { font-size: 18px !important; line-height: 1 !important; }
+    .bottom-nav { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; max-width: none !important; transform: none !important; border-radius: 0 !important; height: auto !important; z-index: 9999 !important; padding-bottom: env(safe-area-inset-bottom, 0px) !important; background: var(--panel) !important; }
     .header { padding-top: max(10px, env(safe-area-inset-top, 10px)) !important; padding-bottom: 10px !important; }
     /* En paysage, les tabs non-enjeu s'affichent en overlay plein écran */
     #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties {
@@ -477,7 +475,7 @@
       column-gap: 20px;
       row-gap: 14px;
       padding: 12px 20px 12px !important;
-      align-items: center;
+      align-items: start;
       min-height: calc(100vh - 180px);
     }
     #ej-table-wrap {
@@ -494,7 +492,8 @@
       max-width: 100% !important;
       display: block !important;
     }
-
+    #tab-enjeu > div:nth-child(2) { grid-column: 2; grid-row: 1; align-self: start; }
+    #tab-enjeu > div:nth-child(3) { grid-column: 2; grid-row: 2; }
     /* Score-teams en colonne, style natif conservé */
     #tab-enjeu > div:nth-child(2) .score-board { grid-template-columns: 1fr !important; gap: 8px; }
     #tab-enjeu > div:nth-child(2) .score-team { display: flex !important; align-items: center !important; justify-content: space-between !important; text-align: left !important; padding: 14px 16px !important; }
@@ -515,7 +514,7 @@
       row-gap: 16px !important;
       align-items: center !important;
       padding: 10px 28px !important;
-      padding: 10px 28px 68px !important;
+      overflow: hidden !important;
       padding-bottom: 10px !important;
     }
     #setup-table-wrap {
@@ -553,8 +552,8 @@
     .stepper .sv { font-size: 30px; }
     .chip { font-size: 16px; padding: 12px 22px; }
     .header h1 { font-size: 26px; }
-    .nav-item { padding: 3px 8px 2px !important; font-size: 9px !important; height: 48px !important; min-height: 0 !important; }
-    .nav-item .ni-icon { font-size: 18px !important; line-height: 1 !important; }
+    .nav-item { padding: 16px 12px 14px !important; font-size: 13px !important; height: auto !important; }
+    .nav-item .ni-icon { font-size: 36px !important; }
     .marque-table { font-size: 15px; }
     .marque-table td { padding: 10px 8px; }
     .hi-contract { font-size: 16px; }
@@ -809,7 +808,7 @@
   }
 
   /* Paysage iPad */
-  @media (min-width: 900px) and (min-height: 600px) and (orientation: landscape) and (pointer: coarse) {
+  @media (min-width: 900px) and (max-width: 1024px) and (orientation: landscape) {
     .mec-body {
       flex-direction: row !important;
       align-items: center !important;
@@ -1015,7 +1014,7 @@
   .score-entry-field:focus { border-color: var(--green); outline: none; }
 
   /* ══ PC / GRAND ÉCRAN (>1024px) ══ */
-  @media (min-width: 1025px) and (pointer: fine) {
+  @media (min-width: 1025px) {
     html, body { background: #0d1f0d !important; background-image: none !important; min-height: 100vh; }
 
     #app { width: 100% !important; max-width: 100% !important; min-height: 100vh; }
@@ -1611,7 +1610,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1200</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260512_1105</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -5240,293 +5239,95 @@ function renderHelpContent() {
 
   function step(n, txt) {
     return '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">' +
-      '<div style="background:var(--green);color:#fff;font-size:12px;font-weight:900;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">' + n + '</div>' +
+      '<div style="background:var(--green);color:#fff;font-size:12px;font-weight:900;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">' + n + '</div>' +
       '<div style="font-size:14px;color:var(--text2);line-height:1.6;">' + txt + '</div></div>';
   }
 
-  function section(icon, title, body, screen) {
+  function section(icon, title, body) {
     return '<div style="background:var(--card);border-radius:16px;padding:18px;margin-bottom:14px;">' +
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">' +
-      '<span style="font-size:24px;">' + icon + '</span>' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">' +
+      '<span style="font-size:26px;">' + icon + '</span>' +
       '<span style="font-size:16px;font-weight:800;color:var(--text);">' + title + '</span></div>' +
-      (screen ? '<div style="margin-bottom:14px;border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,0.08);">' + screen + '</div>' : '') +
       body + '</div>';
   }
 
   function tip(txt) {
-    return '<div style="margin-top:10px;padding:10px 12px;background:rgba(200,150,10,0.1);border-left:3px solid #c8960a;border-radius:0 8px 8px 0;font-size:13px;color:var(--text2);line-height:1.5;">💡 ' + txt + '</div>';
+    return '<div style="margin-top:10px;padding:10px 12px;background:rgba(200,150,10,0.1);border-left:3px solid #c8960a;border-radius:0 8px 8px 0;font-size:13px;color:var(--text2);line-height:1.5;">' + txt + '</div>';
   }
+
   function note(txt) {
-    return '<div style="margin-top:10px;padding:10px 12px;background:rgba(61,139,61,0.1);border-left:3px solid var(--green);border-radius:0 8px 8px 0;font-size:13px;color:var(--text2);line-height:1.5;">ℹ️ ' + txt + '</div>';
+    return '<div style="margin-top:10px;padding:10px 12px;background:rgba(61,139,61,0.1);border-left:3px solid var(--green);border-radius:0 8px 8px 0;font-size:13px;color:var(--text2);line-height:1.5;">' + txt + '</div>';
   }
-
-  // ── Écrans SVG illustrés ──────────────────────────────────
-
-  const svgReglages = `<svg viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-    <rect width="320" height="130" fill="#1a3318"/>
-    <rect x="12" y="10" width="296" height="110" rx="10" fill="#f5f2ea"/>
-    <!-- Titre -->
-    <text x="160" y="30" text-anchor="middle" font-size="13" font-weight="800" fill="#1a1a1a">⚙️ Réglages</text>
-    <!-- Joueurs -->
-    <rect x="20" y="38" width="280" height="22" rx="8" fill="#e8e4dc" stroke="#ccc" stroke-width="1"/>
-    <text x="30" y="53" font-size="10" fill="#555">👥 Liste des joueurs (29)</text>
-    <!-- Mode fin -->
-    <rect x="20" y="66" width="280" height="22" rx="8" fill="#e8e4dc" stroke="#ccc" stroke-width="1"/>
-    <rect x="26" y="71" width="70" height="12" rx="6" fill="#2e6b28"/>
-    <text x="61" y="81" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">🏆 Points</text>
-    <rect x="100" y="71" width="70" height="12" rx="6" fill="rgba(0,0,0,0.08)"/>
-    <text x="135" y="81" text-anchor="middle" font-size="9" fill="#888">🔢 Manches</text>
-    <text x="190" y="81" font-size="10" font-weight="700" fill="#1a1a1a">2001</text>
-    <text x="218" y="81" font-size="9" fill="#888">pts</text>
-    <!-- Thème -->
-    <rect x="20" y="94" width="82" height="20" rx="8" fill="#1a3318" stroke="#c8960a" stroke-width="2"/>
-    <text x="61" y="108" text-anchor="middle" font-size="9" fill="#fff">♠ Vert</text>
-    <rect x="108" y="94" width="82" height="20" rx="8" fill="#0a1a3a"/>
-    <text x="149" y="108" text-anchor="middle" font-size="9" fill="#fff">♠ Bleu</text>
-    <rect x="196" y="94" width="82" height="20" rx="8" fill="#2a0a0a"/>
-    <text x="237" y="108" text-anchor="middle" font-size="9" fill="#fff">♠ Rouge</text>
-  </svg>`;
-
-  const svgConfig = `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-    <rect width="320" height="160" fill="#2e6b28"/>
-    <!-- Table verte -->
-    <rect x="60" y="10" width="200" height="110" rx="12" fill="#236020" stroke="#c8960a" stroke-width="2"/>
-    <!-- Joueurs -->
-    <rect x="115" y="16" width="90" height="22" rx="8" fill="#1a4a18"/>
-    <text x="160" y="31" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">Marie — NORD</text>
-    <rect x="115" y="102" width="90" height="22" rx="8" fill="#1a4a18"/>
-    <text x="160" y="117" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">Paul — SUD</text>
-    <rect x="64" y="56" width="72" height="22" rx="8" fill="#1a3fa8"/>
-    <text x="100" y="71" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">Luc — OUEST</text>
-    <rect x="184" y="56" width="72" height="22" rx="8" fill="#1a3fa8"/>
-    <text x="220" y="71" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">Anna — EST</text>
-    <!-- Bouton commencer -->
-    <rect x="30" y="132" width="260" height="22" rx="11" fill="#2e6b28" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-    <text x="160" y="143" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Commencer la partie ▶</text>
-    <text x="160" y="152" text-anchor="middle" font-size="8" fill="#111">La partie se joue en 2001 points</text>
-  </svg>`;
-
-  const svgContrat = `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-    <rect width="320" height="160" fill="#f5f2ea"/>
-    <text x="16" y="22" font-size="10" font-weight="800" fill="#888" letter-spacing="1">CONTRAT</text>
-    <!-- Équipes -->
-    <rect x="16" y="28" width="132" height="28" rx="10" fill="#e8e4dc"/>
-    <text x="82" y="46" text-anchor="middle" font-size="11" font-weight="700" fill="#1a1a1a">Marie &amp; Paul</text>
-    <rect x="156" y="28" width="148" height="28" rx="10" fill="#e8e4dc"/>
-    <text x="230" y="46" text-anchor="middle" font-size="11" fill="#555">Anna &amp; Luc</text>
-    <!-- Valeur -->
-    <rect x="16" y="62" width="288" height="32" rx="10" fill="#e8e4dc"/>
-    <text x="44" y="83" text-anchor="middle" font-size="20" fill="#888">−</text>
-    <text x="160" y="84" text-anchor="middle" font-size="18" font-weight="800" fill="#1a1a1a">100</text>
-    <text x="276" y="83" text-anchor="middle" font-size="20" fill="#888">+</text>
-    <!-- Boutons valeurs -->
-    <rect x="16" y="100" width="36" height="18" rx="9" fill="white" stroke="#ddd" stroke-width="1"/>
-    <text x="34" y="113" text-anchor="middle" font-size="9" fill="#555">80</text>
-    <rect x="56" y="100" width="36" height="18" rx="9" fill="white" stroke="#ddd" stroke-width="1"/>
-    <text x="74" y="113" text-anchor="middle" font-size="9" fill="#555">100</text>
-    <rect x="96" y="100" width="36" height="18" rx="9" fill="white" stroke="#ddd" stroke-width="1"/>
-    <text x="114" y="113" text-anchor="middle" font-size="9" fill="#555">120</text>
-    <rect x="136" y="100" width="36" height="18" rx="9" fill="white" stroke="#ddd" stroke-width="1"/>
-    <text x="154" y="113" text-anchor="middle" font-size="9" fill="#555">Capot</text>
-    <!-- Couleurs -->
-    <text x="42" y="138" text-anchor="middle" font-size="18" fill="#cc2222">♥</text>
-    <text x="96" y="138" text-anchor="middle" font-size="18" fill="#cc2222">♦</text>
-    <text x="150" y="138" text-anchor="middle" font-size="18" fill="#1a1a1a">♣</text>
-    <text x="204" y="138" text-anchor="middle" font-size="18" fill="#1a1a1a">♠</text>
-    <!-- Contre -->
-    <rect x="228" y="122" width="76" height="20" rx="10" fill="#2e6b28"/>
-    <text x="266" y="136" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">Aucun</text>
-    <!-- Confirmer -->
-    <rect x="16" y="140" width="288" height="16" rx="8" fill="#2e6b28"/>
-    <text x="160" y="151" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">✓ Confirmer le contrat</text>
-  </svg>`;
-
-  const svgResultat = `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-    <rect width="320" height="160" fill="#f5f2ea"/>
-    <!-- Contrat -->
-    <rect x="16" y="10" width="288" height="28" rx="10" fill="#1a3318"/>
-    <text x="30" y="28" font-size="11" font-weight="700" fill="#fff">♥ 100 — 🏆 Marie &amp; Paul</text>
-    <!-- Toggle 160/170 -->
-    <text x="16" y="56" font-size="10" fill="#888">Total cartes :</text>
-    <rect x="88" y="44" width="36" height="16" rx="8" fill="#2e6b28"/>
-    <text x="106" y="56" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">160</text>
-    <rect x="128" y="44" width="36" height="16" rx="8" fill="white" stroke="#111" stroke-width="1"/>
-    <text x="146" y="56" text-anchor="middle" font-size="9" font-weight="700" fill="#111">170</text>
-    <!-- Steppers -->
-    <rect x="16" y="66" width="132" height="28" rx="10" fill="#e8e4dc"/>
-    <text x="30" y="84" font-size="16" fill="#888">−</text>
-    <text x="82" y="85" text-anchor="middle" font-size="16" font-weight="800" fill="#1a1a1a">230</text>
-    <text x="136" y="84" font-size="16" fill="#888">+</text>
-    <rect x="172" y="66" width="132" height="28" rx="10" fill="#e8e4dc"/>
-    <text x="186" y="84" font-size="16" fill="#888">−</text>
-    <text x="238" y="85" text-anchor="middle" font-size="16" font-weight="800" fill="#1a1a1a">40</text>
-    <text x="292" y="84" font-size="16" fill="#888">+</text>
-    <!-- Belote -->
-    <rect x="60" y="100" width="55" height="14" rx="7" fill="#e8e4dc"/>
-    <text x="88" y="111" text-anchor="middle" font-size="9" fill="#555">☐ Belote</text>
-    <rect x="200" y="100" width="55" height="14" rx="7" fill="#e8e4dc"/>
-    <text x="228" y="111" text-anchor="middle" font-size="9" fill="#555">☐ Belote</text>
-    <!-- Calculer -->
-    <rect x="16" y="120" width="288" height="18" rx="9" fill="#2e6b28"/>
-    <text x="160" y="133" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Calculer &amp; Prévisualiser</text>
-    <!-- Annuler -->
-    <rect x="16" y="142" width="288" height="14" rx="7" fill="#e8e4dc"/>
-    <text x="160" y="152" text-anchor="middle" font-size="9" fill="#888">Annuler</text>
-  </svg>`;
-
-  const svgParties = `<svg viewBox="0 0 320 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-    <rect width="320" height="165" fill="#2e6b28"/>
-    <!-- Sous-onglets -->
-    <rect x="12" y="8" width="296" height="28" rx="12" fill="rgba(0,0,0,0.2)"/>
-    <rect x="16" y="11" width="140" height="22" rx="10" fill="#2e6b28"/>
-    <text x="86" y="26" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">🗒 En cours</text>
-    <text x="230" y="26" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.55)">📋 Historique</text>
-    <!-- Feuille de score -->
-    <rect x="12" y="42" width="296" height="82" rx="10" fill="#f5f2ea"/>
-    <text x="22" y="57" font-size="9" font-weight="800" fill="#888">MARIE &amp; PAUL vs ANNA &amp; LUC</text>
-    <line x1="22" x2="298" y1="62" y2="62" stroke="#e0ddd6" stroke-width="1"/>
-    <text x="22" y="74" font-size="9" fill="#aaa">#  Contrat   Pren.  Résult.  M&amp;P   A&amp;L</text>
-    <line x1="22" x2="298" y1="78" y2="78" stroke="#e0ddd6" stroke-width="1"/>
-    <text x="22" y="90" font-size="9" font-weight="700" fill="#1a1a1a">01  100 ♦   M&amp;P</text>
-    <rect x="148" y="82" width="28" height="12" rx="6" fill="#2e6b28"/>
-    <text x="162" y="92" text-anchor="middle" font-size="8" font-weight="800" fill="#fff">Fait</text>
-    <text x="210" y="90" font-size="9" font-weight="800" fill="#1a6b3c">230</text>
-    <text x="254" y="90" font-size="9" font-weight="800" fill="#cc2222">40</text>
-    <text x="288" y="90" font-size="10">✏️</text>
-    <line x1="22" x2="298" y1="95" y2="95" stroke="#e0ddd6" stroke-width="1"/>
-    <text x="22" y="108" font-size="9" font-weight="700" fill="#1a1a1a">Total manche</text>
-    <text x="210" y="108" font-size="9" font-weight="800" fill="#1a5295">230</text>
-    <text x="254" y="108" font-size="9" font-weight="800" fill="#1a5295">40</text>
-    <!-- Boutons -->
-    <rect x="12" y="130" width="140" height="18" rx="9" fill="#2e6b28"/>
-    <text x="82" y="143" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">📤 Partage texte</text>
-    <rect x="157" y="130" width="151" height="18" rx="9" fill="#c8960a"/>
-    <text x="232" y="143" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">📸 Partage image</text>
-    <rect x="12" y="152" width="296" height="10" rx="5" fill="rgba(255,255,255,0.15)" stroke="#111" stroke-width="1"/>
-    <text x="160" y="160" text-anchor="middle" font-size="7" font-weight="800" fill="#111">🏁 Terminer la partie</text>
-  </svg>`;
-
-  const svgHistorique = `<svg viewBox="0 0 320 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-    <rect width="320" height="165" fill="#2e6b28"/>
-    <!-- Sous-onglets -->
-    <rect x="12" y="8" width="296" height="28" rx="12" fill="rgba(0,0,0,0.2)"/>
-    <text x="86" y="26" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.55)">🗒 En cours</text>
-    <rect x="158" y="11" width="146" height="22" rx="10" fill="#2e6b28"/>
-    <text x="231" y="26" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">📋 Historique</text>
-    <!-- Partie en cours -->
-    <rect x="12" y="42" width="296" height="55" rx="10" fill="#f5f2ea"/>
-    <text x="22" y="56" font-size="9" font-weight="800" fill="#888">PARTIE EN COURS</text>
-    <text x="22" y="70" font-size="9" fill="#aaa">#  Contrat   Pren.  Résult.  M&amp;P  A&amp;L  ✏️ 🗑</text>
-    <line x1="22" x2="298" y1="74" y2="74" stroke="#e0ddd6" stroke-width="1"/>
-    <text x="22" y="86" font-size="9" font-weight="700" fill="#1a1a1a">01  100 ♦   M&amp;P</text>
-    <rect x="148" y="78" width="28" height="12" rx="6" fill="#2e6b28"/>
-    <text x="162" y="88" text-anchor="middle" font-size="8" fill="#fff">Fait</text>
-    <text x="200" y="86" font-size="9" font-weight="800" fill="#1a6b3c">230</text>
-    <text x="238" y="86" font-size="9" font-weight="800" fill="#cc2222">40</text>
-    <text x="268" y="86" font-size="10">✏️</text>
-    <text x="286" y="86" font-size="10">🗑</text>
-    <!-- Parties précédentes dépliables -->
-    <rect x="12" y="102" width="296" height="22" rx="8" fill="rgba(0,0,0,0.2)"/>
-    <text x="22" y="117" font-size="9" font-weight="800" fill="rgba(255,255,255,0.7)">📅 LUN. 12/05/2026 (2 PARTIES)</text>
-    <text x="290" y="117" text-anchor="middle" font-size="12" fill="rgba(255,255,255,0.6)">▼</text>
-    <rect x="12" y="128" width="296" height="32" rx="8" fill="#fff"/>
-    <text x="22" y="142" font-size="10" font-weight="800" fill="#1a1a1a">🏆 Marie &amp; Paul</text>
-    <text x="22" y="154" font-size="9" fill="#888">Marie &amp; Paul 400 — Anna &amp; Luc 100 · 3 manches</text>
-    <text x="298" y="148" text-anchor="end" font-size="12" fill="#cc2222">✕</text>
-  </svg>`;
-
-  const svgTerminer = `<svg viewBox="0 0 320 145" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-    <rect width="320" height="145" fill="rgba(0,0,0,0.5)"/>
-    <!-- Modal centré -->
-    <rect x="30" y="8" width="260" height="130" rx="20" fill="#f5f2ea"/>
-    <rect x="135" y="16" width="50" height="5" rx="3" fill="rgba(0,0,0,0.15)"/>
-    <text x="160" y="38" text-anchor="middle" font-size="13" font-weight="900" fill="#1a1a1a">🏁 Terminer la partie ?</text>
-    <text x="50" y="54" font-size="10" font-weight="700" fill="#2e6b28">🏆 Marie &amp; Paul — 400 pts</text>
-    <text x="50" y="68" font-size="10" fill="#888">Anna &amp; Luc — 100 pts</text>
-    <rect x="40" y="76" width="240" height="20" rx="10" fill="#2e6b28"/>
-    <text x="160" y="90" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Confirmer 🎉</text>
-    <rect x="40" y="100" width="240" height="18" rx="9" fill="white" stroke="#ccc" stroke-width="1"/>
-    <text x="160" y="113" text-anchor="middle" font-size="9" fill="#1a1a1a">Confirmer &amp; changer d'équipe</text>
-    <rect x="40" y="122" width="240" height="14" rx="7" fill="white" stroke="#ccc" stroke-width="1"/>
-    <text x="160" y="133" text-anchor="middle" font-size="9" fill="#888">Continuer la partie</text>
-  </svg>`;
 
   el.innerHTML =
-    // ── Header ──
-    '<div style="text-align:center;padding:10px 0 22px;">' +
-      '<div style="font-size:40px;margin-bottom:8px;">🃏</div>' +
-      '<div style="font-size:21px;font-weight:900;color:var(--text-light);margin-bottom:6px;">Belote Contrée</div>' +
-      '<div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8;">Comptage des scores · Règlement de Cannes<br>' +
-      '<strong style="color:rgba(255,255,255,0.75);">iPhone · iPad · PC · Portrait &amp; Paysage</strong></div>' +
+    '<div style="text-align:center;padding:8px 0 20px;">' +
+      '<div style="font-size:38px;margin-bottom:8px;">&#127183;</div>' +
+      '<div style="font-size:20px;font-weight:900;color:var(--text-light);margin-bottom:6px;">Belote Contree</div>' +
+      '<div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;">Application de comptage des scores<br>' +
+      '<strong style="color:rgba(255,255,255,0.75);">Optimisee iPhone &bull; iPad &bull; PC</strong><br>' +
+      'Portrait et Paysage &bull; Reglement de Cannes</div>' +
     '</div>' +
 
-    // ── 1. Réglages ──
-    section('⚙️', '1. Réglages — Avant de jouer', [
-      step(1, 'Appuyez sur <strong>⚙️</strong> en haut à gauche pour ouvrir les Réglages.'),
-      step(2, '<strong>Joueurs</strong> — ajoutez vos prénoms (mémorisés entre les parties). Dépliez/repliez la liste avec le bouton accordéon.'),
-      step(3, '<strong>Mode de fin de partie</strong> — choisissez <em>Points</em> (ex: 2001) ou <em>Manches</em> (ex: 10). Modifiable à tout moment avant de lancer.'),
-      step(4, '<strong>Thème du tapis</strong> — Vert, Bleu ou Rouge.'),
-      tip('La synchronisation QR Code permet de transférer vos données vers un autre iPhone ou iPad.'),
-    ].join(''), svgReglages) +
+    section('1&#65039;&#8419;', 'Configurer les joueurs',
+      step(1, 'Appuyez sur <strong>&#9881;&#65039; Reglages</strong> en haut a gauche.') +
+      step(2, 'Ajoutez les prenoms de vos joueurs dans <strong>Liste des joueurs</strong> — ils sont memorises entre les parties.') +
+      step(3, 'Fermez les Reglages, puis sur la table de configuration choisissez un joueur par position : <strong>Nord, Sud, Est, Ouest</strong>.') +
+      note('Nord &amp; Sud jouent ensemble &bull; Est &amp; Ouest jouent ensemble')
+    ) +
 
-    // ── 2. Configuration ──
-    section('🎯', '2. Configurer la partie', [
-      step(1, 'Choisissez un joueur pour chaque position : <strong>Nord, Sud, Est, Ouest</strong>.'),
-      step(2, 'Nord joue avec Sud · Est joue avec Ouest.'),
-      step(3, 'Le bouton <strong>Commencer la partie</strong> affiche le mode choisi (ex: "La partie se joue en 2001 points").'),
-      note('Avant de lancer, vous pouvez consulter <strong>Parties</strong> et <strong>Stats</strong> depuis la barre du bas.'),
-    ].join(''), svgConfig) +
+    section('2&#65039;&#8419;', 'Demarrer la partie',
+      step(1, 'Une fois les 4 joueurs places, appuyez sur <strong>Commencer la partie</strong>.') +
+      step(2, 'Le donneur est tire au sort. A chaque manche suivante, le donneur change automatiquement.') +
+      note('La partie se joue en <strong>2001 points</strong>.')
+    ) +
 
-    // ── 3. Contrat ──
-    section('✏️', '3. Saisir le contrat', [
-      step(1, 'Appuyez sur <strong>Contrat</strong> dans la barre du bas.'),
-      step(2, 'Sélectionnez l\'équipe preneuse, puis la hauteur (80 → Capot) et la couleur atout.'),
-      step(3, 'Activez <strong>Contre ×2</strong> ou <strong>Surcontre ×3</strong> si nécessaire.'),
-      step(4, 'Appuyez sur <strong>✓ Confirmer le contrat</strong>.'),
-      tip('La carte au centre de la table affiche le contrat. Appuyez dessus pour l\'agrandir avec tous les détails.'),
-    ].join(''), svgContrat) +
+    section('3&#65039;&#8419;', 'Saisir le contrat',
+      step(1, 'Appuyez sur <strong>Contrat</strong> dans la barre du bas.') +
+      step(2, 'Selectionnez l\'equipe preneuse.') +
+      step(3, 'Choisissez la hauteur (80 a Capot) et la couleur (&#9829; &#9830; &#9827; &#9824;).') +
+      step(4, 'Activez <strong>Contre x2</strong> ou <strong>Surcontre x3</strong> si necessaire.') +
+      step(5, 'Appuyez sur <strong>Confirmer le contrat</strong>.') +
+      tip('La carte clignotante au centre de la table affiche le contrat. Appuyez dessus pour l\'agrandir !')
+    ) +
 
-    // ── 4. Résultat ──
-    section('📊', '4. Saisir le score (Résultat)', [
-      step(1, 'Appuyez sur <strong>Résultat</strong> (grisé sans contrat).'),
-      step(2, 'Entrez les points d\'une équipe — l\'autre se calcule automatiquement.'),
-      step(3, 'Si un score se termine par 6, il est arrondi à la dizaine supérieure. Utilisez le <strong>toggle 160/170</strong> pour ajuster le total.'),
-      step(4, 'Cochez <strong>Belote</strong> si annoncée (+20 pts).'),
-      step(5, 'Appuyez sur <strong>Calculer &amp; Prévisualiser</strong> puis <strong>Valider</strong>.'),
-      tip('Les scores rapides (80, 100, 120…) permettent une saisie en un tap.'),
-    ].join(''), svgResultat) +
+    section('4&#65039;&#8419;', 'Saisir le score',
+      step(1, 'Appuyez sur <strong>Resultat</strong> dans la barre du bas.') +
+      step(2, 'Saisissez les points de plis d\'une equipe — l\'autre se calcule automatiquement.') +
+      step(3, 'Si un score se termine par 6, il est arrondi a la dizaine superieure. Utilisez le <strong>toggle 160/170</strong> pour ajuster le total.') +
+      step(4, 'Cochez <strong>Belote</strong> si annoncee (+20 pts).') +
+      step(5, 'Appuyez sur <strong>Calculer</strong> puis <strong>Valider</strong>.') +
+      tip('Sans contrat saisi, le bouton Resultat est grise.')
+    ) +
 
-    // ── 5. Parties ──
-    section('📋', '5. Onglet Parties', [
-      step(1, '<strong>En cours</strong> (défaut) — feuille de score de la partie avec totaux. Modifiez ✏️ une manche directement depuis cet onglet.'),
-      step(2, '<strong>Historique</strong> — liste des manches de la partie en cours. Supprimez 🗑 une manche si besoin.'),
-      step(3, 'Depuis "En cours" : partagez la feuille via <strong>📤 Partage texte</strong> ou <strong>📸 Partage image</strong>.'),
-      note('Cet onglet est accessible même avant de lancer une partie pour consulter l\'historique des parties précédentes.'),
-    ].join(''), svgParties) +
+    section('5&#65039;&#8419;', 'Onglet Parties — Historique &amp; Score',
+      step(1, 'Appuyez sur <strong>Parties</strong> dans la barre du bas.') +
+      step(2, '<strong>En cours</strong> — feuille de score de la partie en cours avec toutes les manches et les totaux.') +
+      step(3, '<strong>Historique</strong> — detail de chaque manche jouee. Modifier &#9999;&#65039; ou supprimer &#128465; une manche si necessaire.') +
+      tip('Depuis l\'onglet En cours, partagez la feuille en texte ou en image (WhatsApp, iMessage...)')
+    ) +
 
-    // ── 6. Historique parties précédentes ──
-    section('📅', '6. Parties précédentes', [
-      step(1, 'Dans l\'onglet <strong>Historique</strong>, les parties passées sont regroupées par date.'),
-      step(2, 'Appuyez sur une date pour <strong>déplier</strong> la liste des parties de ce jour.'),
-      step(3, 'Appuyez sur une partie pour voir le <strong>détail manche par manche</strong>.'),
-      step(4, 'Appuyez sur <strong>✕</strong> pour supprimer une partie de l\'historique.'),
-    ].join(''), svgHistorique) +
+    section('6&#65039;&#8419;', 'Onglet Stats',
+      '<div style="font-size:14px;color:var(--text2);line-height:1.7;">' +
+      'Statistiques de la partie en cours et de toutes les parties precedentes : meilleure manche, nombre de chutes, evolution des scores par equipe.' +
+      '</div>'
+    ) +
 
-    // ── 7. Terminer la partie ──
-    section('🏁', '7. Terminer la partie', [
-      step(1, 'Appuyez sur <strong>🏁 Terminer la partie</strong> (page Table ou onglet Score) pour arrêter la partie à tout moment, même sans atteindre l\'objectif.'),
-      step(2, 'La pop-up affiche le <strong>gagnant et le perdant</strong> avec leurs scores.'),
-      step(3, '<strong>Confirmer 🎉</strong> — enregistre et repart avec les mêmes équipes.'),
-      step(4, '<strong>Confirmer &amp; changer d\'équipe</strong> — enregistre et retourne à la configuration.'),
-      step(5, '<strong>Continuer la partie</strong> — ferme la pop-up sans rien sauvegarder.'),
-      note('La partie se termine aussi automatiquement quand une équipe atteint l\'objectif (points ou manches).'),
-    ].join(''), svgTerminer) +
+    section('&#9881;&#65039;', 'Reglages',
+      step(1, '<strong>Joueurs</strong> — liste persistante de vos joueurs habituels.') +
+      step(2, '<strong>Theme</strong> — choisissez la couleur du tapis : Vert, Bleu ou Rouge.') +
+      step(3, '<strong>Aide a la marque</strong> — tableau complet des scores (reglement de Cannes).') +
+      step(4, '<strong>Synchronisation</strong> — transferez vos donnees vers un autre appareil via QR Code.') +
+      step(5, '<strong>Ce guide</strong> — accessible a tout moment depuis les Reglages.')
+    ) +
 
-    // ── Footer ──
     '<div style="background:rgba(200,150,10,0.12);border:1px solid rgba(200,150,10,0.3);border-radius:14px;padding:16px;margin-bottom:14px;text-align:center;">' +
-      '<div style="font-size:20px;margin-bottom:6px;">📱</div>' +
-      '<div style="font-size:13px;font-weight:800;color:var(--text-light);margin-bottom:4px;">Optimisée pour toutes les cibles</div>' +
-      '<div style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.7;">iPhone portrait et paysage · iPad portrait et paysage<br>PC (Chrome, Safari, Firefox) · Fonctionne hors ligne<br><strong style="color:rgba(255,255,255,0.7);">Ajoutez l\'appli à votre écran d\'accueil !</strong></div>' +
+      '<div style="font-size:22px;margin-bottom:6px;">&#128242;</div>' +
+      '<div style="font-size:14px;font-weight:800;color:var(--text-light);margin-bottom:4px;">Optimisee iPhone &bull; iPad &bull; PC</div>' +
+      '<div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">' +
+      'Portrait et Paysage sur iOS<br>' +
+      'Plein ecran sur ordinateur (Chrome, Safari, Firefox)<br>' +
+      'Ajoutez l\'appli a votre ecran d\'accueil pour l\'experience optimale' +
+      '</div>' +
     '</div>';
 }
 
