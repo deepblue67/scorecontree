@@ -1179,21 +1179,33 @@
   @media (min-width: 1025px) and (max-width: 1400px) and (orientation: landscape) {
     html, body, #app, #screen-game, #screen-setup, #tab-enjeu { background: #2e6b28 !important; }
 
-    /* Layout identique à l'iPad paysage standard */
-    #app { max-width: 100%; width: 100%; min-height: 100dvh; padding-top: 0 !important; }
+    #app { max-width: 100%; width: 100%; padding-top: 0 !important; }
     .header { padding-top: max(10px, env(safe-area-inset-top, 10px)) !important; padding-bottom: 10px !important; }
-    .bottom-nav { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; max-width: none !important; transform: none !important; border-radius: 0 !important; height: auto !important; z-index: 9999 !important; padding-bottom: env(safe-area-inset-bottom, 0px) !important; background: var(--panel) !important; }
-    .nav-item { padding: 10px 16px 14px !important; font-size: 12px !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; }
-    .nav-item .ni-icon { font-size: 26px !important; line-height: 1.2 !important; margin-bottom: 2px !important; }
 
-    /* Tabs plein écran */
+    /* ── BARRE DE NAV : fixe en bas, hauteur 64px, icônes centrées ── */
+    .bottom-nav {
+      position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
+      max-width: none !important; transform: none !important; border-radius: 0 !important;
+      height: 64px !important; z-index: 9999 !important;
+      padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+      background: var(--panel) !important;
+      display: flex !important; align-items: center !important;
+    }
+    .nav-item {
+      flex: 1 !important; height: 64px !important;
+      display: flex !important; flex-direction: column !important;
+      align-items: center !important; justify-content: center !important;
+      padding: 0 !important; gap: 3px !important;
+      font-size: 11px !important;
+    }
+    .nav-item .ni-icon { font-size: 26px !important; line-height: 1 !important; }
+
+    /* ── TABS OVERLAY (contrat, score, etc.) ── */
     #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties {
       position: fixed !important;
-      top: 55px !important; left: 0 !important; right: 0 !important; bottom: 65px !important;
+      top: 55px !important; left: 0 !important; right: 0 !important; bottom: 64px !important;
       z-index: 200 !important; overflow-y: auto !important; overflow-x: hidden !important;
-      padding: 20px 40px !important;
-      background: #2e6b28 !important;
-      flex-direction: column !important;
+      padding: 20px 40px !important; background: #2e6b28 !important; flex-direction: column !important;
     }
     #tab-contrat[style*="display: none"], #tab-saisie[style*="display: none"],
     #tab-history[style*="display: none"], #tab-stats[style*="display: none"],
@@ -1204,57 +1216,78 @@
     #tab-marque[style*="display:none"], #tab-feuille[style*="display:none"],
     #tab-parties[style*="display:none"] { display: none !important; }
 
-    /* Cards pleine largeur */
     .card { max-width: 100% !important; width: 100% !important; box-sizing: border-box !important; }
 
-    /* Page SETUP : layout 2 colonnes — identique iPad paysage standard */
+    /* ── PAGE SETUP : table gauche, donneur+bouton centrés verticalement à droite ── */
     #screen-setup .body {
       display: grid !important;
-      grid-template-columns: 1fr 380px !important;
+      grid-template-columns: 1fr 400px !important;
       grid-template-rows: 1fr auto auto 1fr !important;
-      column-gap: 32px !important; row-gap: 16px !important;
-      align-items: center !important;
-      padding: 12px 32px 90px !important;
-      min-height: 0 !important;
-      height: calc(100vh - 60px) !important;
+      column-gap: 32px !important;
+      row-gap: 20px !important;
+      align-items: stretch !important;
+      padding: 16px 32px 80px 32px !important;
+      overflow: hidden !important;
+      height: calc(100dvh - 55px) !important;
+      box-sizing: border-box !important;
     }
     #setup-table-wrap {
       grid-column: 1 !important; grid-row: 1 / 5 !important;
-      align-self: center !important; position: relative !important;
-      height: calc(100vh - 160px) !important;
-      max-height: calc(100vh - 160px) !important;
+      align-self: stretch !important;
       display: flex !important; align-items: center !important; justify-content: center !important;
-      overflow: visible !important;
+      overflow: hidden !important; min-height: 0 !important;
     }
     #setup-table-wrap svg {
-      width: auto !important; height: 100% !important;
-      max-height: calc(100vh - 160px) !important; max-width: 100% !important; display: block !important;
+      width: auto !important;
+      height: calc(100dvh - 155px) !important;
+      max-height: calc(100dvh - 155px) !important;
+      max-width: 100% !important; display: block !important;
     }
-    /* Selects Est/Ouest dans la table */
     #setup-wrap-ouest { left: 6% !important; right: auto !important; }
     #setup-wrap-est { right: 6% !important; left: auto !important; }
-    #setup-donneur-wrap { grid-column: 2 !important; grid-row: 2 !important; justify-content: flex-start !important; align-self: end !important; }
+    /* Ligne vide haut → row 1, donneur → row 2 (align-self:end), bouton → row 3 (align-self:start), ligne vide bas → row 4 */
+    #setup-donneur-wrap {
+      grid-column: 2 !important; grid-row: 2 !important;
+      align-self: end !important; justify-content: flex-start !important;
+    }
     #setup-donneur-wrap > div { width: 100%; }
-    #setup-start-btn { grid-column: 2 !important; grid-row: 3 !important; align-self: start !important; }
+    #setup-start-btn {
+      grid-column: 2 !important; grid-row: 3 !important;
+      align-self: start !important;
+    }
+    #setup-mode-label {
+      display: none !important;
+    }
 
-    /* Page TABLE : layout 2 colonnes */
+    /* ── PAGE TABLE DE JEU : table gauche, scores+boutons droite ── */
     #tab-enjeu {
       display: grid !important;
-      grid-template-columns: 1fr 380px;
-      grid-template-rows: auto auto auto;
-      column-gap: 24px; row-gap: 14px;
-      padding: 12px 24px 90px !important;
-      align-items: center;
+      grid-template-columns: 1fr 400px !important;
+      grid-template-rows: auto auto auto !important;
+      column-gap: 24px !important; row-gap: 14px !important;
+      padding: 16px 24px 80px 24px !important;
+      align-items: start !important;
+      box-sizing: border-box !important;
     }
-    #ej-table-wrap { grid-column: 1 !important; grid-row: 1 / 4 !important; max-width: 100% !important; padding: 0 !important; align-self: stretch; }
-    #ej-table-wrap svg { width: auto !important; height: calc(100dvh - 160px) !important; max-height: 640px !important; max-width: 100% !important; display: block !important; }
+    #ej-table-wrap {
+      grid-column: 1 !important; grid-row: 1 / 4 !important;
+      max-width: 100% !important; padding: 0 !important;
+      align-self: center !important;
+    }
+    #ej-table-wrap svg {
+      width: auto !important;
+      height: calc(100dvh - 135px) !important;
+      max-height: calc(100dvh - 135px) !important;
+      max-width: 100% !important; display: block !important;
+    }
     #tab-enjeu > div:nth-child(2) { grid-column: 2; grid-row: 1; align-self: center; }
-    #tab-enjeu > div:nth-child(3) { grid-column: 2; grid-row: 2; align-self: center; }
+    #tab-enjeu > div:nth-child(3) { grid-column: 2; grid-row: 2; }
     #tab-enjeu > div:nth-child(2) .score-board { grid-template-columns: 1fr !important; gap: 8px; }
     #tab-enjeu > div:nth-child(2) .score-team { display: flex !important; align-items: center !important; justify-content: space-between !important; padding: 14px 16px !important; }
     #tab-enjeu > div:nth-child(2) .score-team .t-name { margin-bottom: 0 !important; font-size: 12px !important; line-height: 1.3 !important; white-space: normal !important; }
     #tab-enjeu > div:nth-child(2) .score-team .t-score { font-size: 56px !important; }
     #ej-action-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+    #ej-score-wrap { max-width: none !important; margin: 0 !important; }
   }
 </style>
 </head>
@@ -1710,7 +1743,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260514_1930</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260514_1940</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
