@@ -1753,7 +1753,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260515_1310</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260515_1335</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -4024,7 +4024,26 @@ function showMancheEnCours() {
       <div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">🎯 Premier à jouer</div>
       <div style="font-size:16px;font-weight:800;color:#f0c040;">${firstPlayer}</div>
     </div>`;
-  eid('mec-first-player').style.cssText = '';
+  // Adapter le layout mec-body selon l'appareil
+  const isLandscape = window.innerWidth > window.innerHeight;
+  const isTablet = window.innerWidth >= 900 || window.innerHeight >= 900;
+  if (isTablet && isLandscape) {
+    eid('mec-body').style.flexDirection = 'row';
+    eid('mec-body').style.alignItems = 'center';
+    eid('mec-body').style.justifyContent = 'center';
+    eid('mec-body').style.gap = '40px';
+    eid('mec-body').style.padding = '20px 48px 80px';
+    eid('mec-first-player').style.cssText = 'width:240px;flex-shrink:0;flex-direction:column;gap:14px;align-self:center;display:flex;';
+    eid('mec-scores').style.cssText = 'width:240px;flex-shrink:0;gap:14px;display:flex;flex-direction:column;';
+    // Carte grande
+    const cardH = Math.min(window.innerHeight - 140, 480);
+    eid('mec-card-wrap').style.cssText = 'flex:0 0 auto;width:' + Math.round(cardH * 240/340) + 'px;';
+  } else {
+    eid('mec-body').style.cssText = '';
+    eid('mec-first-player').style.cssText = '';
+    eid('mec-card-wrap').style.cssText = '';
+    eid('mec-scores').style.cssText = '';
+  }
 
   // Carte SVG
   const cx=120, cy=165;
@@ -4724,7 +4743,16 @@ function fixSetupTableSize() {
   }
 }
 window.addEventListener('load', () => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); setTimeout(fixEastWestPC, 400); setTimeout(fixEastWestPC, 800); });
-window.addEventListener('resize', () => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); setTimeout(fixEastWestPC, 400); });
+window.addEventListener('resize', () => {
+  fixSetupTableSize();
+  setTimeout(fixEastWestPC, 100);
+  setTimeout(fixEastWestPC, 400);
+  // Relancer le layout manche si l'écran est visible
+  if (document.getElementById('screen-mancheencours') &&
+      document.getElementById('screen-mancheencours').classList.contains('active') && S.contract) {
+    showMancheEnCours();
+  }
+});
 
 // Re-rendre la page active quand on tourne le téléphone (initiales 3↔6 chars)
 let _lastOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
