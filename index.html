@@ -762,7 +762,7 @@
   /* ── WINNER SCREEN ── */
   /* ── MANCHE EN COURS ── */
   #screen-mancheencours { background: var(--bg); flex-direction: column; min-height: 100vh; }
-  .mec-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 28px; padding: 8px 16px 70px; }
+  .mec-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 28px; padding: 8px 16px 90px; }
   /* 2 boxes toujours séparées */
   #mec-first-player { display: flex; flex-direction: row; gap: 12px; width: 100%; max-width: 420px; background: transparent !important; padding: 0 !important; border-radius: 0 !important; }
   #mec-fp-donneur, #mec-fp-premier { flex: 1; }
@@ -802,30 +802,74 @@
   #mec-card-wrap:active { transform: scale(0.96) !important; opacity: 0.85; }
   /* Paysage iPhone */
   @media (max-width: 899px) and (orientation: landscape) {
-    /* Fin de partie iPhone paysage : layout colonne compact centré */
+    /* Fin de partie iPhone paysage : layout row, occupe toute la largeur */
+    #screen-winner {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: stretch !important;
+      justify-content: stretch !important;
+      padding: 8px 0 52px 0 !important;
+      gap: 0 !important;
+      overflow: hidden !important;
+    }
     .winner-screen {
-      flex-direction: column !important;
-      padding: 6px 32px 58px !important;
-      gap: 8px !important;
+      flex-direction: row !important;
+      padding: 0 !important;
+      gap: 0 !important;
+      width: 100% !important;
+      align-items: stretch !important;
+      justify-content: stretch !important;
+    }
+    /* Colonne gauche : trophée + titre */
+    .winner-trophy {
+      font-size: 48px !important;
+      flex-shrink: 0 !important;
+      display: flex !important;
       align-items: center !important;
       justify-content: center !important;
+      padding: 0 16px !important;
+      width: 80px !important;
     }
-    .winner-trophy { font-size: 40px !important; }
-    .winner-title { font-size: 20px !important; margin: 0 !important; }
-    .winner-sub { font-size: 12px !important; margin: 0 !important; }
+    .winner-left {
+      flex: 1 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      justify-content: center !important;
+      padding: 8px 16px !important;
+      gap: 4px !important;
+    }
+    .winner-title { font-size: 20px !important; margin: 0 !important; text-align: left !important; }
+    .winner-sub { font-size: 12px !important; margin: 0 !important; text-align: left !important; }
+    /* Colonne droite : scores + bouton */
+    .winner-right {
+      flex: 1 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      justify-content: center !important;
+      padding: 8px 16px 8px 8px !important;
+      gap: 8px !important;
+    }
     .winner-scores {
-      flex-direction: row !important;
+      flex-direction: column !important;
       margin: 0 !important;
-      gap: 10px !important;
+      gap: 6px !important;
+      width: 100% !important;
     }
-    .winner-score-item { padding: 8px 20px !important; }
+    .winner-score-item {
+      padding: 8px 14px !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
     .winner-score-item .ws-name { font-size: 11px !important; }
     .winner-score-item .ws-val { font-size: 22px !important; }
     #screen-winner .btn-gold {
-      padding: 10px 24px !important;
+      padding: 10px 14px !important;
       font-size: 13px !important;
       margin-top: 0 !important;
-      width: auto !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
     }
     .mec-body {
       flex-direction: row;
@@ -1779,7 +1823,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260515_1800</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260515_2120</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -4110,13 +4154,8 @@ function showMancheEnCours() {
     document.querySelectorAll('.mec-team-name').forEach(el => { el.style.cssText = 'font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,0.9);line-height:1.3;margin-bottom:12px;'; });
     document.querySelectorAll('.mec-team-score').forEach(el => { el.style.cssText = 'font-size:72px;font-weight:900;color:#fff;line-height:1;'; });
   } else if (isLandscape && !isTablet) {
-    // iPhone paysage : innerHeight connu, header~44px, nav~49px
-    // On mesure le mec-body lui-même pour avoir la hauteur exacte disponible
-    const mecBody = eid('mec-body');
-    const mecScreen = eid('screen-mancheencours');
-    // Hauteur dispo = hauteur de l'écran moins header (44px) moins nav (49px) moins marges (16px)
-    // 55% de innerHeight = plafond absolu pour que la carte tienne toujours
-    const cardH = Math.round(Math.min(window.innerHeight * 0.55, 160));
+    // iPhone paysage : même principe que iPad Pro (innerHeight - chrome fixe)
+    const cardH = Math.min(window.innerHeight - 109, 150);
     const cardW = Math.round(cardH * 240/340);
     const colW = Math.round((window.innerWidth - cardW - 16*4) / 2);
 
