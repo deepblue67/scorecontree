@@ -802,31 +802,30 @@
   #mec-card-wrap:active { transform: scale(0.96) !important; opacity: 0.85; }
   /* Paysage iPhone */
   @media (max-width: 899px) and (orientation: landscape) {
-    /* Fin de partie iPhone paysage : layout horizontal */
+    /* Fin de partie iPhone paysage : layout colonne compact centré */
     .winner-screen {
-      flex-direction: row !important;
-      padding: 8px 24px 60px !important;
-      gap: 24px !important;
+      flex-direction: column !important;
+      padding: 6px 32px 58px !important;
+      gap: 8px !important;
       align-items: center !important;
       justify-content: center !important;
     }
-    .winner-trophy { font-size: 52px !important; flex-shrink: 0 !important; }
-    /* Bloc central : titre + sous-titre */
-    .winner-title { font-size: 22px !important; }
-    .winner-sub { font-size: 13px !important; }
+    .winner-trophy { font-size: 40px !important; }
+    .winner-title { font-size: 20px !important; margin: 0 !important; }
+    .winner-sub { font-size: 12px !important; margin: 0 !important; }
     .winner-scores {
-      flex-direction: column !important;
+      flex-direction: row !important;
       margin: 0 !important;
-      gap: 8px !important;
-      flex-shrink: 0 !important;
+      gap: 10px !important;
     }
-    .winner-score-item { padding: 8px 16px !important; min-width: 140px !important; }
+    .winner-score-item { padding: 8px 20px !important; }
     .winner-score-item .ws-name { font-size: 11px !important; }
-    .winner-score-item .ws-val { font-size: 24px !important; }
+    .winner-score-item .ws-val { font-size: 22px !important; }
     #screen-winner .btn-gold {
-      padding: 10px 16px !important;
+      padding: 10px 24px !important;
       font-size: 13px !important;
       margin-top: 0 !important;
+      width: auto !important;
     }
     .mec-body {
       flex-direction: row;
@@ -1780,7 +1779,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260515_1745</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260515_1800</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -4116,8 +4115,8 @@ function showMancheEnCours() {
     const mecBody = eid('mec-body');
     const mecScreen = eid('screen-mancheencours');
     // Hauteur dispo = hauteur de l'écran moins header (44px) moins nav (49px) moins marges (16px)
-    const usableH = window.innerHeight - 44 - 49 - 16;
-    const cardH = Math.round(Math.min(usableH, 190));
+    // 55% de innerHeight = plafond absolu pour que la carte tienne toujours
+    const cardH = Math.round(Math.min(window.innerHeight * 0.55, 160));
     const cardW = Math.round(cardH * 240/340);
     const colW = Math.round((window.innerWidth - cardW - 16*4) / 2);
 
