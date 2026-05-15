@@ -607,7 +607,7 @@
   <!-- SPLASH SCREEN -->
   <div id="splash">
     <div id="splash-card">
-      <div style="font-size:48px;line-height:1;">♠</div>
+      <div style="font-size:48px;line-height:1;color:#1a1a1a;">♠</div>
       <div style="font-size:12px;font-weight:700;color:#5a3a0a;letter-spacing:.05em;">BELOTE</div>
     </div>
     <div id="splash-title">Belote Contrée</div>
@@ -1054,7 +1054,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260515_2235</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260515_2232</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -5321,7 +5321,12 @@ function showSyncImport() {
   modal.style.display = 'flex';
 }
 
+let _settingsPreviousScreen = 'setup';
 function showSettingsScreen() {
+  // Mémoriser l'écran actif avant d'ouvrir les réglages
+  const active = document.querySelector('.screen.active');
+  _settingsPreviousScreen = active ? active.id.replace('screen-', '') : 'setup';
+
   dismissOnboarding();
   renderSettingsPlayers();
   updateSetupModeLabel();
@@ -5342,8 +5347,11 @@ function closeSettings() { hideSettingsScreen(); }
 
 function hideSettingsScreen() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  eid('screen-setup').classList.add('active');
-  // iPad paysage : repositionner Est/Ouest après retour des réglages
+  const target = _settingsPreviousScreen || 'setup';
+  const el = eid('screen-' + target);
+  if(el) el.classList.add('active');
+  else eid('screen-setup').classList.add('active');
+  // iPad paysage : repositionner Est/Ouest après retour
   setTimeout(fixEastWestPC, 80);
   setTimeout(fixEastWestPC, 300);
 }
