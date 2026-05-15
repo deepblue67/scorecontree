@@ -802,75 +802,20 @@
   #mec-card-wrap:active { transform: scale(0.96) !important; opacity: 0.85; }
   /* Paysage iPhone */
   @media (max-width: 899px) and (orientation: landscape) {
-    /* Fin de partie iPhone paysage : layout row, occupe toute la largeur */
-    #screen-winner {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: stretch !important;
-      justify-content: stretch !important;
-      padding: 8px 0 52px 0 !important;
-      gap: 0 !important;
-      overflow: hidden !important;
-    }
+    /* Fin de partie iPhone paysage : compact, tout visible */
     .winner-screen {
-      flex-direction: row !important;
-      padding: 0 !important;
-      gap: 0 !important;
-      width: 100% !important;
-      align-items: stretch !important;
-      justify-content: stretch !important;
-    }
-    /* Colonne gauche : trophée + titre */
-    .winner-trophy {
-      font-size: 48px !important;
-      flex-shrink: 0 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      padding: 0 16px !important;
-      width: 80px !important;
-    }
-    .winner-left {
-      flex: 1 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: flex-start !important;
-      justify-content: center !important;
-      padding: 8px 16px !important;
-      gap: 4px !important;
-    }
-    .winner-title { font-size: 20px !important; margin: 0 !important; text-align: left !important; }
-    .winner-sub { font-size: 12px !important; margin: 0 !important; text-align: left !important; }
-    /* Colonne droite : scores + bouton */
-    .winner-right {
-      flex: 1 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: stretch !important;
-      justify-content: center !important;
-      padding: 8px 16px 8px 8px !important;
-      gap: 8px !important;
-    }
-    .winner-scores {
-      flex-direction: column !important;
-      margin: 0 !important;
+      padding: 6px 24px 58px !important;
       gap: 6px !important;
-      width: 100% !important;
+      justify-content: center !important;
     }
-    .winner-score-item {
-      padding: 8px 14px !important;
-      width: 100% !important;
-      box-sizing: border-box !important;
-    }
+    .winner-trophy { font-size: 32px !important; }
+    .winner-title { font-size: 18px !important; }
+    .winner-sub { font-size: 12px !important; }
+    .winner-scores { flex-direction: row !important; margin: 0 !important; gap: 8px !important; }
+    .winner-score-item { padding: 8px 16px !important; }
     .winner-score-item .ws-name { font-size: 11px !important; }
-    .winner-score-item .ws-val { font-size: 22px !important; }
-    #screen-winner .btn-gold {
-      padding: 10px 14px !important;
-      font-size: 13px !important;
-      margin-top: 0 !important;
-      width: 100% !important;
-      box-sizing: border-box !important;
-    }
+    .winner-score-item .ws-val { font-size: 20px !important; }
+    #screen-winner .btn-gold { padding: 10px 20px !important; font-size: 13px !important; width: auto !important; }
     .mec-body {
       flex-direction: row;
       align-items: center;
@@ -1823,7 +1768,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260515_2120</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260515_2130</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
