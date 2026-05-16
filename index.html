@@ -1132,7 +1132,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1315</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1330</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1680,19 +1680,7 @@ function showTab(tab) {
   const enjeu = document.getElementById('tab-enjeu');
   const isOverlay = ['contrat','saisie','history','stats','marque','feuille','parties'].includes(tab);
   if(enjeu) enjeu.classList.toggle('overlay-open', isOverlay);
-  // Sur iPad paysage : bloquer le scroll élastique iOS du body
-  const isTabletLandscape = window.innerWidth >= 1025 && window.innerWidth > window.innerHeight;
-  if(isTabletLandscape) {
-    if(isOverlay) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-    } else {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-    }
-  }
+
 
   ['table','contrat','score','parties','stats'].forEach(t=>{
     const nav = document.getElementById('nav-'+t);
