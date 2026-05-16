@@ -1132,7 +1132,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1340</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1345</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -2408,7 +2408,25 @@ function changeTeams() {
 // ═══════════════════════════════════════════════════════════
 //  HISTORY
 // ═══════════════════════════════════════════════════════════
+function getTableSizes() {
+  const isIpadLandscape = window.innerWidth >= 1025 && window.innerWidth > window.innerHeight;
+  return {
+    fsHeader:     isIpadLandscape ? '15px' : '10px',
+    fsPad:        isIpadLandscape ? '10px 8px' : '4px',
+    fsNum:        isIpadLandscape ? '16px' : '12px',
+    fsContrat:    isIpadLandscape ? '16px' : '12px',
+    fsPreneur:    isIpadLandscape ? '15px' : '11px',
+    fsBadge:      isIpadLandscape ? '13px' : '10px',
+    fsBadgePad:   isIpadLandscape ? '3px 10px' : '1px 6px',
+    fsScore:      isIpadLandscape ? '18px' : '13px',
+    fsTotal:      isIpadLandscape ? '20px' : '14px',
+    fsTotalLabel: isIpadLandscape ? '16px' : '12px',
+    fsTdPad:      isIpadLandscape ? '10px 8px' : '5px 4px',
+  };
+}
+
 function renderHistory() {
+  const { fsBadge, fsBadgePad, fsTdPad, fsTotal, fsTotalLabel, fsHeader, fsPad, fsScore, fsPreneur, fsNum, fsContrat } = getTableSizes();
   const el = eid('history-content');
   if(!S.history.length) {
     el.innerHTML = '<div style="text-align:center;padding:20px 16px;color:var(--text3);font-size:14px;"><div style="font-size:32px;margin-bottom:8px;">📋</div>Aucune manche jouée dans cette partie</div>';
@@ -3638,19 +3656,7 @@ function renderFeuille() {
   const el = eid('feuille-content');
   const titleEl = eid('feuille-title');
   if(titleEl) titleEl.innerHTML = S.t1.name + '<br><span style="font-size:11px;color:#888;font-weight:600;">VS</span><br>' + S.t2.name + '<br>&nbsp;';
-  // Tailles adaptées selon l'appareil
-  const isIpadLandscape = window.innerWidth >= 1025 && window.innerWidth > window.innerHeight;
-  const fsHeader = isIpadLandscape ? '15px' : '10px';
-  const fsPad = isIpadLandscape ? '10px 8px' : '4px';
-  const fsNum = isIpadLandscape ? '16px' : '12px';
-  const fsContrat = isIpadLandscape ? '16px' : '12px';
-  const fsPreneur = isIpadLandscape ? '15px' : '11px';
-  const fsBadge = isIpadLandscape ? '13px' : '10px';
-  const fsBadgePad = isIpadLandscape ? '3px 10px' : '1px 6px';
-  const fsScore = isIpadLandscape ? '18px' : '13px';
-  const fsTotal = isIpadLandscape ? '20px' : '14px';
-  const fsTotalLabel = isIpadLandscape ? '16px' : '12px';
-  const fsTdPad = isIpadLandscape ? '10px 8px' : '5px 4px';
+  const { fsHeader, fsPad, fsNum, fsContrat, fsPreneur, fsBadge, fsBadgePad, fsScore, fsTotal, fsTotalLabel, fsTdPad } = getTableSizes();
 
   if(!S.history.length) {
     el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);">Aucune manche jouée</div>';
