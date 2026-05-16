@@ -304,10 +304,10 @@
 
     /* Tabs overlay fixed */
     #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties {
-      position: fixed !important; top: 44px !important; left: 0 !important; right: 0 !important; bottom: 48px !important;
+      position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
       z-index: 500 !important; overflow-y: auto !important; overflow-x: hidden !important;
       -webkit-overflow-scrolling: touch !important; overscroll-behavior: none !important;
-      padding: 8px 12px 8px !important; background: #2e6b28 !important;
+      padding: 52px 12px 56px !important; background: #2e6b28 !important;
       -webkit-transform: translateZ(0) !important; transform: translateZ(0) !important; will-change: transform !important;
     }
 
@@ -1136,7 +1136,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1455</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1510</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1678,9 +1678,28 @@ function showTab(tab) {
   // Masquer la roue crantée sur les pages overlay, visible uniquement sur TABLE
   const gearBtn = eid('game-settings-btn');
   if(gearBtn) gearBtn.style.display = (tab === 'enjeu') ? 'flex' : 'none';
-  // iPad et iPhone paysage : bloquer le scroll élastique iOS via une classe CSS
+  // Paysage : bloquer le scroll élastique iOS
   const isLandscapeDevice = window.innerWidth > window.innerHeight;
-  if(isLandscapeDevice) document.body.classList.toggle('ipad-overlay-active', isOverlay);
+  if(isLandscapeDevice) {
+    document.body.classList.toggle('ipad-overlay-active', isOverlay);
+    if(isOverlay) {
+      document._blockTouch = (e) => {
+        // Laisser scroller à l'intérieur des tabs overlay
+        let el = e.target;
+        while(el && el !== document.body) {
+          if(el.id && ['tab-contrat','tab-saisie','tab-history','tab-stats','tab-marque','tab-feuille','tab-parties'].includes(el.id)) return;
+          el = el.parentElement;
+        }
+        e.preventDefault();
+      };
+      document.addEventListener('touchmove', document._blockTouch, { passive: false });
+    } else {
+      if(document._blockTouch) {
+        document.removeEventListener('touchmove', document._blockTouch);
+        document._blockTouch = null;
+      }
+    }
+  }
 
 
   ['table','contrat','score','parties','stats'].forEach(t=>{
