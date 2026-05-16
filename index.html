@@ -1031,6 +1031,7 @@
       <div style="display:flex;gap:0;margin-bottom:14px;background:rgba(0,0,0,0.15);border-radius:12px;padding:3px;">
         <button id="sub-tab-feuille" onclick="showSubTab('feuille')" style="flex:1;padding:8px;border-radius:10px;border:none;background:var(--green);color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;">🗒 En cours</button>
         <button id="sub-tab-history" onclick="showSubTab('history')" style="flex:1;padding:8px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.6);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;">📋 Historique</button>
+        <button onclick="debugShowHistory()" style="padding:6px 10px;border-radius:10px;border:none;background:rgba(255,100,0,0.4);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;">🔍 Debug</button>
       </div>
       <div id="sub-content-parties"></div>
     </div>
@@ -1135,7 +1136,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1415</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1420</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -2694,6 +2695,15 @@ function buildPastTable(p) {
     + '<td style="padding:'+sz.fsTdPad+';font-size:'+sz.fsTotal+';font-weight:900;text-align:right;color:#1a3a8c;">'+tot1+'</td>'
     + '<td style="padding:'+sz.fsTdPad+';font-size:'+sz.fsTotal+';font-weight:900;text-align:right;color:#1a3a8c;">'+tot2+'</td>'
     + '</tr></tfoot></table>';
+}
+
+function debugShowHistory() {
+  try {
+    const past = JSON.parse(localStorage.getItem('belote_history') || '[]');
+    if(!past.length || !past[0].history || !past[0].history.length) { alert('Pas de données'); return; }
+    const h = past[0].history[0];
+    alert('Champs: ' + Object.keys(h).join(', ') + '\n\nValeurs: ' + JSON.stringify(h));
+  } catch(e) { alert('Erreur: ' + e); }
 }
 
 function renderPastHistory() {
