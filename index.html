@@ -1135,7 +1135,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1405</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1415</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -2655,11 +2655,18 @@ function toggleDay(date) {
 
 function buildPastTable(p) {
   if(!p.history || !p.history.length) return '<div style="font-size:12px;color:#aaa;text-align:center;padding:8px;">Détail non disponible</div>';
+
   const sz = getTableSizes();
   const tot1 = (p.history[p.history.length-1].total1 !== undefined) ? p.history[p.history.length-1].total1 : p.score1;
   const tot2 = (p.history[p.history.length-1].total2 !== undefined) ? p.history[p.history.length-1].total2 : p.score2;
   const rows = p.history.map(h => {
-    const contrat = (h.contract && h.contract !== '—') ? h.contract : '—';
+    // Chercher le contrat dans tous les formats possibles
+    const contrat = (h.contract && h.contract !== '—' && h.contract !== '') ? h.contract
+      : (h.contrat && h.contrat !== '—' && h.contrat !== '') ? h.contrat
+      : (h.val && h.suit) ? (h.val + ' ' + h.suit)
+      : (h.value && h.suit) ? (h.value + ' ' + h.suit)
+      : (h.label && h.label !== '—') ? h.label
+      : '—';
     const badgeColor = h.chute ? '#cc2222' : '#2a7d2e';
     const badgeLabel = h.chute ? 'Chute' : 'Fait';
     const badge = '<span style="background:'+badgeColor+';color:#fff;font-size:'+sz.fsBadge+';font-weight:700;padding:'+sz.fsBadgePad+';border-radius:4px;">'+badgeLabel+'</span>';
