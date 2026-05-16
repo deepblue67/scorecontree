@@ -512,7 +512,10 @@
     .nav-item .ni-icon { font-size: 26px !important; line-height: 1 !important; }
 
     /* Tabs overlay */
-    #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties { position: fixed !important; top: 60px !important; left: 0 !important; right: 0 !important; bottom: 68px !important; z-index: 200 !important; overflow-y: auto !important; overflow-x: hidden !important; overscroll-behavior: contain !important; padding: 20px 40px !important; background: #2e6b28 !important; flex-direction: column !important; -webkit-overflow-scrolling: touch !important; }
+    #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties { position: fixed !important; top: 60px !important; left: 0 !important; right: 0 !important; bottom: 68px !important; z-index: 200 !important; overflow-y: auto !important; overflow-x: hidden !important; overscroll-behavior: none !important; -webkit-overflow-scrolling: touch !important; padding: 20px 40px !important; background: #2e6b28 !important; flex-direction: column !important; touch-action: pan-y !important; }
+    /* Bloquer le scroll élastique iOS quand un overlay est actif */
+    body.ipad-overlay-active { overflow: hidden !important; touch-action: none !important; }
+    body.ipad-overlay-active #tab-enjeu { pointer-events: none !important; }
     #tab-contrat[style*="display: none"], #tab-saisie[style*="display: none"], #tab-history[style*="display: none"], #tab-stats[style*="display: none"], #tab-marque[style*="display: none"], #tab-feuille[style*="display: none"], #tab-parties[style*="display: none"],
     #tab-contrat[style*="display:none"], #tab-saisie[style*="display:none"], #tab-history[style*="display:none"], #tab-stats[style*="display:none"], #tab-marque[style*="display:none"], #tab-feuille[style*="display:none"], #tab-parties[style*="display:none"] { display: none !important; }
     .card { max-width: 100% !important; width: 100% !important; box-sizing: border-box !important; }
@@ -1132,7 +1135,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1345</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1355</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1671,6 +1674,9 @@ function showTab(tab) {
   const enjeu = document.getElementById('tab-enjeu');
   const isOverlay = ['contrat','saisie','history','stats','marque','feuille','parties'].includes(tab);
   if(enjeu) enjeu.classList.toggle('overlay-open', isOverlay);
+  // iPad paysage : bloquer le scroll élastique iOS via une classe CSS
+  const isIpadPaysage = window.innerWidth >= 1025 && window.innerWidth > window.innerHeight;
+  if(isIpadPaysage) document.body.classList.toggle('ipad-overlay-active', isOverlay);
 
 
   ['table','contrat','score','parties','stats'].forEach(t=>{
