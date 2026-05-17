@@ -1203,7 +1203,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260517_1855</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260517_1900</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1735,6 +1735,32 @@ function showTab(tab) {
   if(target) {
     target.classList.remove('tab-hidden');
     target.style.display = 'flex';
+    // iPad portrait : forcer position:fixed en JS car style inline écrase le CSS
+    const isIpadPortrait = window.innerWidth >= 600 && window.innerHeight > window.innerWidth && window.innerWidth < 1025;
+    if(isIpadPortrait && tab !== 'enjeu') {
+      target.style.position = 'fixed';
+      target.style.top = '55px';
+      target.style.left = '0';
+      target.style.right = '0';
+      target.style.bottom = '70px';
+      target.style.width = '100%';
+      target.style.zIndex = '200';
+      target.style.overflowY = 'auto';
+      target.style.padding = '24px 32px';
+      target.style.background = '#2e6b28';
+      target.style.boxSizing = 'border-box';
+      target.style.flexDirection = 'column';
+      target.style.gap = '16px';
+    } else if(tab !== 'enjeu') {
+      // Autres appareils : nettoyer les styles iPad portrait
+      target.style.position = '';
+      target.style.top = '';
+      target.style.left = '';
+      target.style.right = '';
+      target.style.bottom = '';
+      target.style.width = '';
+      target.style.zIndex = '';
+    }
   }
 
   // Bloquer le scroll de la table quand un overlay est actif
