@@ -292,8 +292,8 @@
   @media (max-width: 899px) and (orientation: landscape) {
     #app { max-width: 100%; width: 100%; padding-top: 0 !important; }
 
-    /* Header compact */
-    .header { padding: 6px 14px !important; min-height: 0; }
+    /* Header compact uniforme */
+    .header { padding: 6px 14px !important; min-height: 44px !important; height: 44px !important; box-sizing: border-box !important; align-items: center !important; }
     .header h1 { font-size: 14px; }
     .header .sub { font-size: 10px; }
 
@@ -306,8 +306,8 @@
     #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties {
       position: fixed !important; top: 44px !important; left: 0 !important; right: 0 !important; bottom: 48px !important;
       z-index: 500 !important; overflow-y: auto !important; overflow-x: hidden !important;
-      -webkit-overflow-scrolling: touch !important; overscroll-behavior: contain !important;
-      padding: 8px 12px 8px !important; background: #2e6b28 !important;
+      -webkit-overflow-scrolling: touch !important; overscroll-behavior: none !important;
+      padding: 8px 12px !important; background: #2e6b28 !important;
       -webkit-transform: translateZ(0) !important; transform: translateZ(0) !important; will-change: transform !important;
     }
 
@@ -512,7 +512,10 @@
     .nav-item .ni-icon { font-size: 26px !important; line-height: 1 !important; }
 
     /* Tabs overlay */
-    #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties { position: fixed !important; top: 60px !important; left: 0 !important; right: 0 !important; bottom: 68px !important; z-index: 200 !important; overflow-y: auto !important; overflow-x: hidden !important; overscroll-behavior: contain !important; padding: 20px 40px !important; background: #2e6b28 !important; flex-direction: column !important; -webkit-overflow-scrolling: touch !important; }
+    #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties { position: fixed !important; top: 60px !important; left: 0 !important; right: 0 !important; bottom: 68px !important; z-index: 200 !important; overflow-y: auto !important; overflow-x: hidden !important; overscroll-behavior: none !important; -webkit-overflow-scrolling: touch !important; padding: 20px 40px !important; background: #2e6b28 !important; flex-direction: column !important; touch-action: pan-y !important; }
+    /* Bloquer le scroll élastique iOS quand un overlay est actif */
+    body.ipad-overlay-active { overflow: hidden !important; touch-action: none !important; }
+    body.ipad-overlay-active #tab-enjeu { visibility: hidden !important; pointer-events: none !important; }
     #tab-contrat[style*="display: none"], #tab-saisie[style*="display: none"], #tab-history[style*="display: none"], #tab-stats[style*="display: none"], #tab-marque[style*="display: none"], #tab-feuille[style*="display: none"], #tab-parties[style*="display: none"],
     #tab-contrat[style*="display:none"], #tab-saisie[style*="display:none"], #tab-history[style*="display:none"], #tab-stats[style*="display:none"], #tab-marque[style*="display:none"], #tab-feuille[style*="display:none"], #tab-parties[style*="display:none"] { display: none !important; }
     .card { max-width: 100% !important; width: 100% !important; box-sizing: border-box !important; }
@@ -811,7 +814,7 @@
   <!-- ════════════════════════════════ SCREEN: GAME ════════════════════════════════ -->
   <div id="screen-game" class="screen">
     <div class="header" id="game-header" style="padding:12px 16px;justify-content:center;position:relative;">
-      <button onclick="showSettingsScreen()" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;" title="Réglages">⚙️</button>
+      <button id="game-settings-btn" onclick="showSettingsScreen()" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;" title="Réglages">⚙️</button>
       <div style="text-align:center;">
         <h1 id="game-title">Belote Contrée</h1>
         <div class="sub" id="game-sub" style="display:none;"></div>
@@ -1028,6 +1031,7 @@
       <div style="display:flex;gap:0;margin-bottom:14px;background:rgba(0,0,0,0.15);border-radius:12px;padding:3px;">
         <button id="sub-tab-feuille" onclick="showSubTab('feuille')" style="flex:1;padding:8px;border-radius:10px;border:none;background:var(--green);color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;">🗒 En cours</button>
         <button id="sub-tab-history" onclick="showSubTab('history')" style="flex:1;padding:8px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.6);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;">📋 Historique</button>
+
       </div>
       <div id="sub-content-parties"></div>
     </div>
@@ -1132,7 +1136,7 @@
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1315</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260516_1525</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1662,37 +1666,41 @@ function showTab(tab) {
   });
   const target = document.getElementById('tab-'+tab);
   if(target) {
-    // Sur tablette paysage (iPad Pro etc) : laisser le CSS gérer position:fixed
-    // On met juste display:flex sans écraser les autres propriétés CSS
+    // Afficher le tab
     target.style.removeProperty('display');
     target.style.display = 'flex';
-    // Forcer reflow pour que les tabs position:fixed soient recalculés
-    // (nécessaire en iPhone paysage quand on vient de screen-winner)
-    void target.offsetHeight;
-    requestAnimationFrame(() => {
-      target.style.display = 'none';
-      void target.offsetHeight;
-      target.style.display = 'flex';
-    });
   }
 
   // Bloquer le scroll de la table quand un overlay est actif
   const enjeu = document.getElementById('tab-enjeu');
   const isOverlay = ['contrat','saisie','history','stats','marque','feuille','parties'].includes(tab);
   if(enjeu) enjeu.classList.toggle('overlay-open', isOverlay);
-  // Sur iPad paysage : bloquer le scroll élastique iOS du body
-  const isTabletLandscape = window.innerWidth >= 1025 && window.innerWidth > window.innerHeight;
-  if(isTabletLandscape) {
+  // Masquer la roue crantée sur les pages overlay, visible uniquement sur TABLE
+  const gearBtn = eid('game-settings-btn');
+  if(gearBtn) gearBtn.style.display = (tab === 'enjeu') ? 'flex' : 'none';
+  // Paysage : bloquer le scroll élastique iOS
+  const isLandscapeDevice = window.innerWidth > window.innerHeight;
+  if(isLandscapeDevice) {
+    document.body.classList.toggle('ipad-overlay-active', isOverlay);
     if(isOverlay) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
+      document._blockTouch = (e) => {
+        // Laisser scroller à l'intérieur des tabs overlay
+        let el = e.target;
+        while(el && el !== document.body) {
+          if(el.id && ['tab-contrat','tab-saisie','tab-history','tab-stats','tab-marque','tab-feuille','tab-parties'].includes(el.id)) return;
+          el = el.parentElement;
+        }
+        e.preventDefault();
+      };
+      document.addEventListener('touchmove', document._blockTouch, { passive: false });
     } else {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
+      if(document._blockTouch) {
+        document.removeEventListener('touchmove', document._blockTouch);
+        document._blockTouch = null;
+      }
     }
   }
+
 
   ['table','contrat','score','parties','stats'].forEach(t=>{
     const nav = document.getElementById('nav-'+t);
@@ -2429,7 +2437,25 @@ function changeTeams() {
 // ═══════════════════════════════════════════════════════════
 //  HISTORY
 // ═══════════════════════════════════════════════════════════
+function getTableSizes() {
+  const isIpadLandscape = window.innerWidth >= 1025 && window.innerWidth > window.innerHeight;
+  return {
+    fsHeader:     isIpadLandscape ? '15px' : '10px',
+    fsPad:        isIpadLandscape ? '10px 8px' : '4px',
+    fsNum:        isIpadLandscape ? '16px' : '12px',
+    fsContrat:    isIpadLandscape ? '16px' : '12px',
+    fsPreneur:    isIpadLandscape ? '15px' : '11px',
+    fsBadge:      isIpadLandscape ? '13px' : '10px',
+    fsBadgePad:   isIpadLandscape ? '3px 10px' : '1px 6px',
+    fsScore:      isIpadLandscape ? '18px' : '13px',
+    fsTotal:      isIpadLandscape ? '20px' : '14px',
+    fsTotalLabel: isIpadLandscape ? '16px' : '12px',
+    fsTdPad:      isIpadLandscape ? '10px 8px' : '5px 4px',
+  };
+}
+
 function renderHistory() {
+  const { fsBadge, fsBadgePad, fsTdPad, fsTotal, fsTotalLabel, fsHeader, fsPad, fsScore, fsPreneur, fsNum, fsContrat } = getTableSizes();
   const el = eid('history-content');
   if(!S.history.length) {
     el.innerHTML = '<div style="text-align:center;padding:20px 16px;color:var(--text3);font-size:14px;"><div style="font-size:32px;margin-bottom:8px;">📋</div>Aucune manche jouée dans cette partie</div>';
@@ -2650,6 +2676,58 @@ function toggleDay(date) {
   if(arrow) arrow.style.transform = isOpen ? 'rotate(-90deg)' : 'rotate(0deg)';
 }
 
+function buildPastTable(p) {
+  if(!p.history || !p.history.length) return '<div style="font-size:12px;color:#aaa;text-align:center;padding:8px;">Détail non disponible</div>';
+
+  const sz = getTableSizes();
+  const tot1 = (p.history[p.history.length-1].total1 !== undefined) ? p.history[p.history.length-1].total1 : p.score1;
+  const tot2 = (p.history[p.history.length-1].total2 !== undefined) ? p.history[p.history.length-1].total2 : p.score2;
+  const rows = p.history.map(h => {
+    // Chercher le contrat dans tous les formats possibles
+    const contrat = (h.contract && h.contract !== '—' && h.contract !== '') ? h.contract
+      : (h.contrat && h.contrat !== '—' && h.contrat !== '') ? h.contrat
+      : (h.val && h.suit) ? (h.val + ' ' + h.suit)
+      : (h.value && h.suit) ? (h.value + ' ' + h.suit)
+      : (h.label && h.label !== '—') ? h.label
+      : '—';
+    const badgeColor = h.chute ? '#cc2222' : '#2a7d2e';
+    const badgeLabel = h.chute ? 'Chute' : 'Fait';
+    const badge = '<span style="background:'+badgeColor+';color:#fff;font-size:'+sz.fsBadge+';font-weight:700;padding:'+sz.fsBadgePad+';border-radius:4px;">'+badgeLabel+'</span>';
+    const c1 = h.pts1 > 0 ? '#1a6b3c' : '#cc2222';
+    const c2 = h.pts2 > 0 ? '#1a6b3c' : '#cc2222';
+    return '<tr style="border-bottom:1px solid #e0ddd6;color:#2a1f14;">'
+      + '<td style="padding:'+sz.fsTdPad+';color:#888;font-size:'+sz.fsHeader+';">'+String(h.manche).padStart(2,'0')+'</td>'
+      + '<td style="padding:'+sz.fsTdPad+';font-size:'+sz.fsScore+';font-weight:700;color:#1a1a1a;">'+contrat+'</td>'
+      + '<td style="padding:'+sz.fsTdPad+';text-align:center;">'+badge+'</td>'
+      + '<td style="padding:'+sz.fsTdPad+';text-align:right;font-size:'+sz.fsScore+';font-weight:700;color:'+c1+';">'+h.pts1+'</td>'
+      + '<td style="padding:'+sz.fsTdPad+';text-align:right;font-size:'+sz.fsScore+';font-weight:700;color:'+c2+';">'+h.pts2+'</td>'
+      + '</tr>';
+  }).join('');
+  return '<table style="width:100%;border-collapse:collapse;">'
+    + '<thead><tr style="border-bottom:1px solid #e0ddd6;">'
+    + '<th style="padding:'+sz.fsTdPad+';text-align:left;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">#</th>'
+    + '<th style="padding:'+sz.fsTdPad+';text-align:left;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">Contrat</th>'
+    + '<th style="padding:'+sz.fsTdPad+';text-align:center;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">Résult.</th>'
+    + '<th style="padding:'+sz.fsTdPad+';text-align:right;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">'+p.t1+'</th>'
+    + '<th style="padding:'+sz.fsTdPad+';text-align:right;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">'+p.t2+'</th>'
+    + '</tr></thead>'
+    + '<tbody>'+rows+'</tbody>'
+    + '<tfoot><tr style="border-top:2px solid #e0ddd6;background:#f5f3ee;">'
+    + '<td colspan="3" style="padding:'+sz.fsTdPad+';font-size:'+sz.fsTotalLabel+';font-weight:800;color:var(--text);">Total</td>'
+    + '<td style="padding:'+sz.fsTdPad+';font-size:'+sz.fsTotal+';font-weight:900;text-align:right;color:#1a3a8c;">'+tot1+'</td>'
+    + '<td style="padding:'+sz.fsTdPad+';font-size:'+sz.fsTotal+';font-weight:900;text-align:right;color:#1a3a8c;">'+tot2+'</td>'
+    + '</tr></tfoot></table>';
+}
+
+function debugShowHistory() {
+  try {
+    const past = JSON.parse(localStorage.getItem('belote_history') || '[]');
+    if(!past.length || !past[0].history || !past[0].history.length) { alert('Pas de données'); return; }
+    const h = past[0].history[0];
+    alert('Champs: ' + Object.keys(h).join(', ') + '\n\nValeurs: ' + JSON.stringify(h));
+  } catch(e) { alert('Erreur: ' + e); }
+}
+
 function renderPastHistory() {
   const el = eid('past-history-content');
   if(!el) return;
@@ -2694,27 +2772,7 @@ function renderPastHistory() {
             </div>
             <!-- Détail dépliable -->
             <div id="game-detail-${p.id}" style="display:none;border-top:1px solid #e8e4dc;padding:10px 14px;background:#faf9f6;">
-              ${p.history && p.history.length ? `
-              <table style="width:100%;border-collapse:collapse;font-size:11px;">
-                <thead>
-                  <tr style="border-bottom:1px solid #e0ddd6;">
-                    <th style="padding:3px 4px;text-align:left;color:#888;font-weight:600;">#</th>
-                    <th style="padding:3px 4px;text-align:left;color:#888;font-weight:600;">Contrat</th>
-                    <th style="padding:3px 4px;text-align:center;color:#888;font-weight:600;">Résult.</th>
-                    <th style="padding:3px 4px;text-align:right;color:#888;font-weight:600;">${p.t1.split(' & ')[0]}</th>
-                    <th style="padding:3px 4px;text-align:right;color:#888;font-weight:600;">${p.t2.split(' & ')[0]}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${p.history.map(h => `<tr style="border-bottom:1px solid #f0ede6;">
-                    <td style="padding:3px 4px;color:#888;">${String(h.manche).padStart(2,'0')}</td>
-                    <td style="padding:3px 4px;font-weight:700;">${h.contract||'—'}</td>
-                    <td style="padding:3px 4px;text-align:center;">${h.chute?'<span style="color:#cc2222;font-weight:700;">Chute</span>':'<span style="color:#2a7d2e;font-weight:700;">Fait</span>'}</td>
-                    <td style="padding:3px 4px;text-align:right;font-weight:700;color:${h.pts1>0?'#1a6b3c':'#cc2222'};">${h.pts1}</td>
-                    <td style="padding:3px 4px;text-align:right;font-weight:700;color:${h.pts2>0?'#1a6b3c':'#cc2222'};">${h.pts2}</td>
-                  </tr>`).join('')}
-                </tbody>
-              </table>` : '<div style="font-size:12px;color:#aaa;text-align:center;padding:8px;">Détail non disponible</div>'}
+              ${buildPastTable(p)}
             </div>
           </div>
         `).join('')}
@@ -3659,19 +3717,7 @@ function renderFeuille() {
   const el = eid('feuille-content');
   const titleEl = eid('feuille-title');
   if(titleEl) titleEl.innerHTML = S.t1.name + '<br><span style="font-size:11px;color:#888;font-weight:600;">VS</span><br>' + S.t2.name + '<br>&nbsp;';
-  // Tailles adaptées selon l'appareil
-  const isIpadLandscape = window.innerWidth >= 1025 && window.innerWidth > window.innerHeight;
-  const fsHeader = isIpadLandscape ? '15px' : '10px';
-  const fsPad = isIpadLandscape ? '10px 8px' : '4px';
-  const fsNum = isIpadLandscape ? '16px' : '12px';
-  const fsContrat = isIpadLandscape ? '16px' : '12px';
-  const fsPreneur = isIpadLandscape ? '15px' : '11px';
-  const fsBadge = isIpadLandscape ? '13px' : '10px';
-  const fsBadgePad = isIpadLandscape ? '3px 10px' : '1px 6px';
-  const fsScore = isIpadLandscape ? '18px' : '13px';
-  const fsTotal = isIpadLandscape ? '20px' : '14px';
-  const fsTotalLabel = isIpadLandscape ? '16px' : '12px';
-  const fsTdPad = isIpadLandscape ? '10px 8px' : '5px 4px';
+  const { fsHeader, fsPad, fsNum, fsContrat, fsPreneur, fsBadge, fsBadgePad, fsScore, fsTotal, fsTotalLabel, fsTdPad } = getTableSizes();
 
   if(!S.history.length) {
     el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);">Aucune manche jouée</div>';
