@@ -759,88 +759,6 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   .setup-dir-label { font-size:14px; letter-spacing:3px; }
   .setup-sel { font-size:17px !important; padding:11px 12px !important; }
 
-  /* Page TABLE – iPad paysage
-     iPad Pro 11" paysage : ~1194px large, ~820px haut
-     header : 55px  |  nav : 68px  |  padding vertical : 12px haut + 0 bas (nav en fixed)
-     Hauteur utile = 820 - 55 - 68 - 12 = ~685px → table carrée de ~685px
-     Largeur table = hauteur utile = calc(100dvh - 135px)
-     Colonne droite : de la fin de la table jusqu'au bord droit
-  ═══════════════════════════════════════════════════════════════════════ */
-  #tab-enjeu {
-    position:relative !important;
-    display:block !important;
-    height:calc(100dvh - 55px) !important;
-    box-sizing:border-box !important;
-    overflow:hidden !important;
-    padding:0 !important;
-  }
-
-  /* ── Table SVG : ancrée en haut à gauche ── */
-  #ej-table-wrap {
-    position:absolute !important;
-    top:12px !important; left:8px !important;
-    width:calc(100dvh - 135px) !important;
-    height:calc(100dvh - 135px) !important;
-    display:flex !important; align-items:center !important; justify-content:center !important;
-    overflow:hidden !important;
-  }
-  #ej-table-wrap svg {
-    height:100% !important; width:100% !important;
-    max-height:100% !important; max-width:100% !important;
-    display:block !important;
-  }
-
-  /* ── Scores : haut de la colonne droite, alignés avec le haut de la table ── */
-  #ej-score-wrap {
-    position:absolute !important;
-    top:12px !important;
-    left:calc(100dvh - 135px + 8px + 24px) !important;
-    right:20px !important;
-    display:flex !important; flex-direction:column !important;
-    gap:14px !important;
-    padding:0 !important;
-    background:transparent !important;
-    border:none !important;
-    border-radius:0 !important;
-    max-width:none !important;
-  }
-  #ej-score-wrap .score-board {
-    display:flex !important; flex-direction:column !important;
-    gap:14px !important;
-  }
-  #ej-score-wrap .score-team {
-    display:flex !important; align-items:center !important;
-    justify-content:space-between !important;
-    padding:20px 24px !important; gap:10px !important;
-    background:rgba(0,0,0,0.30) !important;
-    border-radius:16px !important;
-    border:1px solid rgba(255,255,255,0.15) !important;
-  }
-  #ej-score-wrap .score-team .t-name {
-    margin-bottom:0 !important; font-size:16px !important;
-    white-space:normal !important; overflow:visible !important; text-overflow:unset !important;
-    flex-shrink:1 !important; line-height:1.4 !important; font-weight:700 !important;
-    color:rgba(255,255,255,0.85) !important; text-transform:uppercase !important;
-    letter-spacing:0.06em !important; word-break:keep-all !important;
-  }
-  #ej-score-wrap .score-team .t-score {
-    font-size:80px !important; line-height:1 !important;
-    font-weight:900 !important; flex-shrink:0 !important; color:#fff !important;
-  }
-  #ej-score-wrap .score-team .t-need { display:none !important; }
-
-  /* ── Boutons : bas de la colonne droite, alignés avec le bas de la table ── */
-  #ej-action-grid {
-    position:absolute !important;
-    bottom:calc(68px + 12px) !important;
-    left:calc(100dvh - 135px + 8px + 24px) !important;
-    right:20px !important;
-    display:grid !important; grid-template-columns:1fr 1fr !important;
-    gap:10px !important; padding:0 !important; max-width:none !important; margin:0 !important;
-  }
-  #ej-action-grid .btn { font-size:15px !important; padding:16px 8px !important; }
-  #tab-enjeu.overlay-open { overflow:hidden !important; pointer-events:none !important; }
-
   /* Parties/Historique */
   #tab-parties .marque-table th { font-size:14px !important; padding:10px 8px !important; }
   #tab-parties .marque-table td { font-size:15px !important; padding:10px 8px !important; }
@@ -1004,6 +922,93 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   .winner-score-item { padding:12px 20px; }
   .winner-score-item .ws-name { font-size:11px; }
   .winner-score-item .ws-val { font-size:28px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   6. iPAD PAYSAGE – PAGE TABLE (placé APRÈS le bloc PC pour gagner la cascade)
+   iPad Pro 11" paysage : ~1194px large, ~820px haut
+   header: 55px | nav: 68px | padding-top: 12px
+   Hauteur utile ≈ 820 - 55 - 68 - 12 = 685px → table carrée 685px
+═══════════════════════════════════════════════════════════════════════ */
+@media (min-width: 1025px) and (orientation: landscape) and (pointer: coarse) {
+
+  #tab-enjeu {
+    position:relative !important;
+    display:block !important;
+    height:calc(100dvh - 55px) !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+    padding:0 !important;
+  }
+
+  #ej-table-wrap {
+    position:absolute !important;
+    top:12px !important; left:8px !important;
+    width:calc(100dvh - 135px) !important;
+    height:calc(100dvh - 135px) !important;
+    display:flex !important; align-items:center !important; justify-content:center !important;
+    overflow:hidden !important;
+    grid-column:unset !important; grid-row:unset !important;
+  }
+  #ej-table-wrap svg {
+    height:100% !important; width:100% !important;
+    max-height:100% !important; max-width:100% !important;
+    display:block !important;
+  }
+
+  #ej-score-wrap {
+    position:absolute !important;
+    top:12px !important;
+    left:calc(100dvh - 135px + 8px + 24px) !important;
+    right:20px !important;
+    display:flex !important; flex-direction:column !important;
+    gap:14px !important;
+    padding:0 !important;
+    background:transparent !important;
+    border:none !important; border-radius:0 !important;
+    max-width:none !important; width:auto !important;
+    grid-column:unset !important; grid-row:unset !important;
+    align-self:unset !important; justify-content:unset !important;
+  }
+  #ej-score-wrap .score-board {
+    display:flex !important; flex-direction:column !important;
+    gap:14px !important;
+  }
+  #ej-score-wrap .score-team {
+    display:flex !important; align-items:center !important;
+    justify-content:space-between !important;
+    padding:20px 24px !important; gap:10px !important;
+    background:rgba(0,0,0,0.30) !important;
+    border-radius:16px !important;
+    border:1px solid rgba(255,255,255,0.15) !important;
+    text-align:left !important;
+  }
+  #ej-score-wrap .score-team .t-name {
+    margin-bottom:0 !important; font-size:16px !important;
+    white-space:normal !important; overflow:visible !important; text-overflow:unset !important;
+    flex-shrink:1 !important; line-height:1.4 !important; font-weight:700 !important;
+    color:rgba(255,255,255,0.85) !important; text-transform:uppercase !important;
+    letter-spacing:0.06em !important; word-break:keep-all !important;
+  }
+  #ej-score-wrap .score-team .t-score {
+    font-size:80px !important; line-height:1 !important;
+    font-weight:900 !important; flex-shrink:0 !important; color:#fff !important;
+    min-width:0 !important;
+  }
+  #ej-score-wrap .score-team .t-need { display:none !important; }
+
+  #ej-action-grid {
+    position:absolute !important;
+    bottom:calc(68px + 12px) !important;
+    left:calc(100dvh - 135px + 8px + 24px) !important;
+    right:20px !important;
+    display:grid !important; grid-template-columns:1fr 1fr !important;
+    gap:10px !important; padding:0 !important;
+    max-width:none !important; margin:0 !important; width:auto !important;
+    grid-column:unset !important; grid-row:unset !important;
+  }
+  #ej-action-grid .btn { font-size:15px !important; padding:16px 8px !important; }
+  #tab-enjeu.overlay-open { overflow:hidden !important; pointer-events:none !important; }
 }
 
 </style>
@@ -1471,7 +1476,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260603_1130</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260603_1355</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
