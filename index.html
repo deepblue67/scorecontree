@@ -138,6 +138,9 @@ select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.or
 .suit-btn .suit-name { display:none; }
 .score-board { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 #ej-action-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:6px 8px 0; max-width:420px; margin:0 auto; width:100%; }
+#ej-table-wrap { width:100%; max-width:600px; margin:0 auto; padding:0 8px; }
+#ej-table-wrap svg { width:100%; height:auto; max-height:52vh; display:block; border-radius:16px; }
+#ej-score-wrap { border-radius:var(--radius); background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.12); width:100%; }
 .score-team { background:rgba(255,255,255,0.12); border-radius:var(--radius-sm); text-align:center; border:2px solid transparent; transition:all 0.3s; min-width:0; }
 .score-team.leading { border-color:var(--green); background:rgba(58,140,63,0.25); }
 .score-team .t-name { font-weight:700; color:rgba(255,255,255,0.7); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -1159,22 +1162,22 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     </div>
 
     <!-- TAB: EN JEU — PAGE PRINCIPALE -->
-    <div id="tab-enjeu" class="body" style="display:none;padding:8px 0 90px;">
+    <div id="tab-enjeu" class="body" style="display:none;">
 
       <!-- Table de belote -->
-      <div id="ej-table-wrap" style="width:100%;max-width:600px;margin:0 auto;padding:0 8px;">
-        <svg id="ej-table-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-height:52vh;display:block;border-radius:16px;"></svg>
+      <div id="ej-table-wrap">
+        <svg id="ej-table-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;border-radius:16px;"></svg>
       </div>
 
-      <!-- Score sous la table -->
-      <div id="ej-score-wrap" style="border-radius:var(--radius);background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);width:100%;">
+      <!-- Score -->
+      <div id="ej-score-wrap">
         <div class="score-board">
           <div class="score-team" id="ej-st1"><div class="t-name" id="ej-stn1"></div><div class="t-score" id="ej-sts1">0</div><div class="t-need" id="ej-stk1"></div></div>
           <div class="score-team" id="ej-st2"><div class="t-name" id="ej-stn2"></div><div class="t-score" id="ej-sts2">0</div><div class="t-need" id="ej-stk2"></div></div>
         </div>
       </div>
 
-      <!-- Boutons action — grille 2×2 uniforme -->
+      <!-- Boutons action -->
       <div id="ej-action-grid">
         <button id="btn-action-contrat" class="btn btn-outline" onclick="showTab('contrat')" style="font-size:13px;padding:10px 6px;">✏️ Contrat</button>
         <button id="btn-action-saisie" class="btn btn-green" onclick="showTab('saisie');updateSaisieForm();" style="font-size:13px;padding:10px 6px;">📊 Saisir score</button>
@@ -1482,7 +1485,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260603_1415</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260603_1420</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
