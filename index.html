@@ -1485,7 +1485,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260603_1430</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260603_1435</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -3826,42 +3826,22 @@ function renderEnjeu() {
   // ── Positionnement JS en iPad paysage ──
   const isIpadLandscape = window.matchMedia('(min-width:1025px) and (orientation:landscape) and (pointer:coarse)').matches;
   if (isIpadLandscape) {
-    requestAnimationFrame(() => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
       const tabEnjeu   = eid('tab-enjeu');
       const tableWrap  = eid('ej-table-wrap');
       const scoreWrap  = eid('ej-score-wrap');
       const actionGrid = eid('ej-action-grid');
       const nav        = document.querySelector('.bottom-nav');
       if (!tabEnjeu || !tableWrap || !scoreWrap || !actionGrid) return;
-
-      const navH       = nav ? nav.offsetHeight : 68;
-      const tabRect    = tabEnjeu.getBoundingClientRect();
-      const tableRect  = tableWrap.getBoundingClientRect();
-
-      // top des scores = top de la table relativement à tab-enjeu
-      const topRelative  = tableRect.top - tabRect.top;
-      // bottom des boutons = distance depuis le bas de tab-enjeu au bas de la table
+      const navH      = nav ? nav.offsetHeight : 68;
+      const tabRect   = tabEnjeu.getBoundingClientRect();
+      const tableRect = tableWrap.getBoundingClientRect();
+      if (tableRect.width === 0 || tabRect.width === 0) return;
+      const topRelative    = tableRect.top  - tabRect.top;
       const bottomRelative = tabRect.bottom - tableRect.bottom;
-
-      scoreWrap.style.position  = 'absolute';
-      scoreWrap.style.top       = topRelative + 'px';
-      scoreWrap.style.right     = '16px';
-      scoreWrap.style.left      = 'auto';
-      scoreWrap.style.width     = '440px';
-      scoreWrap.style.background = 'transparent';
-      scoreWrap.style.border    = 'none';
-
-      actionGrid.style.position = 'absolute';
-      actionGrid.style.bottom   = (tabRect.bottom - tableRect.bottom + navH) + 'px';
-      actionGrid.style.right    = '16px';
-      actionGrid.style.left     = 'auto';
-      actionGrid.style.width    = '440px';
-      actionGrid.style.maxWidth = 'none';
-      actionGrid.style.margin   = '0';
-      actionGrid.style.padding  = '0';
-
-      actionGrid.style.bottom = (tabRect.bottom - tableRect.bottom + navH) + 'px';
-    });
+      scoreWrap.setAttribute('style', 'position:absolute !important;top:' + topRelative + 'px;right:16px;left:auto;width:440px;background:transparent;border:none;border-radius:0;');
+      actionGrid.setAttribute('style', 'position:absolute !important;bottom:' + (bottomRelative + navH) + 'px;right:16px;left:auto;width:440px;max-width:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;');
+    }));
   }
 }
 
