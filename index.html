@@ -6229,5 +6229,16 @@ setTimeout(() => {
   checkOnboarding();
 }, 1500);
 </script>
+
+<script>
+  // Enregistrement du Service Worker (PWA offline)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/scorecontree/service-worker.js')
+        .then(reg => console.log('SW enregistré:', reg.scope))
+        .catch(err => console.log('SW échec:', err));
+    });
+  }
+</script>
 </body>
 </html>
