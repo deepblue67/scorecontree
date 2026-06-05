@@ -1621,7 +1621,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260605_1742</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260605_1750</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1837,17 +1837,17 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
         <div>
           <label id="edit-lbl-t1" style="display:block;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Équipe 1</label>
           <div class="stepper" style="background:#e8e4dc;border-color:#bbb8b0;">
-            <button onclick="stepEdit('t1',-10)" type="button" style="background:#d8d4cc;color:var(--text);">−</button>
-            <input class="sv" type="number" id="edit-pts-t1" min="0" max="500" step="10" style="color:var(--text);font-size:16px;">
-            <button onclick="stepEdit('t1',10)" type="button" style="background:#d8d4cc;color:var(--text);">+</button>
+            <button onclick="stepEdit('t1',-1)" type="button" style="background:#d8d4cc;color:var(--text);">−</button>
+            <input class="sv" type="number" id="edit-pts-t1" min="0" max="500" step="1" style="color:var(--text);font-size:16px;">
+            <button onclick="stepEdit('t1',1)" type="button" style="background:#d8d4cc;color:var(--text);">+</button>
           </div>
         </div>
         <div>
           <label id="edit-lbl-t2" style="display:block;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Équipe 2</label>
           <div class="stepper" style="background:#e8e4dc;border-color:#bbb8b0;">
-            <button onclick="stepEdit('t2',-10)" type="button" style="background:#d8d4cc;color:var(--text);">−</button>
-            <input class="sv" type="number" id="edit-pts-t2" min="0" max="500" step="10" style="color:var(--text);font-size:16px;">
-            <button onclick="stepEdit('t2',10)" type="button" style="background:#d8d4cc;color:var(--text);">+</button>
+            <button onclick="stepEdit('t2',-1)" type="button" style="background:#d8d4cc;color:var(--text);">−</button>
+            <input class="sv" type="number" id="edit-pts-t2" min="0" max="500" step="1" style="color:var(--text);font-size:16px;">
+            <button onclick="stepEdit('t2',1)" type="button" style="background:#d8d4cc;color:var(--text);">+</button>
           </div>
         </div>
       </div>
