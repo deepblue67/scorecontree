@@ -1406,6 +1406,13 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <button onclick="stepScore('t1',10)" type="button">+</button>
             </div>
 
+            <!-- Ajustement au point près -->
+            <div style="display:flex;gap:6px;justify-content:center;">
+              <button onclick="stepScoreFine('t1',-1)" type="button" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:99px;color:#fff;font-size:13px;font-weight:700;padding:4px 14px;cursor:pointer;font-family:inherit;touch-action:manipulation;">−1</button>
+              <span style="font-size:11px;color:rgba(255,255,255,0.4);align-self:center;">pt exact</span>
+              <button onclick="stepScoreFine('t1',+1)" type="button" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:99px;color:#fff;font-size:13px;font-weight:700;padding:4px 14px;cursor:pointer;font-family:inherit;touch-action:manipulation;">+1</button>
+            </div>
+
             <!-- Boutons rapides style contrat -->
             <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
               <span onclick="setQuickScore('t1',80)"  style="cursor:pointer;font-size:14px;padding:6px 10px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;font-weight:600;touch-action:manipulation;white-space:nowrap;">80</span>
@@ -1430,6 +1437,13 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <button onclick="stepScore('t2',-10)" type="button">−</button>
               <input class="sv" type="number" id="inp-pts-t2" inputmode="numeric" min="0" max="500" step="10" placeholder="0">
               <button onclick="stepScore('t2',10)" type="button">+</button>
+            </div>
+
+            <!-- Ajustement au point près -->
+            <div style="display:flex;gap:6px;justify-content:center;">
+              <button onclick="stepScoreFine('t2',-1)" type="button" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:99px;color:#fff;font-size:13px;font-weight:700;padding:4px 14px;cursor:pointer;font-family:inherit;touch-action:manipulation;">−1</button>
+              <span style="font-size:11px;color:rgba(255,255,255,0.4);align-self:center;">pt exact</span>
+              <button onclick="stepScoreFine('t2',+1)" type="button" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:99px;color:#fff;font-size:13px;font-weight:700;padding:4px 14px;cursor:pointer;font-family:inherit;touch-action:manipulation;">+1</button>
             </div>
 
             <!-- Boutons rapides style contrat -->
@@ -1607,7 +1621,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260605_1720</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260605_1730</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -2563,6 +2577,24 @@ function stepScore(team, delta) {
   eid('score-calc-result').style.display='none';
   eid('confirm-score-btn').style.display='none';
   const _cb=eid('calc-preview-btn');if(_cb)_cb.style.display='flex';
+}
+
+function stepScoreFine(team, delta) {
+  haptic('light');
+  const cap1 = eid('chk-cap-t1').checked, cap2 = eid('chk-cap-t2').checked;
+  if(cap1 || cap2) return; // pas d'ajustement en mode capot
+  const inp      = eid('inp-pts-' + team);
+  const inpOther = eid('inp-pts-' + (team === 't1' ? 't2' : 't1'));
+  let val = parseInt(inp.value) || 0;
+  val = Math.min(500, Math.max(0, val + delta));
+  inp.value = val;
+  // Complément : 162 ou 172 si non multiple de 10, sinon 160 ou 170
+  const base = getScoreTotal(); // 160 ou 170
+  const ref  = (val % 10 === 0) ? base : base + 2;
+  inpOther.value = Math.max(0, ref - val);
+  eid('score-calc-result').style.display='none';
+  eid('confirm-score-btn').style.display='none';
+  const _cb = eid('calc-preview-btn'); if(_cb) _cb.style.display='flex';
 }
 
 function refreshCapotBoxes() {
