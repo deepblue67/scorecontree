@@ -1607,7 +1607,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260605_1700</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260605_1710</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -2859,6 +2859,7 @@ function validateScore() {
   const w2 = winPts ? S.score.t2>=winPts : (S.manche-1)>=winMan;
   if(w1||w2) {
     savePastGame();
+    S._gameSaved = true;
     showWinner(w1&&w2?(S.score.t1>S.score.t2?'t1':'t2'):(w1?'t1':'t2'));
     return;
   }
@@ -2888,6 +2889,7 @@ function newGame() {
   S.history=[];
   S.manche=1;
   S.contract=null;
+  S._gameSaved=false;
   S.form={preneur:'',suit:'',suitKey:'',suitColor:'',value:80,isCapot:false,contre:'none'};
   pendingScore=null;
   // Retour page config, équipes conservées (selects non vidés)
@@ -4782,7 +4784,8 @@ function closeEndGame() {
 
 function confirmEndGame(mode) {
   closeEndGame();
-  savePastGame();
+  if(!S._gameSaved && S.history.length > 0) savePastGame();
+  S._gameSaved = false;
   haptic('heavy');
   if(mode === 'same') {
     // Même équipe : équipes conservées, retour config (comme ancien "Nouvelle partie")
