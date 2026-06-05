@@ -693,7 +693,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
    Votre iPad Pro : innerWidth=1194px, matches (min-width:1025px landscape)
 ═══════════════════════════════════════════════════════════════════════ */
 @media (min-width: 1025px) and (orientation: landscape) and (pointer: coarse) {
-  html, body, #app, #screen-game, #screen-setup, #tab-enjeu { background:#2e6b28; }
+  html, body, #app, #screen-game, #screen-setup { background:#2e6b28; }
   body { font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif; color:var(--text-light); min-height:100dvh; overflow-x:hidden; }
   #app { max-width:100%; width:100%; display:flex; flex-direction:column; min-height:100dvh; padding-top:0; }
 
@@ -929,95 +929,122 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   6. iPAD PAYSAGE – PAGE TABLE (placé APRÈS le bloc PC pour gagner la cascade)
-   iPad Pro 11" paysage : ~1194px large, ~820px haut
-   header: 55px | nav: 68px | padding-top: 12px
-   Hauteur utile ≈ 820 - 55 - 68 - 12 = 685px → table carrée 685px
+   6. iPAD PAYSAGE – PAGE TABLE
+   iPad Pro 11" : 1194×820px  |  header:55px  |  nav:68px
+   Zone utile : 820-55-68 = 697px de haut
+   Table : top=10px, left=6px, taille=630px (carré)
+   Colonne droite : left=660px, right=16px (≈518px de large)
 ═══════════════════════════════════════════════════════════════════════ */
 @media (min-width: 1025px) and (orientation: landscape) and (pointer: coarse) {
 
   #tab-enjeu {
-    position:relative !important;
-    display:block !important;
-    height:calc(100svh - 55px) !important;
-    box-sizing:border-box !important;
-    overflow:hidden !important;
-    padding:0 !important;
+    position: relative !important;
+    display: block !important;
+    height: calc(100svh - 55px) !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    padding: 0 !important;
   }
 
-  /* Table : hauteur = hauteur utile complète, carrée */
+  /* ── Table : carré, ancré en haut à gauche ── */
   #ej-table-wrap {
-    position:absolute !important;
-    top:10px !important; left:6px !important;
-    width:calc(100svh - 135px) !important;
-    height:calc(100svh - 135px) !important;
-    display:flex !important; align-items:center !important; justify-content:center !important;
-    overflow:hidden !important;
-    grid-column:unset !important; grid-row:unset !important;
+    position: absolute !important;
+    top: 10px !important;
+    left: 6px !important;
+    width: 630px !important;
+    height: 630px !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
   }
   #ej-table-wrap svg {
-    height:100% !important; width:100% !important;
-    max-height:100% !important; max-width:100% !important;
-    display:block !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    border-radius: 16px !important;
   }
 
-  /* Colonne droite ancrée depuis la droite — largeur fixe 440px */
+  /* ── Scores : alignés avec le haut de la table ── */
   #ej-score-wrap {
-    position:absolute !important;
-    top:10px !important;
-    right:16px !important;
-    left:auto !important;
-    width:440px !important;
-    display:flex !important; flex-direction:column !important;
-    gap:16px !important;
-    padding:0 !important;
-    background:transparent !important;
-    border:none !important; border-radius:0 !important;
-    max-width:none !important;
-    grid-column:unset !important; grid-row:unset !important;
-    align-self:unset !important; justify-content:unset !important;
+    position: absolute !important;
+    top: 10px !important;
+    left: 660px !important;
+    right: 16px !important;
+    width: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    max-width: none !important;
   }
   #ej-score-wrap .score-board {
-    display:flex !important; flex-direction:column !important;
-    gap:16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
   }
   #ej-score-wrap .score-team {
-    display:flex !important; align-items:center !important;
-    justify-content:space-between !important;
-    padding:22px 28px !important; gap:12px !important;
-    background:rgba(0,0,0,0.28) !important;
-    border-radius:16px !important;
-    border:1px solid rgba(255,255,255,0.15) !important;
-    text-align:left !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 22px 24px !important;
+    gap: 12px !important;
+    background: rgba(0,0,0,0.28) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
   }
   #ej-score-wrap .score-team .t-name {
-    margin-bottom:0 !important; font-size:16px !important;
-    white-space:normal !important; overflow:visible !important; text-overflow:unset !important;
-    flex-shrink:1 !important; line-height:1.4 !important; font-weight:700 !important;
-    color:rgba(255,255,255,0.85) !important; text-transform:uppercase !important;
-    letter-spacing:0.06em !important; word-break:keep-all !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: rgba(255,255,255,0.85) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    flex-shrink: 1 !important;
+    margin-bottom: 0 !important;
   }
   #ej-score-wrap .score-team .t-score {
-    font-size:90px !important; line-height:1 !important;
-    font-weight:900 !important; flex-shrink:0 !important; color:#fff !important;
-    min-width:0 !important;
+    font-size: 90px !important;
+    line-height: 1 !important;
+    font-weight: 900 !important;
+    color: #fff !important;
+    flex-shrink: 0 !important;
   }
-  #ej-score-wrap .score-team .t-need { display:none !important; }
+  #ej-score-wrap .score-team .t-need { display: none !important; }
 
-  /* Boutons ancrés en bas, même largeur que les scores */
+  /* ── Boutons : alignés avec le bas de la table (top=640px=10+630) ── */
   #ej-action-grid {
-    position:absolute !important;
-    bottom:calc(68px + 10px) !important;
-    right:16px !important;
-    left:auto !important;
-    width:440px !important;
-    display:grid !important; grid-template-columns:1fr 1fr !important;
-    gap:10px !important; padding:0 !important;
-    max-width:none !important; margin:0 !important;
-    grid-column:unset !important; grid-row:unset !important;
+    position: absolute !important;
+    top: 650px !important;
+    left: 660px !important;
+    right: 16px !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
   }
-  #ej-action-grid .btn { font-size:15px !important; padding:16px 8px !important; }
-  #tab-enjeu.overlay-open { overflow:hidden !important; pointer-events:none !important; }
+  #ej-action-grid .btn {
+    font-size: 15px !important;
+    padding: 16px 8px !important;
+  }
+
+  #tab-enjeu.overlay-open {
+    overflow: hidden !important;
+    pointer-events: none !important;
+  }
 }
 
 </style>
@@ -1485,7 +1512,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260603_1445</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260605_1514</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -3822,27 +3849,6 @@ function renderEnjeu() {
   `;
 
   eid('ej-table-svg').innerHTML = svg;
-
-  // ── Positionnement JS en iPad paysage ──
-  const isIpadLandscape = window.matchMedia('(min-width:1025px) and (orientation:landscape) and (pointer:coarse)').matches;
-  if (isIpadLandscape) {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      const tabEnjeu   = eid('tab-enjeu');
-      const tableWrap  = eid('ej-table-wrap');
-      const scoreWrap  = eid('ej-score-wrap');
-      const actionGrid = eid('ej-action-grid');
-      const nav        = document.querySelector('.bottom-nav');
-      if (!tabEnjeu || !tableWrap || !scoreWrap || !actionGrid) return;
-      const navH      = nav ? nav.offsetHeight : 68;
-      const tabRect   = tabEnjeu.getBoundingClientRect();
-      const tableRect = tableWrap.getBoundingClientRect();
-      if (tableRect.width === 0 || tabRect.width === 0) return;
-      const topRelative    = tableWrap.offsetTop;
-      const bottomRelative = tabEnjeu.offsetHeight - tableWrap.offsetTop - tableWrap.offsetHeight;
-      scoreWrap.setAttribute('style', 'position:absolute !important;top:' + topRelative + 'px;right:16px;left:auto;width:440px;background:transparent;border:none;border-radius:0;');
-      actionGrid.setAttribute('style', 'position:absolute !important;bottom:' + (bottomRelative + navH) + 'px;right:16px;left:auto;width:440px;max-width:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;');
-    }));
-  }
 }
 
 // ═══════════════════════════════════════════════════════════
