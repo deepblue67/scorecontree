@@ -929,30 +929,28 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   6. iPAD PAYSAGE – PAGE TABLE
-   iPad Pro 11" : 1194×820px  |  header:55px  |  nav:68px
-   Zone utile : 820-55-68 = 697px de haut
-   Table : top=10px, left=6px, taille=630px (carré)
-   Colonne droite : left=660px, right=16px (≈518px de large)
+   6. iPAD PAYSAGE – PAGE TABLE  (après le bloc PC pour gagner la cascade)
 ═══════════════════════════════════════════════════════════════════════ */
 @media (min-width: 1025px) and (orientation: landscape) and (pointer: coarse) {
 
+  /* Conteneur principal : flex horizontal */
   #tab-enjeu {
-    position: relative !important;
-    display: block !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
     height: calc(100svh - 55px) !important;
+    padding: 10px 16px 78px 8px !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
-    padding: 0 !important;
+    gap: 24px !important;
+    position: relative !important;
   }
 
-  /* ── Table : carré, ancré en haut à gauche ── */
+  /* ── Table : carré, hauteur = zone utile ── */
   #ej-table-wrap {
-    position: absolute !important;
-    top: 10px !important;
-    left: 6px !important;
-    width: 630px !important;
-    height: 630px !important;
+    flex: 0 0 auto !important;
+    width: calc(100svh - 143px) !important;
+    height: calc(100svh - 143px) !important;
     max-width: none !important;
     max-height: none !important;
     margin: 0 !important;
@@ -961,21 +959,30 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     align-items: center !important;
     justify-content: center !important;
     overflow: hidden !important;
+    align-self: flex-start !important;
   }
   #ej-table-wrap svg {
     width: 100% !important;
     height: 100% !important;
+    max-height: none !important;
     display: block !important;
     border-radius: 16px !important;
   }
 
-  /* ── Scores : alignés avec le haut de la table ── */
+  /* ── Colonne droite : flex vertical, scores haut, boutons bas ── */
+  #ej-right-col {
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: stretch !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* ── Scores ── */
   #ej-score-wrap {
-    position: absolute !important;
-    top: 10px !important;
-    left: 660px !important;
-    right: 16px !important;
-    width: auto !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 16px !important;
@@ -984,6 +991,8 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     border: none !important;
     border-radius: 0 !important;
     max-width: none !important;
+    width: auto !important;
+    flex-shrink: 0 !important;
   }
   #ej-score-wrap .score-board {
     display: flex !important;
@@ -1022,19 +1031,17 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   }
   #ej-score-wrap .score-team .t-need { display: none !important; }
 
-  /* ── Boutons : alignés avec le bas de la table (top=640px=10+630) ── */
+  /* ── Boutons : en bas de la colonne droite ── */
   #ej-action-grid {
-    position: absolute !important;
-    top: 650px !important;
-    left: 660px !important;
-    right: 16px !important;
-    width: auto !important;
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    flex-shrink: 0 !important;
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     gap: 10px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: auto !important;
+    position: static !important;
   }
   #ej-action-grid .btn {
     font-size: 15px !important;
@@ -1196,19 +1203,24 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
         <svg id="ej-table-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;border-radius:16px;"></svg>
       </div>
 
-      <!-- Score -->
-      <div id="ej-score-wrap">
-        <div class="score-board">
-          <div class="score-team" id="ej-st1"><div class="t-name" id="ej-stn1"></div><div class="t-score" id="ej-sts1">0</div><div class="t-need" id="ej-stk1"></div></div>
-          <div class="score-team" id="ej-st2"><div class="t-name" id="ej-stn2"></div><div class="t-score" id="ej-sts2">0</div><div class="t-need" id="ej-stk2"></div></div>
-        </div>
-      </div>
+      <!-- Colonne droite : scores + boutons -->
+      <div id="ej-right-col">
 
-      <!-- Boutons action -->
-      <div id="ej-action-grid">
-        <button id="btn-action-contrat" class="btn btn-outline" onclick="showTab('contrat')" style="font-size:13px;padding:10px 6px;">✏️ Contrat</button>
-        <button id="btn-action-saisie" class="btn btn-green" onclick="showTab('saisie');updateSaisieForm();" style="font-size:13px;padding:10px 6px;">📊 Saisir score</button>
-        <button class="btn btn-outline" onclick="askEndGame()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">🏁 Terminer la partie</button>
+        <!-- Score -->
+        <div id="ej-score-wrap">
+          <div class="score-board">
+            <div class="score-team" id="ej-st1"><div class="t-name" id="ej-stn1"></div><div class="t-score" id="ej-sts1">0</div><div class="t-need" id="ej-stk1"></div></div>
+            <div class="score-team" id="ej-st2"><div class="t-name" id="ej-stn2"></div><div class="t-score" id="ej-sts2">0</div><div class="t-need" id="ej-stk2"></div></div>
+          </div>
+        </div>
+
+        <!-- Boutons action -->
+        <div id="ej-action-grid">
+          <button id="btn-action-contrat" class="btn btn-outline" onclick="showTab('contrat')" style="font-size:13px;padding:10px 6px;">✏️ Contrat</button>
+          <button id="btn-action-saisie" class="btn btn-green" onclick="showTab('saisie');updateSaisieForm();" style="font-size:13px;padding:10px 6px;">📊 Saisir score</button>
+          <button class="btn btn-outline" onclick="askEndGame()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">🏁 Terminer la partie</button>
+        </div>
+
       </div>
 
     </div>
@@ -1512,7 +1524,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260605_1514</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260605_1530</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
