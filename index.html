@@ -1621,7 +1621,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260606_0010</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260606_0020</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1713,11 +1713,19 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
             </div>
             <span style="color:var(--text2);font-size:18px;">›</span>
           </button>
-          <button onclick="showSyncImport()" style="width:100%;display:flex;align-items:center;gap:14px;padding:16px;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left;">
+          <button onclick="showSyncImport()" style="width:100%;display:flex;align-items:center;gap:14px;padding:16px;background:none;border:none;border-bottom:1px solid rgba(0,0,0,0.06);cursor:pointer;font-family:inherit;text-align:left;">
             <span style="font-size:24px;">📥</span>
             <div style="flex:1;">
               <div style="font-size:15px;font-weight:700;color:var(--text);">Importer des données</div>
               <div style="font-size:12px;color:var(--text2);">Coller le code reçu d'un autre appareil</div>
+            </div>
+            <span style="color:var(--text2);font-size:18px;">›</span>
+          </button>
+          <button onclick="showGistSync()" style="width:100%;display:flex;align-items:center;gap:14px;padding:16px;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left;">
+            <span style="font-size:24px;">☁️</span>
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:700;color:var(--text);">Sync GitHub Gist</div>
+              <div style="font-size:12px;color:var(--text2);" id="gist-settings-status">Synchronisation cloud entre appareils</div>
             </div>
             <span style="color:var(--text2);font-size:18px;">›</span>
           </button>
@@ -3248,6 +3256,167 @@ function buildPastTable(p) {
     + '<td style="padding:'+sz.fsTdPad+';font-size:'+sz.fsTotal+';font-weight:900;text-align:right;color:#1a3a8c;">'+tot1+'</td>'
     + '<td style="padding:'+sz.fsTdPad+';font-size:'+sz.fsTotal+';font-weight:900;text-align:right;color:#1a3a8c;">'+tot2+'</td>'
     + '</tr></tfoot></table>';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GITHUB GIST SYNC
+// ═══════════════════════════════════════════════════════════════
+
+const GIST_FILENAME = 'scorecontree-backup.json';
+
+function getGistToken() { return localStorage.getItem('gist_token') || ''; }
+function getGistId()    { return localStorage.getItem('gist_id')    || ''; }
+function saveGistToken(t) { localStorage.setItem('gist_token', t); }
+function saveGistId(id)   { localStorage.setItem('gist_id', id); }
+
+function getExportData() {
+  return {
+    version: 1,
+    exported: new Date().toISOString(),
+    device: navigator.userAgent.includes('iPad') ? 'iPad' : navigator.userAgent.includes('iPhone') ? 'iPhone' : 'PC',
+    players: S.players || [],
+    history: JSON.parse(localStorage.getItem('belote_history') || '[]'),
+    autosave: JSON.parse(localStorage.getItem('belote_autosave') || 'null'),
+    last_config: JSON.parse(localStorage.getItem('belote_last_config') || 'null'),
+    theme: localStorage.getItem('bct_theme') || 'green'
+  };
+}
+
+async function gistUpload() {
+  const token = getGistToken();
+  if(!token) { showToast('⚠️ Token GitHub manquant'); return false; }
+  const data = JSON.stringify(getExportData(), null, 2);
+  const body = { description: 'ScoreContrée — Sauvegarde automatique', public: false, files: { [GIST_FILENAME]: { content: data } } };
+  const gistId = getGistId();
+  const url    = gistId ? `https://api.github.com/gists/${gistId}` : 'https://api.github.com/gists';
+  const method = gistId ? 'PATCH' : 'POST';
+  try {
+    const res = await fetch(url, { method, headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if(!gistId) saveGistId(json.id);
+    return true;
+  } catch(e) {
+    showToast('❌ Erreur upload : ' + e.message);
+    return false;
+  }
+}
+
+async function gistDownload() {
+  const token  = getGistToken();
+  const gistId = getGistId();
+  if(!token)  { showToast('⚠️ Token GitHub manquant'); return null; }
+  if(!gistId) { showToast('⚠️ Aucun Gist trouvé — faites d\'abord un upload'); return null; }
+  try {
+    const res = await fetch(`https://api.github.com/gists/${gistId}`, { headers: { 'Authorization': `token ${token}` } });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    const raw  = json.files[GIST_FILENAME]?.content;
+    if(!raw) throw new Error('Fichier introuvable dans le Gist');
+    return JSON.parse(raw);
+  } catch(e) {
+    showToast('❌ Erreur download : ' + e.message);
+    return null;
+  }
+}
+
+function mergeHistory(local, remote) {
+  // Fusion par id unique : on garde toutes les parties sans doublon
+  const map = new Map();
+  [...local, ...remote].forEach(p => map.set(p.id, p));
+  return Array.from(map.values()).sort((a,b) => b.id - a.id);
+}
+
+function applyImportData(data) {
+  if(data.players?.length)  { S.players = data.players; savePlayersToStorage(); }
+  if(data.history?.length) {
+    const local  = JSON.parse(localStorage.getItem('belote_history') || '[]');
+    const merged = mergeHistory(local, data.history);
+    localStorage.setItem('belote_history', JSON.stringify(merged.slice(0, 50)));
+  }
+  if(data.autosave)     localStorage.setItem('belote_autosave', JSON.stringify(data.autosave));
+  if(data.last_config)  localStorage.setItem('belote_last_config', JSON.stringify(data.last_config));
+  if(data.theme)        localStorage.setItem('bct_theme', data.theme);
+}
+
+function showGistSync() {
+  closeSettings();
+  const token  = getGistToken();
+  const gistId = getGistId();
+  const history = JSON.parse(localStorage.getItem('belote_history') || '[]');
+
+  const modal = document.createElement('div');
+  modal.id = 'gist-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:10500;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+
+  const statusHtml = gistId
+    ? `<div style="font-size:12px;color:#2a8c2a;margin-bottom:16px;">✅ Gist configuré (ID: ${gistId.slice(0,8)}…)</div>`
+    : `<div style="font-size:12px;color:#b07000;margin-bottom:16px;">⚠️ Aucun Gist créé — faites un premier Upload</div>`;
+
+  modal.innerHTML = `
+    <div style="background:#f0ede6;border-radius:20px;padding:24px;width:100%;max-width:480px;">
+      <div style="font-size:18px;font-weight:800;color:#1a1a1a;margin-bottom:4px;">☁️ Sync GitHub Gist</div>
+      <div style="font-size:12px;color:#888;margin-bottom:20px;">${history.length} partie(s) locale(s)</div>
+
+      ${statusHtml}
+
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Token GitHub</label>
+        <input id="gist-token-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+          value="${token}"
+          style="width:100%;padding:12px;border:1.5px solid #ccc;border-radius:10px;font-size:14px;font-family:monospace;box-sizing:border-box;background:#fff;">
+        <div style="font-size:11px;color:#999;margin-top:4px;">Permission requise : gist uniquement</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        <button id="gist-upload-btn" style="background:#2a8c2a;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">
+          ⬆️ Upload
+        </button>
+        <button id="gist-download-btn" style="background:#1a5295;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">
+          ⬇️ Download
+        </button>
+      </div>
+      <div style="font-size:11px;color:#888;text-align:center;margin-bottom:16px;line-height:1.6;">
+        <strong>Upload</strong> : envoie tes données vers GitHub<br>
+        <strong>Download</strong> : récupère et fusionne les données depuis GitHub
+      </div>
+
+      <div id="gist-status-msg" style="min-height:20px;text-align:center;font-size:13px;font-weight:600;margin-bottom:12px;"></div>
+
+      <button onclick="document.getElementById('gist-modal').remove()" style="width:100%;background:#e8e4dc;border:1px solid #ccc;border-radius:12px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">Fermer</button>
+    </div>`;
+
+  document.body.appendChild(modal);
+
+  const statusMsg = document.getElementById('gist-status-msg');
+
+  document.getElementById('gist-upload-btn').onclick = async () => {
+    const t = document.getElementById('gist-token-input').value.trim();
+    if(!t) { statusMsg.style.color='#c03030'; statusMsg.textContent='⚠️ Saisis ton token d\'abord'; return; }
+    saveGistToken(t);
+    statusMsg.style.color='#888'; statusMsg.textContent='⏳ Upload en cours…';
+    const ok = await gistUpload();
+    if(ok) {
+      statusMsg.style.color='#2a8c2a';
+      statusMsg.textContent='✅ Upload réussi !';
+      const lbl = document.getElementById('gist-settings-status');
+      if(lbl) lbl.textContent = 'Gist configuré ✅';
+    }
+  };
+
+  document.getElementById('gist-download-btn').onclick = async () => {
+    const t = document.getElementById('gist-token-input').value.trim();
+    if(!t) { statusMsg.style.color='#c03030'; statusMsg.textContent='⚠️ Saisis ton token d\'abord'; return; }
+    saveGistToken(t);
+    statusMsg.style.color='#888'; statusMsg.textContent='⏳ Download en cours…';
+    const data = await gistDownload();
+    if(data) {
+      applyImportData(data);
+      statusMsg.style.color='#2a8c2a';
+      statusMsg.textContent='✅ Données fusionnées !';
+      showToast('✅ Sync terminé — ' + (data.history?.length||0) + ' partie(s) importée(s)');
+    }
+  };
 }
 
 function debugShowHistory() {
