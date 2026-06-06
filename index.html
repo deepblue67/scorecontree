@@ -1632,7 +1632,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260607_0140</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260607_0150</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -5428,87 +5428,74 @@ function showMicroBar(show){
   if(bar) bar.style.display=show?'block':'none';
 }
 
-function parseVoiceContrat(text) {
-  const t = norm(text);
+async function parseVoiceContrat(text) {
+  setMicroFeedback('⏳ Interprétation en cours…', 'ok');
 
-  // Navigation vocale
-  const isNav = t.includes('page')||t.includes('montre')||t.includes('affiche')||t.includes('va ');
-  if(isNav){
-    if(t.includes('table')||t.includes('tapis')){ setMicroFeedback('\ud83d\udccd Page Table','ok'); setTimeout(()=>{ showTab('enjeu'); showMicroBar(false); },800); return; }
-    if(t.includes('score')||t.includes('feuille')||t.includes('marque')){ setMicroFeedback('\ud83d\udccd Page Score','ok'); setTimeout(()=>{ showTab('feuille'); showMicroBar(false); },800); return; }
-    if(t.includes('contrat')){ setMicroFeedback('\ud83d\udccd Page Contrat','ok'); setTimeout(()=>{ showTab('contrat'); showMicroBar(false); },800); return; }
-    if(t.includes('resultat')||t.includes('saisie')){ setMicroFeedback('\ud83d\udccd Page Resultat','ok'); setTimeout(()=>{ showTab('saisie'); showMicroBar(false); },800); return; }
-    if(t.includes('historique')){ setMicroFeedback('\ud83d\udccd Historique','ok'); setTimeout(()=>{ showTab('history'); showMicroBar(false); },800); return; }
-    if(t.includes('stat')){ setMicroFeedback('\ud83d\udccd Stats','ok'); setTimeout(()=>{ showTab('stats'); showMicroBar(false); },800); return; }
-  }
+  const t1name = S.t1?.name || '';
+  const t2name = S.t2?.name || '';
 
-  // Surcontre / Contre
-  const isSurcontre = t.includes('surcontre');
-  const isContre = !isSurcontre && (t.includes('contre ce')||t.includes('contrent')||(t.includes('contre')&&!t.includes('contrat')));
-  if(isSurcontre||isContre){
-    const eq=detectEquipe(t);
-    if(eq) S.form.preneur=eq;
-    S.form.contre=isSurcontre?'surcontre':'contre';
+  const prompt = `Tu es un assistant pour la Belote Contrée.
+Les deux équipes sont "${t1name}" (équipe 1) et "${t2name}" (équipe 2).
+
+L'utilisateur vient de dicter : "${text}"
+
+Retourne UNIQUEMENT un objet JSON valide, sans texte avant ni après, avec ces champs :
+{
+  "value": nombre parmi 80,90,100,110,120,130,140,150,160,170, ou 250 pour Capot,
+  "isCapot": true si Capot sinon false,
+  "suit": "♥" cœur, "♦" carreau, "♣" trèfle, "♠" pique,
+  "suitKey": "h","d","c","s",
+  "suitColor": "red" pour cœur/carreau, "dark" pour trèfle/pique,
+  "contre": "none", "contre" ou "surcontre",
+  "preneur": "t1" si l'équipe "${t1name}" prend, "t2" si "${t2name}" prend, "" si non mentionné,
+  "confidence": nombre entre 0 et 1
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const raw  = (data.content?.[0]?.text || '').replace(/```json|```/g, '').trim();
+    const p    = JSON.parse(raw);
+
+    // Appliquer dans S.form
+    if (p.value)    { S.form.value = p.value; S.form.isCapot = !!p.isCapot; }
+    if (p.suit)     { S.form.suit = p.suit; S.form.suitKey = p.suitKey; S.form.suitColor = p.suitColor; }
+    if (p.contre)   { S.form.contre = p.contre; }
+    if (p.preneur)  { S.form.preneur = p.preneur; }
+
+    // Rafraîchir l'affichage
     showTab('contrat');
-    setMicroFeedback('\u2705 '+(isSurcontre?'Surcontre':'Contre')+(eq?' \u2014 '+(eq==='t1'?S.t1.name:S.t2.name):''),'ok');
-    return;
-  }
 
-  // Ont fait / Ont chute
-  const aFait = t.includes('ont fait')||t.includes('a fait')||t.includes('reussi');
-  const aChute = t.includes('ont chute')||t.includes('a chute')||t.includes('chutes');
-  if(aFait||aChute){
-    const eq=detectEquipe(t); const val=detectValeur(t); const suit=detectSuit(t);
-    let msg=aFait?'\u2705 Fait':'\u26d4 Chute';
-    if(eq){ S.form.preneur=eq; msg+=' \u2014 '+(eq==='t1'?S.t1.name:S.t2.name); }
-    if(val){ S.form.value=val; S.form.isCapot=(val===250); msg+=' '+(val===250?'Capot':val); }
-    if(suit){ S.form.suit=suit.suit; S.form.suitKey=suit.key; S.form.suitColor=suit.color; msg+=suit.suit; }
-    showTab('contrat');
-    setMicroFeedback(msg,'ok'); return;
-  }
+    // Feedback
+    const preneurName = p.preneur === 't1' ? t1name : p.preneur === 't2' ? t2name : '';
+    const label = [
+      p.isCapot ? 'Capot' : p.value,
+      p.suit,
+      p.contre !== 'none' ? p.contre : '',
+      preneurName
+    ].filter(Boolean).join(' · ');
 
-  // Contrat standard
-  const value=detectValeur(t);
-  const suitResult=detectSuit(t);
-  const preneur=detectEquipe(t);
-  let contre='none';
-  if(t.includes('surcontre')) contre='surcontre';
-  else if(t.includes('contre')&&!t.includes('contrat')) contre='contre';
+    if (p.confidence >= 0.7) {
+      setMicroFeedback('✅ ' + label, 'ok');
+      // Si tout est complet, confirmer automatiquement
+      if (p.value && p.suit && p.preneur) {
+        setTimeout(() => { confirmContract(); showMicroBar(false); }, 900);
+      }
+    } else {
+      setMicroFeedback('⚠️ ' + label + ' — vérifiez les champs', 'error');
+    }
 
-  let applied=[],missing=[];
-
-  // Mettre à jour S.form AVANT showTab (updateContractForm le relira)
-  if(value){
-    S.form.value=value; S.form.isCapot=(value===250);
-    applied.push(value===250?'Capot':value);
-  } else missing.push('valeur');
-
-  if(suitResult){
-    S.form.suit=suitResult.suit; S.form.suitKey=suitResult.key; S.form.suitColor=suitResult.color;
-    applied.push(suitResult.suit);
-  } else missing.push('couleur');
-
-  if(preneur){
-    S.form.preneur=preneur;
-    applied.push(preneur==='t1'?S.t1.name:S.t2.name);
-  } else missing.push('equipe');
-
-  if(contre!=='none'){ S.form.contre=contre; applied.push(contre); }
-  else S.form.contre='none';
-
-  if(missing.length===0){
-    // Tout reconnu → confirmer automatiquement et retour table
-    showTab('contrat'); // updateContractForm lit S.form
-    setMicroFeedback('\u2705 '+applied.join(' \u00b7 ')+' \u2014 confirmation auto\u2026','ok');
-    setTimeout(()=>{
-      confirmContract();
-      showMicroBar(false);
-    }, 900);
-  } else if(applied.length>0){
-    showTab('contrat');
-    setMicroFeedback('\u26a0\ufe0f '+applied.join(' \u00b7 ')+' \u2014 manque : '+missing.join(', '),'error');
-  } else {
-    setMicroFeedback('\u274c Non reconnu \u2014 r\u00e9essayez','error');
+  } catch(e) {
+    setMicroFeedback('❌ Erreur — saisissez manuellement', 'error');
+    console.error('Claude voice error:', e);
   }
 }
 
