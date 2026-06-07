@@ -1314,17 +1314,6 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
       <div class="card">
         <div class="card-title">Contrat</div>
 
-        <!-- Bouton micro + barre de feedback -->
-        <div id="micro-bar" style="display:none;margin-bottom:12px;">
-          <div style="display:flex;justify-content:center;margin-bottom:6px;">
-            <button id="btn-micro" onclick="startVoiceContrat()" style="background:linear-gradient(135deg,#1a5295,#2a8c2a);color:#fff;border:none;border-radius:99px;padding:10px 24px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;box-shadow:0 2px 10px rgba(0,0,0,0.2);">
-              <span id="micro-icon">🎤</span> Dicter l'annonce
-            </button>
-          </div>
-          <div id="micro-transcript" style="font-size:12px;color:#888;text-align:center;min-height:16px;"></div>
-          <div id="micro-feedback" style="font-size:12px;text-align:center;min-height:16px;margin-top:2px;"></div>
-        </div>
-
         <!-- Bouton Passe générale -->
         <div style="display:flex;justify-content:center;margin-bottom:16px;">
           <button id="btn-passe-generale" class="btn" onclick="haptic('medium');bounce(this);passeGenerale();"
@@ -1632,7 +1621,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260607_0150</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260607_0200</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -6407,11 +6396,6 @@ setTimeout(() => {
     setTimeout(() => splash.remove(), 500);
   }
   checkOnboarding();
-  // Afficher le bouton micro si supporté
-  if (window.isSecureContext && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-    const bar = document.getElementById('micro-bar');
-    if (bar) bar.style.display = 'block';
-  }
 }, 1500);
 </script>
 
