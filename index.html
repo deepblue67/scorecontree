@@ -1021,6 +1021,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     text-overflow: unset !important;
     flex-shrink: 1 !important;
     margin-bottom: 0 !important;
+    text-align: left !important;
   }
   #ej-score-wrap .score-team .t-score {
     font-size: 90px !important;
@@ -1409,7 +1410,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
             <!-- Ajustement au point près -->
             <div style="display:flex;gap:6px;justify-content:center;align-items:center;">
               <button onclick="stepScoreFine('t1',-1)" type="button" style="background:#e8e4dc;border:1.5px solid #999;border-radius:99px;color:#1a1a1a;font-size:14px;font-weight:800;padding:6px 16px;cursor:pointer;font-family:inherit;touch-action:manipulation;">−1</button>
-              <span style="font-size:11px;color:#888;font-weight:600;">pt exact</span>
+              <span style="font-size:11px;color:#888;font-weight:600;">point exact</span>
               <button onclick="stepScoreFine('t1',+1)" type="button" style="background:#e8e4dc;border:1.5px solid #999;border-radius:99px;color:#1a1a1a;font-size:14px;font-weight:800;padding:6px 16px;cursor:pointer;font-family:inherit;touch-action:manipulation;">+1</button>
             </div>
 
@@ -1442,7 +1443,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
             <!-- Ajustement au point près -->
             <div style="display:flex;gap:6px;justify-content:center;align-items:center;">
               <button onclick="stepScoreFine('t2',-1)" type="button" style="background:#e8e4dc;border:1.5px solid #999;border-radius:99px;color:#1a1a1a;font-size:14px;font-weight:800;padding:6px 16px;cursor:pointer;font-family:inherit;touch-action:manipulation;">−1</button>
-              <span style="font-size:11px;color:#888;font-weight:600;">pt exact</span>
+              <span style="font-size:11px;color:#888;font-weight:600;">point exact</span>
               <button onclick="stepScoreFine('t2',+1)" type="button" style="background:#e8e4dc;border:1.5px solid #999;border-radius:99px;color:#1a1a1a;font-size:14px;font-weight:800;padding:6px 16px;cursor:pointer;font-family:inherit;touch-action:manipulation;">+1</button>
             </div>
 
@@ -1619,9 +1620,9 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   <!-- ════════ SCREEN: RÉGLAGES ════════ -->
   <div id="screen-settings" class="screen" style="background:var(--bg);">
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
-      <button onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
+      <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260607_0200</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260607_0225</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -4150,15 +4151,13 @@ function renderEnjeu() {
     const p = positions[pos];
     const name = players[pos];
     const isDealer = pos === dPos;
+    const isFirst  = pos === firstPos;
     const color = playerColor(pos);
     const posLabels = {nord:'NORD',est:'EST',sud:'SUD',ouest:'OUEST'};
     const anchor = p.anchor;
 
     let out = '';
 
-    // EST et OUEST : limiter la largeur pour ne pas chevaucher la carte centrale (cx±60=140/260)
-    // OUEST part de x=34 → max x de fin = 132 → maxW = 98
-    // EST finit à x=366, commence au plus tôt à x=268 → maxW = 98
     const isIPadLand = Math.min(window.screen.width,window.screen.height)>=768 && window.innerWidth>window.innerHeight;
     const maxW = (pos==='ouest' || pos==='est') ? (isIPadLand ? 88 : 98) : 130;
     const badgeW = Math.min(name.length * 12 + 24, maxW);
@@ -4169,8 +4168,12 @@ function renderEnjeu() {
 
     // Ombre
     out += `<rect x="${bx+bxOff+2}" y="${by+byOff+3}" width="${badgeW}" height="${badgeH}" rx="10" fill="rgba(0,0,0,0.3)"/>`;
-    // Badge
-    out += `<rect x="${bx+bxOff}" y="${by+byOff}" width="${badgeW}" height="${badgeH}" rx="10" fill="${color}"/>`;
+    // Badge — avec bordure dorée clignotante si premier joueur
+    out += `<rect x="${bx+bxOff}" y="${by+byOff}" width="${badgeW}" height="${badgeH}" rx="10" fill="${color}"${isFirst ? ` stroke="#f0c040" stroke-width="3"` : ''}>`;
+    if(isFirst) {
+      out += `<animate attributeName="opacity" values="1;0.45;1" dur="1s" repeatCount="indefinite"/>`;
+    }
+    out += `</rect>`;
 
     // Nom — police adaptée : plus petite pour EST/OUEST (espace limité)
     const tx = anchor==='start' ? bx+bxOff+12 : anchor==='end' ? bx+bxOff+badgeW-12 : bx;
@@ -6281,6 +6284,16 @@ function showSettingsScreen() {
   } catch(e) {}
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   eid('screen-settings').classList.add('active');
+
+  // Bloquer la nav du bas
+  const nav = document.querySelector('.bottom-nav');
+  if(nav) {
+    nav.style.pointerEvents = 'none';
+    nav.style.opacity = '0.35';
+  }
+  // Faire clignoter le bouton ← Retour des réglages
+  const backBtn = eid('settings-back-btn');
+  if(backBtn) backBtn.style.animation = 'pulse-btn 0.8s ease infinite';
 }
 
 function openSettings() { showSettingsScreen(); }
@@ -6292,10 +6305,16 @@ function hideSettingsScreen() {
   const target = _settingsPreviousScreen || 'setup';
   const el = eid('screen-' + target);
   if(el) el.classList.add('active');
-  else eid('screen-setup').classList.add('active');
-  // iPad paysage : repositionner Est/Ouest après retour
-  setTimeout(fixEastWestPC, 80);
-  setTimeout(fixEastWestPC, 300);
+
+  // Restaurer la nav du bas
+  const nav = document.querySelector('.bottom-nav');
+  if(nav) {
+    nav.style.pointerEvents = '';
+    nav.style.opacity = '';
+  }
+  // Arrêter le clignotement du bouton ← Retour
+  const backBtn = eid('settings-back-btn');
+  if(backBtn) backBtn.style.animation = '';
 }
 
 function setTheme(name) {
