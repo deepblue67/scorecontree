@@ -1267,7 +1267,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
         <span id="setup-mode-label" style="font-size:11px;font-weight:600;color:#111;opacity:0.85;"></span>
       </button>
 
-      <button class="btn btn-outline btn-full" onclick="haptic('medium');showTournoi();" style="font-size:15px;padding:12px 16px;margin-top:10px;">
+      <button id="setup-tournoi-btn" class="btn btn-outline btn-full" onclick="haptic('medium');showTournoi();" style="font-size:15px;padding:12px 16px;margin-top:10px;display:none;">
         🏆 Mode Tournoi
       </button>
     </div>
@@ -1626,7 +1626,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260607_0300</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260607_0315</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1668,6 +1668,22 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <input id="inp-winning-manches" type="number" min="1" max="99" value="10" onchange="updateSetupModeLabel()" style="display:none;width:55px;text-align:center;font-size:15px;font-weight:700;border:1.5px solid var(--border-light);border-radius:8px;background:#fff;color:var(--text);padding:5px 6px;font-family:inherit;">
               <span id="mode-unit-label" style="font-size:13px;color:var(--text2);font-weight:600;">pts</span>
             </div>
+          </div>
+        </div>
+
+        <!-- ── Mode Tournoi ── -->
+        <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">🏆 Mode Tournoi</div>
+        <div style="background:var(--card);border-radius:16px;overflow:hidden;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;">
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:700;color:var(--text);">Afficher le bouton Tournoi</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:2px;">Visible sur l'écran d'accueil</div>
+            </div>
+            <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;">
+              <input type="checkbox" id="toggle-tournoi" onchange="toggleTournoiMode(this.checked)" style="opacity:0;width:0;height:0;">
+              <span id="toggle-tournoi-track" style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:99px;transition:.3s;"></span>
+              <span id="toggle-tournoi-thumb" style="position:absolute;content:'';height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;"></span>
+            </label>
           </div>
         </div>
 
@@ -1904,12 +1920,12 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 
 <!-- ════════════════════════════════ SCREEN: TOURNOI ════════════════════════════════ -->
 <div id="screen-tournoi" class="screen" style="background:var(--bg);min-height:100dvh;display:none;flex-direction:column;">
-  <div class="header" style="padding:12px 16px;justify-content:space-between;display:flex;align-items:center;">
-    <button onclick="hideTournoi()" style="background:rgba(255,255,255,0.2);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">← Retour</button>
+  <div class="header" style="padding:12px 16px;justify-content:space-between;display:flex;align-items:center;flex-shrink:0;">
+    <button id="settings-back-btn-tournoi" onclick="hideTournoi()" style="background:rgba(255,255,255,0.2);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">← Retour</button>
     <h1 style="margin:0;font-size:18px;">🏆 Tournoi</h1>
     <div style="width:80px;"></div>
   </div>
-  <div class="body" id="tournoi-body" style="padding:16px;overflow-y:auto;flex:1;">
+  <div class="body" id="tournoi-body" style="padding:16px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;">
     <!-- Contenu dynamique -->
   </div>
 </div>
@@ -3450,12 +3466,33 @@ function loadTournoi() {
   try { T = JSON.parse(localStorage.getItem('belote_tournoi') || 'null'); } catch(e) { T = null; }
 }
 
+function toggleTournoiMode(on) {
+  localStorage.setItem('tournoi_mode', on ? '1' : '0');
+  const btn = eid('setup-tournoi-btn');
+  if(btn) btn.style.display = on ? 'flex' : 'none';
+  // Mettre à jour le toggle visuel
+  const track = eid('toggle-tournoi-track');
+  const thumb = eid('toggle-tournoi-thumb');
+  if(track) track.style.background = on ? 'var(--green)' : '#ccc';
+  if(thumb) thumb.style.transform  = on ? 'translateX(20px)' : '';
+}
+
+function initTournoiToggle() {
+  const on = localStorage.getItem('tournoi_mode') === '1';
+  const chk = eid('toggle-tournoi');
+  if(chk) chk.checked = on;
+  toggleTournoiMode(on);
+}
+
 function showTournoi() {
   loadTournoi();
   document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = ''; });
   const sc = eid('screen-tournoi');
   sc.style.display = 'flex';
   sc.classList.add('active');
+  // Scroll en haut
+  const body = eid('tournoi-body');
+  if(body) body.scrollTop = 0;
   renderTournoiScreen();
 }
 
@@ -3503,15 +3540,26 @@ function renderTournoiSetup() {
 
       <div style="margin-bottom:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <label style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;">Équipes (${['t-eq-list'].length||0})</label>
-          <span style="font-size:11px;color:var(--text2);">Prénom1 & Prénom2</span>
+          <label style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;">Équipes</label>
+          <span id="t-eq-count" style="font-size:11px;color:var(--text2);">0 équipe(s)</span>
         </div>
         <div id="t-eq-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
-        <div style="display:flex;gap:8px;">
-          <input type="text" id="t-eq-input" placeholder="Ex: Mika & Christophe" style="flex:1;font-size:14px;" onkeydown="if(event.key==='Enter')addTournoiEquipe()">
-          <button class="btn btn-green" onclick="addTournoiEquipe()" style="padding:12px 16px;flex-shrink:0;">+</button>
+
+        <!-- Sélecteur de joueurs pour former une équipe -->
+        <div style="background:rgba(0,0,0,0.06);border-radius:12px;padding:12px;margin-bottom:8px;">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:600;">Ajouter une équipe</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <select id="t-joueur1" style="flex:1;min-width:120px;padding:8px 10px;border-radius:8px;border:1.5px solid #ccc;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;">
+              <option value="">Joueur 1…</option>
+            </select>
+            <span style="font-size:14px;font-weight:700;color:var(--text2);">&</span>
+            <select id="t-joueur2" style="flex:1;min-width:120px;padding:8px 10px;border-radius:8px;border:1.5px solid #ccc;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;">
+              <option value="">Joueur 2…</option>
+            </select>
+            <button class="btn btn-green" onclick="addTournoiEquipe()" style="padding:10px 16px;flex-shrink:0;">+</button>
+          </div>
         </div>
-        <div style="font-size:11px;color:var(--text2);margin-top:6px;">Minimum 3 équipes</div>
+        <div style="font-size:11px;color:var(--text2);">Minimum 3 équipes · Chaque joueur ne peut être que dans une seule équipe</div>
       </div>
     </div>
 
@@ -3523,6 +3571,21 @@ function renderTournoiSetup() {
   renderTEqList();
   // Sélectionner le bon chip
   selectNbTours(window._tSetup.nbTours, true);
+  // Peupler les selects avec les joueurs disponibles
+  refreshTournoiSelects();
+}
+
+function refreshTournoiSelects() {
+  const joueursDansEquipes = _tSetup.equipes.flatMap(eq => eq.split(' & '));
+  const joueursDispo = (S.players || []).filter(p => !joueursDansEquipes.includes(p));
+
+  ['t-joueur1','t-joueur2'].forEach(id => {
+    const sel = eid(id);
+    if(!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = `<option value="">Joueur…</option>` +
+      joueursDispo.map(p => `<option value="${p}" ${p===cur?'selected':''}>${p}</option>`).join('');
+  });
 }
 
 let _tSetup = { nbTours: 5, equipes: [] };
@@ -3536,23 +3599,30 @@ function selectNbTours(n, silent) {
 }
 
 function addTournoiEquipe() {
-  const inp = eid('t-eq-input');
-  const name = (inp.value||'').trim();
-  if(!name) return;
-  if(_tSetup.equipes.includes(name)) { showToast('Équipe déjà ajoutée'); return; }
+  const j1 = (eid('t-joueur1')?.value || '').trim();
+  const j2 = (eid('t-joueur2')?.value || '').trim();
+  if(!j1 || !j2) { showToast('⚠️ Sélectionne 2 joueurs'); return; }
+  if(j1 === j2)  { showToast('⚠️ 2 joueurs différents'); return; }
+  const name = j1 + ' & ' + j2;
+  if(_tSetup.equipes.includes(name) || _tSetup.equipes.includes(j2 + ' & ' + j1)) {
+    showToast('Équipe déjà ajoutée'); return;
+  }
   _tSetup.equipes.push(name);
-  inp.value = '';
   renderTEqList();
+  refreshTournoiSelects();
 }
 
 function removeTournoiEquipe(i) {
   _tSetup.equipes.splice(i, 1);
   renderTEqList();
+  refreshTournoiSelects();
 }
 
 function renderTEqList() {
-  const el = eid('t-eq-list');
+  const el  = eid('t-eq-list');
+  const cnt = eid('t-eq-count');
   if(!el) return;
+  if(cnt) cnt.textContent = _tSetup.equipes.length + ' équipe(s)';
   if(!_tSetup.equipes.length) {
     el.innerHTML = '<div style="font-size:13px;color:var(--text2);text-align:center;padding:8px;">Aucune équipe ajoutée</div>';
     return;
@@ -6891,6 +6961,7 @@ setTimeout(() => {
     setTimeout(() => splash.remove(), 500);
   }
   checkOnboarding();
+  initTournoiToggle();
 }, 1500);
 </script>
 
