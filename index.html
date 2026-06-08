@@ -1307,6 +1307,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
           <button id="btn-action-contrat" class="btn btn-outline" onclick="showTab('contrat')" style="font-size:13px;padding:10px 6px;">✏️ Contrat</button>
           <button id="btn-action-saisie" class="btn btn-green" onclick="showTab('saisie');updateSaisieForm();" style="font-size:13px;padding:10px 6px;">📊 Saisir score</button>
           <button class="btn btn-outline" onclick="askEndGame()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">🏁 Terminer la partie</button>
+          <button id="btn-tournoi-shortcut" class="btn btn-gold" onclick="showTournoi()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;display:none;">🏆 Saisir scores du tournoi</button>
         </div>
 
       </div>
@@ -1626,7 +1627,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260607_0320</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260607_0330</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -3470,6 +3471,8 @@ function toggleTournoiMode(on) {
   localStorage.setItem('tournoi_mode', on ? '1' : '0');
   const btn = eid('setup-tournoi-btn');
   if(btn) btn.style.display = on ? 'flex' : 'none';
+  const shortcut = eid('btn-tournoi-shortcut');
+  if(shortcut) shortcut.style.display = on ? 'block' : 'none';
   // Mettre à jour le toggle visuel
   const track = eid('toggle-tournoi-track');
   const thumb = eid('toggle-tournoi-thumb');
@@ -3534,7 +3537,7 @@ function renderTournoiSetup() {
       <div style="margin-bottom:14px;">
         <label style="display:block;font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px;">Nombre de tours</label>
         <div style="display:flex;gap:8px;">
-          ${[3,4,5,6].map(n => `<button class="chip ${(!T||T.nbTours===n)&&n===5?'chip-sel':''}" id="tours-chip-${n}" onclick="selectNbTours(${n})" style="flex:1;padding:10px 4px;font-size:15px;font-weight:700;">${n}</button>`).join('')}
+          ${[3,4,5,6].map(n => `<button class="chip ${n===(_tSetup.nbTours||5)?'selected-green':''}" id="tours-chip-${n}" onclick="selectNbTours(${n})" style="flex:1;padding:10px 4px;font-size:15px;font-weight:700;">${n}</button>`).join('')}
         </div>
       </div>
 
@@ -3594,7 +3597,7 @@ function selectNbTours(n, silent) {
   _tSetup.nbTours = n;
   [3,4,5,6].forEach(k => {
     const c = eid('tours-chip-'+k);
-    if(c) { c.className = 'chip' + (k===n ? ' chip-sel' : ''); }
+    if(c) c.className = 'chip' + (k===n ? ' selected-green' : '');
   });
 }
 
@@ -3653,6 +3656,13 @@ function demarrerTournoi() {
   T.appariements = genererAppariements(T, 1, true);
   saveTournoi();
   renderTournoiTour();
+}
+
+function confirmerTerminerTournoi() {
+  if(!confirm('Terminer le tournoi maintenant ?\nLe classement sera établi sur les tours joués.')) return;
+  T.status = 'done';
+  saveTournoi();
+  renderTournoiResultat();
 }
 
 function resetTournoi() {
@@ -3770,8 +3780,11 @@ function renderTournoiTour() {
       </div>`).join('')}
     </div>
 
-    <button class="btn btn-green btn-full" onclick="validerTour()" style="font-size:16px;padding:14px;">
+    <button class="btn btn-green btn-full" onclick="validerTour()" style="font-size:16px;padding:14px;margin-bottom:10px;">
       ${T.tourActuel < T.nbTours ? 'Valider le tour et continuer ▶' : '🏆 Terminer le tournoi'}
+    </button>
+    <button class="btn btn-outline btn-full" onclick="confirmerTerminerTournoi()" style="font-size:14px;padding:12px;">
+      🏁 Terminer le tournoi maintenant
     </button>
   `;
 }
