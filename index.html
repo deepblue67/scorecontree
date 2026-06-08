@@ -1523,7 +1523,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
       <div style="display:flex;gap:0;margin-bottom:14px;background:rgba(0,0,0,0.15);border-radius:12px;padding:3px;">
         <button id="sub-tab-feuille" onclick="showSubTab('feuille')" style="flex:1;padding:8px;border-radius:10px;border:none;background:var(--green);color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;">🗒 En cours</button>
         <button id="sub-tab-history" onclick="showSubTab('history')" style="flex:1;padding:8px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.6);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;">📋 Historique</button>
-
+        <button id="sub-tab-tournois" onclick="showSubTab('tournois')" style="flex:1;padding:8px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.6);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;">🏆 Tournois</button>
       </div>
       <div id="sub-content-parties"></div>
     </div>
@@ -1628,7 +1628,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260608_1347</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260608_1400</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -3311,6 +3311,7 @@ function getExportData() {
     device: navigator.userAgent.includes('iPad') ? 'iPad' : navigator.userAgent.includes('iPhone') ? 'iPhone' : 'PC',
     players: S.players || [],
     history: JSON.parse(localStorage.getItem('belote_history') || '[]'),
+    tournois_history: JSON.parse(localStorage.getItem('belote_tournois_history') || '[]'),
     autosave: JSON.parse(localStorage.getItem('belote_autosave') || 'null'),
     last_config: JSON.parse(localStorage.getItem('belote_last_config') || 'null'),
     theme: localStorage.getItem('bct_theme') || 'green'
@@ -3368,6 +3369,12 @@ function applyImportData(data) {
     const local  = JSON.parse(localStorage.getItem('belote_history') || '[]');
     const merged = mergeHistory(local, data.history);
     localStorage.setItem('belote_history', JSON.stringify(merged.slice(0, 50)));
+  }
+  if(data.tournois_history?.length) {
+    const localT  = JSON.parse(localStorage.getItem('belote_tournois_history') || '[]');
+    const mapT    = new Map();
+    [...localT, ...data.tournois_history].forEach(t => mapT.set(t.id, t));
+    localStorage.setItem('belote_tournois_history', JSON.stringify(Array.from(mapT.values()).slice(0, 20)));
   }
   if(data.autosave)     localStorage.setItem('belote_autosave', JSON.stringify(data.autosave));
   if(data.last_config)  localStorage.setItem('belote_last_config', JSON.stringify(data.last_config));
@@ -3537,13 +3544,14 @@ function renderTournoiScreen() {
 // ── SETUP ────────────────────────────────────────────────────
 function renderTournoiSetup() {
   const saved = T && T.status !== 'done';
+  const today = new Date().toLocaleDateString('fr-FR', {day:'2-digit',month:'2-digit',year:'numeric'});
   const body = eid('tournoi-body');
   body.innerHTML = `
     ${saved ? `
     <div style="background:rgba(200,150,10,0.15);border:1px solid rgba(200,150,10,0.4);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
       <div>
-        <div style="font-size:14px;font-weight:700;color:var(--text);">🏆 Tournoi en cours</div>
-        <div style="font-size:12px;color:var(--text2);margin-top:2px;">Tour ${T.tourActuel}/${T.nbTours} · ${T.equipes.length} équipes</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text);">🏆 ${T.nom||'Tournoi'} en cours</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px;">Tour ${T.tourActuel}/${T.nbTours} · ${T.equipes.length} équipes · ${T.date||''}</div>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-gold" onclick="renderTournoiTour()" style="padding:8px 14px;font-size:13px;">Reprendre ▶</button>
@@ -3553,6 +3561,27 @@ function renderTournoiSetup() {
 
     <div class="card" style="margin-bottom:16px;">
       <div class="card-title">Nouveau tournoi</div>
+
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px;">Nom du tournoi</label>
+        <input type="text" id="t-nom-input" placeholder="Ex: Tournoi de la pétanque" value="Tournoi du ${today}"
+          style="width:100%;padding:10px 12px;border:1.5px solid #ccc;border-radius:10px;font-size:14px;font-family:inherit;box-sizing:border-box;">
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px;">Date</label>
+        <input type="text" id="t-date-input" placeholder="jj/mm/aaaa" value="${today}"
+          style="width:100%;padding:10px 12px;border:1.5px solid #ccc;border-radius:10px;font-size:14px;font-family:inherit;box-sizing:border-box;">
+      </div>
+
+      <!-- Nom et date -->
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px;">Nom du tournoi</label>
+        <input type="text" id="t-nom" placeholder="Ex: Tournoi du 8 juin 2026"
+          value="${_tSetup.nom || ''}"
+          style="width:100%;padding:10px 12px;border:1.5px solid #ccc;border-radius:10px;font-size:15px;font-family:inherit;box-sizing:border-box;background:#fff;color:#1a1a1a;">
+        <div style="font-size:11px;color:var(--text2);margin-top:4px;">Date : ${new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
+      </div>
 
       <div style="margin-bottom:14px;">
         <label style="display:block;font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px;">Nombre de tours</label>
@@ -3586,7 +3615,8 @@ function renderTournoiSetup() {
       </div>
     </div>
 
-    <button class="btn btn-green btn-full" onclick="demarrerTournoi()" style="font-size:16px;padding:14px;">🏆 Démarrer le tournoi</button>
+    <button class="btn btn-green btn-full" onclick="demarrerTournoi()" style="font-size:16px;padding:14px;margin-bottom:10px;">🏆 Démarrer le tournoi</button>
+    <button class="btn btn-outline btn-full" onclick="renderTournoiHistorique()" style="font-size:14px;padding:12px;">📋 Historique des tournois</button>
   `;
 
   // Initialiser l'état setup temporaire
@@ -3611,7 +3641,7 @@ function refreshTournoiSelects() {
   });
 }
 
-let _tSetup = { nbTours: 5, equipes: [] };
+let _tSetup = { nbTours: 5, equipes: [], nom: '', date: '' };
 
 function selectNbTours(n, silent) {
   _tSetup.nbTours = n;
@@ -3660,12 +3690,17 @@ function renderTEqList() {
 function demarrerTournoi() {
   if(_tSetup.equipes.length < 3) { showToast('⚠️ Minimum 3 équipes'); return; }
 
-  // Tirage au sort du 1er tour
+  const nom  = (eid('t-nom-input')?.value || '').trim() || 'Tournoi';
+  const date = (eid('t-date-input')?.value || '').trim() ||
+               new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
+
   const equipes = [..._tSetup.equipes];
   shuffle(equipes);
 
   T = {
     status: 'running',
+    nom,
+    date,
     nbTours: _tSetup.nbTours,
     tourActuel: 1,
     equipes: equipes.map(name => ({ name, victoires: 0, goalAvg: 0, scoreTotal: 0, exemptions: 0, rencontres: [] })),
@@ -3681,9 +3716,12 @@ function demarrerTournoi() {
 function confirmerTerminerTournoi() {
   if(!confirm('Terminer le tournoi maintenant ?\nLe classement sera établi sur les tours joués.')) return;
   T.status = 'done';
+  T.id = T.id || Date.now();
   saveTournoi();
+  saveTournoiHistorique();
   renderTournoiResultat();
 }
+
 
 function resetTournoi() {
   if(!confirm('Abandonner le tournoi en cours ?')) return;
@@ -3875,7 +3913,9 @@ function validerTour() {
     renderTournoiTour();
   } else {
     T.status = 'done';
+    T.id = T.id || Date.now();
     saveTournoi();
+    saveTournoiHistorique();
     renderTournoiResultat();
   }
 }
@@ -3939,8 +3979,8 @@ function renderTournoiResultat() {
     <!-- En-tête compact -->
     <div style="text-align:center;margin-bottom:12px;">
       <div style="font-size:36px;">🏆</div>
-      <div style="font-size:22px;font-weight:900;color:var(--text);margin-top:4px;">Tournoi terminé !</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:4px;">${T.tours.length} tours joués · ${T.equipes.length} équipes</div>
+      <div style="font-size:22px;font-weight:900;color:var(--text);margin-top:4px;">${T.nom || 'Tournoi terminé !'}</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:4px;">${T.date} · ${T.tours.length} tours joués · ${T.equipes.length} équipes</div>
     </div>
 
     <!-- Podium compact -->
@@ -4017,13 +4057,13 @@ function partageTournoi() {
 
   // Titre
   ctx.fillStyle = '#c8960a';
-  ctx.font = 'bold 28px -apple-system, sans-serif';
+  ctx.font = 'bold 26px -apple-system, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('🏆 Tournoi Belote Contrée', W/2, 44);
+  ctx.fillText(T.nom || '🏆 Tournoi Belote Contrée', W/2, 44);
 
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.font = '16px -apple-system, sans-serif';
-  ctx.fillText(T.tours.length + ' tours · ' + T.equipes.length + ' équipes', W/2, 72);
+  ctx.font = '15px -apple-system, sans-serif';
+  ctx.fillText(T.date + ' · ' + T.tours.length + ' tours · ' + T.equipes.length + ' équipes', W/2, 72);
 
   // Séparateur
   ctx.strokeStyle = 'rgba(200,150,10,0.4)';
@@ -4086,6 +4126,70 @@ function partageTournoi() {
       a.click();
     }
   }, 'image/png');
+}
+
+function saveTournoiHistorique() {
+  if(!T || T.status !== 'done') return;
+  try {
+    const hist = JSON.parse(localStorage.getItem('belote_tournois_history') || '[]');
+    // Éviter les doublons (même id)
+    const id = T.id || Date.now();
+    T.id = id;
+    const idx = hist.findIndex(t => t.id === id);
+    if(idx >= 0) hist[idx] = T;
+    else hist.unshift(T);
+    localStorage.setItem('belote_tournois_history', JSON.stringify(hist.slice(0, 20)));
+  } catch(e) {}
+}
+
+function renderTournoiHistorique() {
+  const body = eid('tournoi-body');
+  let hist = [];
+  try { hist = JSON.parse(localStorage.getItem('belote_tournois_history') || '[]'); } catch(e) {}
+
+  body.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-size:20px;font-weight:800;color:var(--text);">📋 Historique</div>
+      <button onclick="renderTournoiSetup()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:99px;padding:7px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">← Retour</button>
+    </div>
+
+    ${!hist.length ? `
+    <div style="text-align:center;padding:40px 20px;color:rgba(255,255,255,0.4);">
+      <div style="font-size:40px;margin-bottom:12px;">📋</div>
+      <div style="font-size:15px;">Aucun tournoi terminé</div>
+    </div>` : hist.map((t, i) => {
+      const cl = [...t.equipes].sort((a,b) => b.victoires-a.victoires||b.goalAvg-a.goalAvg);
+      return `
+      <div class="card" style="margin-bottom:12px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div>
+            <div style="font-size:15px;font-weight:800;color:var(--text);">🏆 ${t.nom||'Tournoi'}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px;">${t.date||''} · ${t.tours?.length||0} tours · ${t.equipes.length} équipes</div>
+          </div>
+          <button onclick="deleteTournoiHistorique(${t.id})" style="background:#fce8e8;border:1px solid #e8b0b0;border-radius:99px;color:#cc1f1f;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer;font-family:inherit;">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          ${cl.slice(0,3).map((eq,j) => `
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;">
+            <span>${j===0?'🥇':j===1?'🥈':'🥉'}</span>
+            <span style="font-weight:700;color:var(--text);flex:1;">${eq.name}</span>
+            <span style="color:var(--green);">${eq.victoires}V</span>
+            <span style="color:${eq.goalAvg>=0?'var(--green)':'#cc2222'};">${eq.goalAvg>0?'+':''}${eq.goalAvg}</span>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+function deleteTournoiHistorique(id) {
+  if(!confirm('Supprimer ce tournoi ?')) return;
+  try {
+    let hist = JSON.parse(localStorage.getItem('belote_tournois_history') || '[]');
+    hist = hist.filter(t => t.id !== id);
+    localStorage.setItem('belote_tournois_history', JSON.stringify(hist));
+    renderTournoiHistorique();
+  } catch(e) {}
 }
 
 function debugShowHistory() {
@@ -5897,7 +6001,7 @@ function showSubTab(sub) {
   if(!container) return;
 
   // Mettre à jour les boutons sous-onglets
-  ['history','feuille'].forEach(s => {
+  ['history','feuille','tournois'].forEach(s => {
     const btn = eid('sub-tab-'+s);
     if(!btn) return;
     const active = s===sub;
@@ -5907,6 +6011,11 @@ function showSubTab(sub) {
   });
 
   container.innerHTML = '';
+
+  if(sub==='tournois') {
+    renderTournoisHistory(container);
+    return;
+  }
 
   if(sub==='history') {
     // Renommer temporairement les IDs originaux pour éviter les doublons
