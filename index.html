@@ -1628,7 +1628,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260608_1730</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260608_1745</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -4186,18 +4186,6 @@ function deleteTournoiHistorique(id) {
     hist = hist.filter(t => t.id !== id);
     localStorage.setItem('belote_tournois_history', JSON.stringify(hist));
     showSubTab('tournois');
-  } catch(e) {}
-}
-  if(!T || T.status !== 'done') return;
-  try {
-    const hist = JSON.parse(localStorage.getItem('belote_tournois_history') || '[]');
-    // Éviter les doublons (même id)
-    const id = T.id || Date.now();
-    T.id = id;
-    const idx = hist.findIndex(t => t.id === id);
-    if(idx >= 0) hist[idx] = T;
-    else hist.unshift(T);
-    localStorage.setItem('belote_tournois_history', JSON.stringify(hist.slice(0, 20)));
   } catch(e) {}
 }
 
