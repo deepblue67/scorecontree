@@ -1628,7 +1628,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260608_1745</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260608_1800</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1921,13 +1921,13 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 </div>
 
 <!-- ════════════════════════════════ SCREEN: TOURNOI ════════════════════════════════ -->
-<div id="screen-tournoi" class="screen" style="background:var(--bg);min-height:100dvh;display:none;flex-direction:column;position:fixed;inset:0;z-index:1000;overflow-y:auto;">
-  <div class="header" style="padding:12px 16px;justify-content:space-between;display:flex;align-items:center;flex-shrink:0;">
+<div id="screen-tournoi" class="screen" style="background:var(--bg);display:none;flex-direction:column;position:fixed;inset:0;z-index:1000;">
+  <div id="tournoi-header" class="header" style="padding:12px 16px;justify-content:space-between;display:flex;align-items:center;flex-shrink:0;">
     <button id="settings-back-btn-tournoi" onclick="hideTournoi()" style="background:rgba(255,255,255,0.2);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">← Retour</button>
     <h1 style="margin:0;font-size:18px;">🏆 Tournoi</h1>
     <div style="width:80px;"></div>
   </div>
-  <div class="body" id="tournoi-body" style="padding:16px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;">
+  <div class="body" id="tournoi-body" style="padding:16px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;min-height:0;">
     <!-- Contenu dynamique -->
   </div>
 </div>
@@ -3503,7 +3503,6 @@ function showTournoi() {
   const sc = eid('screen-tournoi');
   sc.style.display = 'flex';
   sc.classList.add('active');
-  // Scroll en haut
   const body = eid('tournoi-body');
   if(body) body.scrollTop = 0;
   renderTournoiScreen();
@@ -3513,6 +3512,13 @@ function hideTournoi() {
   const sc = eid('screen-tournoi');
   sc.classList.remove('active');
   sc.style.display = 'none';
+
+  // Restaurer la nav du bas
+  const nav = document.querySelector('.bottom-nav');
+  if(nav) { nav.style.pointerEvents = ''; nav.style.opacity = ''; }
+  // Arrêter le clignotement
+  const backBtn = eid('settings-back-btn-tournoi');
+  if(backBtn) backBtn.style.animation = '';
 
   // Restaurer le bon écran
   const gameActive = eid('screen-game');
@@ -3721,6 +3727,11 @@ function resetTournoi() {
   T = null;
   localStorage.removeItem('belote_tournoi');
   _tSetup = { nbTours: 5, equipes: [] };
+  // Restaurer la nav
+  const nav = document.querySelector('.bottom-nav');
+  if(nav) { nav.style.pointerEvents = ''; nav.style.opacity = ''; }
+  const backBtn = eid('settings-back-btn-tournoi');
+  if(backBtn) backBtn.style.animation = '';
   renderTournoiSetup();
 }
 
@@ -3968,6 +3979,15 @@ function renderTournoiResultat() {
   const cl   = getClassement();
   const top3 = cl.slice(0, 3);
 
+  // Bloquer la nav du bas
+  const nav = document.querySelector('.bottom-nav');
+  if(nav) { nav.style.pointerEvents = 'none'; nav.style.opacity = '0.35'; }
+  // Faire clignoter le bouton retour
+  setTimeout(() => {
+    const backBtn = eid('settings-back-btn-tournoi');
+    if(backBtn) backBtn.style.animation = 'pulse-btn 2s ease infinite';
+  }, 100);
+
   body.innerHTML = `
     <!-- En-tête compact -->
     <div style="text-align:center;margin-bottom:12px;">
@@ -3982,24 +4002,24 @@ function renderTournoiResultat() {
       <div style="flex:1;text-align:center;">
         <div style="font-size:20px;margin-bottom:4px;">🥈</div>
         <div style="background:rgba(255,255,255,0.15);border-radius:10px 10px 0 0;padding:10px 6px;height:70px;display:flex;align-items:center;justify-content:center;">
-          <div style="font-size:16px;font-weight:800;color:#fff;line-height:1.3;">${top3[1].name}</div>
+          <div style="font-size:18px;font-weight:800;color:#fff;line-height:1.3;">${top3[1].name}</div>
         </div>
-        <div style="background:rgba(255,255,255,0.1);padding:5px;border-radius:0 0 8px 8px;font-size:12px;font-weight:700;color:#fff;">${top3[1].victoires}V · ${top3[1].goalAvg>0?'+':''}${top3[1].goalAvg}</div>
+        <div style="background:rgba(255,255,255,0.1);padding:7px 4px;border-radius:0 0 8px 8px;font-size:14px;font-weight:700;color:#fff;">${top3[1].victoires}V · ${top3[1].goalAvg>0?'+':''}${top3[1].goalAvg}</div>
       </div>` : ''}
       <div style="flex:1;text-align:center;">
         <div style="font-size:28px;margin-bottom:4px;">🥇</div>
         <div style="background:rgba(200,150,10,0.4);border:2px solid #c8960a;border-radius:10px 10px 0 0;padding:10px 6px;height:95px;display:flex;align-items:center;justify-content:center;">
-          <div style="font-size:18px;font-weight:900;color:#fff;line-height:1.3;">${top3[0].name}</div>
+          <div style="font-size:20px;font-weight:900;color:#fff;line-height:1.3;">${top3[0].name}</div>
         </div>
-        <div style="background:rgba(200,150,10,0.3);padding:5px;border-radius:0 0 8px 8px;font-size:13px;font-weight:800;color:#c8960a;">${top3[0].victoires}V · ${top3[0].goalAvg>0?'+':''}${top3[0].goalAvg}</div>
+        <div style="background:rgba(200,150,10,0.3);padding:7px 4px;border-radius:0 0 8px 8px;font-size:15px;font-weight:800;color:#c8960a;">${top3[0].victoires}V · ${top3[0].goalAvg>0?'+':''}${top3[0].goalAvg}</div>
       </div>
       ${top3[2] ? `
       <div style="flex:1;text-align:center;">
         <div style="font-size:20px;margin-bottom:4px;">🥉</div>
         <div style="background:rgba(184,115,51,0.3);border-radius:10px 10px 0 0;padding:10px 6px;height:50px;display:flex;align-items:center;justify-content:center;">
-          <div style="font-size:16px;font-weight:800;color:#fff;line-height:1.3;">${top3[2].name}</div>
+          <div style="font-size:18px;font-weight:800;color:#fff;line-height:1.3;">${top3[2].name}</div>
         </div>
-        <div style="background:rgba(184,115,51,0.2);padding:5px;border-radius:0 0 8px 8px;font-size:12px;font-weight:700;color:#b87333;">${top3[2].victoires}V · ${top3[2].goalAvg>0?'+':''}${top3[2].goalAvg}</div>
+        <div style="background:rgba(184,115,51,0.2);padding:7px 4px;border-radius:0 0 8px 8px;font-size:14px;font-weight:700;color:#b87333;">${top3[2].victoires}V · ${top3[2].goalAvg>0?'+':''}${top3[2].goalAvg}</div>
       </div>` : ''}
     </div>
 
