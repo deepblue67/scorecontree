@@ -1628,7 +1628,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260608_1321</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260608_1347</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -3936,67 +3936,156 @@ function renderTournoiResultat() {
   const top3 = cl.slice(0, 3);
 
   body.innerHTML = `
-    <div style="text-align:center;margin-bottom:24px;">
-      <div style="font-size:48px;">🏆</div>
-      <div style="font-size:22px;font-weight:900;color:var(--text);margin-top:8px;">Tournoi terminé !</div>
-      <div style="font-size:13px;color:var(--text2);margin-top:4px;">${T.nbTours} tours · ${T.equipes.length} équipes</div>
+    <!-- En-tête compact -->
+    <div style="text-align:center;margin-bottom:12px;">
+      <div style="font-size:36px;">🏆</div>
+      <div style="font-size:22px;font-weight:900;color:var(--text);margin-top:4px;">Tournoi terminé !</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:4px;">${T.tours.length} tours joués · ${T.equipes.length} équipes</div>
     </div>
 
-    <!-- Podium -->
-    <div style="display:flex;gap:10px;justify-content:center;align-items:flex-end;margin-bottom:24px;">
+    <!-- Podium compact -->
+    <div id="tournoi-podium" style="display:flex;gap:8px;justify-content:center;align-items:flex-end;margin-bottom:14px;">
       ${top3[1] ? `
       <div style="flex:1;text-align:center;">
-        <div style="font-size:24px;margin-bottom:6px;">🥈</div>
-        <div style="background:rgba(255,255,255,0.15);border-radius:12px 12px 0 0;padding:14px 8px;height:80px;display:flex;align-items:center;justify-content:center;">
-          <div style="font-size:13px;font-weight:700;color:#fff;">${top3[1].name}</div>
+        <div style="font-size:20px;margin-bottom:4px;">🥈</div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:10px 10px 0 0;padding:10px 6px;height:70px;display:flex;align-items:center;justify-content:center;">
+          <div style="font-size:16px;font-weight:800;color:#fff;line-height:1.3;">${top3[1].name}</div>
         </div>
-        <div style="background:rgba(255,255,255,0.1);padding:6px;border-radius:0 0 8px 8px;font-size:12px;font-weight:700;color:#fff;">${top3[1].victoires}V · ${top3[1].goalAvg>0?'+':''}${top3[1].goalAvg}</div>
+        <div style="background:rgba(255,255,255,0.1);padding:5px;border-radius:0 0 8px 8px;font-size:12px;font-weight:700;color:#fff;">${top3[1].victoires}V · ${top3[1].goalAvg>0?'+':''}${top3[1].goalAvg}</div>
       </div>` : ''}
       <div style="flex:1;text-align:center;">
-        <div style="font-size:32px;margin-bottom:6px;">🥇</div>
-        <div style="background:rgba(200,150,10,0.4);border:2px solid #c8960a;border-radius:12px 12px 0 0;padding:14px 8px;height:110px;display:flex;align-items:center;justify-content:center;">
-          <div style="font-size:15px;font-weight:800;color:#fff;">${top3[0].name}</div>
+        <div style="font-size:28px;margin-bottom:4px;">🥇</div>
+        <div style="background:rgba(200,150,10,0.4);border:2px solid #c8960a;border-radius:10px 10px 0 0;padding:10px 6px;height:95px;display:flex;align-items:center;justify-content:center;">
+          <div style="font-size:18px;font-weight:900;color:#fff;line-height:1.3;">${top3[0].name}</div>
         </div>
-        <div style="background:rgba(200,150,10,0.3);padding:6px;border-radius:0 0 8px 8px;font-size:13px;font-weight:800;color:#c8960a;">${top3[0].victoires}V · ${top3[0].goalAvg>0?'+':''}${top3[0].goalAvg}</div>
+        <div style="background:rgba(200,150,10,0.3);padding:5px;border-radius:0 0 8px 8px;font-size:13px;font-weight:800;color:#c8960a;">${top3[0].victoires}V · ${top3[0].goalAvg>0?'+':''}${top3[0].goalAvg}</div>
       </div>
       ${top3[2] ? `
       <div style="flex:1;text-align:center;">
-        <div style="font-size:24px;margin-bottom:6px;">🥉</div>
-        <div style="background:rgba(184,115,51,0.3);border-radius:12px 12px 0 0;padding:14px 8px;height:60px;display:flex;align-items:center;justify-content:center;">
-          <div style="font-size:13px;font-weight:700;color:#fff;">${top3[2].name}</div>
+        <div style="font-size:20px;margin-bottom:4px;">🥉</div>
+        <div style="background:rgba(184,115,51,0.3);border-radius:10px 10px 0 0;padding:10px 6px;height:50px;display:flex;align-items:center;justify-content:center;">
+          <div style="font-size:16px;font-weight:800;color:#fff;line-height:1.3;">${top3[2].name}</div>
         </div>
-        <div style="background:rgba(184,115,51,0.2);padding:6px;border-radius:0 0 8px 8px;font-size:12px;font-weight:700;color:#b87333;">${top3[2].victoires}V · ${top3[2].goalAvg>0?'+':''}${top3[2].goalAvg}</div>
+        <div style="background:rgba(184,115,51,0.2);padding:5px;border-radius:0 0 8px 8px;font-size:12px;font-weight:700;color:#b87333;">${top3[2].victoires}V · ${top3[2].goalAvg>0?'+':''}${top3[2].goalAvg}</div>
       </div>` : ''}
     </div>
 
     <!-- Classement complet -->
-    <div class="card" style="overflow:hidden;padding:0;margin-bottom:16px;">
+    <div class="card" style="overflow:hidden;padding:0;margin-bottom:12px;">
       <table style="width:100%;border-collapse:collapse;font-size:13px;">
         <thead>
           <tr style="background:rgba(0,0,0,0.06);border-bottom:2px solid rgba(0,0,0,0.1);">
-            <th style="padding:10px 12px;text-align:left;font-size:11px;color:var(--text2);text-transform:uppercase;">#</th>
-            <th style="padding:10px 12px;text-align:left;font-size:11px;color:var(--text2);text-transform:uppercase;">Équipe</th>
-            <th style="padding:10px 12px;text-align:center;font-size:11px;color:var(--text2);">V</th>
-            <th style="padding:10px 12px;text-align:center;font-size:11px;color:var(--text2);">G.A.</th>
-            <th style="padding:10px 12px;text-align:center;font-size:11px;color:var(--text2);">Pts</th>
+            <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--text2);text-transform:uppercase;">#</th>
+            <th style="padding:8px 12px;text-align:left;font-size:11px;color:var(--text2);text-transform:uppercase;">Équipe</th>
+            <th style="padding:8px 12px;text-align:center;font-size:11px;color:var(--text2);">V</th>
+            <th style="padding:8px 12px;text-align:center;font-size:11px;color:var(--text2);">G.A.</th>
+            <th style="padding:8px 12px;text-align:center;font-size:11px;color:var(--text2);">Pts</th>
           </tr>
         </thead>
         <tbody>
           ${cl.map((eq, i) => `
           <tr style="border-bottom:1px solid rgba(0,0,0,0.06);">
-            <td style="padding:10px 12px;font-weight:800;color:${i===0?'#c8960a':i===1?'#888':i===2?'#b87333':'var(--text2)'};">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td>
-            <td style="padding:10px 12px;font-weight:700;color:var(--text);">${eq.name}</td>
-            <td style="padding:10px 12px;text-align:center;font-weight:700;color:var(--green);">${eq.victoires}</td>
-            <td style="padding:10px 12px;text-align:center;color:${eq.goalAvg>=0?'var(--green)':'#cc2222'};font-weight:700;">${eq.goalAvg>0?'+':''}${eq.goalAvg}</td>
-            <td style="padding:10px 12px;text-align:center;color:var(--text2);">${eq.scoreTotal}</td>
+            <td style="padding:8px 12px;font-weight:800;color:${i===0?'#c8960a':i===1?'#888':i===2?'#b87333':'var(--text2)'};">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td>
+            <td style="padding:8px 12px;font-weight:700;color:var(--text);">${eq.name}</td>
+            <td style="padding:8px 12px;text-align:center;font-weight:700;color:var(--green);">${eq.victoires}</td>
+            <td style="padding:8px 12px;text-align:center;color:${eq.goalAvg>=0?'var(--green)':'#cc2222'};font-weight:700;">${eq.goalAvg>0?'+':''}${eq.goalAvg}</td>
+            <td style="padding:8px 12px;text-align:center;color:var(--text2);">${eq.scoreTotal}</td>
           </tr>`).join('')}
         </tbody>
       </table>
     </div>
 
-    <button class="btn btn-green btn-full" onclick="resetTournoi()" style="font-size:15px;padding:14px;margin-bottom:10px;">🏆 Nouveau tournoi</button>
-    <button class="btn btn-outline btn-full" onclick="hideTournoi()" style="font-size:14px;padding:12px;">← Retour à la partie</button>
+    <!-- Boutons -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <button class="btn btn-green" onclick="resetTournoi()" style="font-size:14px;padding:13px;">🏆 Nouveau tournoi</button>
+      <button class="btn btn-outline" onclick="partageTournoi()" style="font-size:14px;padding:13px;">📷 Partager résultats</button>
+    </div>
+    <button class="btn btn-outline btn-full" onclick="hideTournoi()" style="font-size:14px;padding:12px;margin-bottom:8px;">← Retour à la partie</button>
   `;
+}
+
+function partageTournoi() {
+  const cl = getClassement();
+  const canvas = document.createElement('canvas');
+  const W = 800, H = 120 + cl.length * 52 + 80;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Fond
+  ctx.fillStyle = '#1a3318';
+  ctx.fillRect(0, 0, W, H);
+
+  // Titre
+  ctx.fillStyle = '#c8960a';
+  ctx.font = 'bold 28px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('🏆 Tournoi Belote Contrée', W/2, 44);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = '16px -apple-system, sans-serif';
+  ctx.fillText(T.tours.length + ' tours · ' + T.equipes.length + ' équipes', W/2, 72);
+
+  // Séparateur
+  ctx.strokeStyle = 'rgba(200,150,10,0.4)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(40, 90); ctx.lineTo(W-40, 90); ctx.stroke();
+
+  // Classement
+  const medals = ['🥇','🥈','🥉'];
+  cl.forEach((eq, i) => {
+    const y = 110 + i * 52;
+    // Fond ligne
+    ctx.fillStyle = i === 0 ? 'rgba(200,150,10,0.2)' : 'rgba(255,255,255,0.04)';
+    ctx.beginPath();
+    ctx.roundRect(30, y, W-60, 44, 8);
+    ctx.fill();
+
+    // Médaille / numéro
+    ctx.font = i < 3 ? '20px sans-serif' : 'bold 16px -apple-system, sans-serif';
+    ctx.fillStyle = i===0?'#c8960a':i===1?'#aaa':i===2?'#b87333':'rgba(255,255,255,0.5)';
+    ctx.textAlign = 'center';
+    ctx.fillText(i < 3 ? medals[i] : (i+1)+'', 64, y+28);
+
+    // Nom équipe
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 17px -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(eq.name, 90, y+28);
+
+    // Victoires
+    ctx.fillStyle = '#7ddd82';
+    ctx.font = 'bold 16px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(eq.victoires + 'V', W-200, y+28);
+
+    // Goal average
+    ctx.fillStyle = eq.goalAvg >= 0 ? '#7ddd82' : '#ff8080';
+    ctx.fillText((eq.goalAvg > 0 ? '+' : '') + eq.goalAvg, W-120, y+28);
+
+    // Points
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillText(eq.scoreTotal, W-55, y+28);
+  });
+
+  // Date
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font = '13px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(new Date().toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric'}), W/2, H-18);
+
+  // Partage
+  canvas.toBlob(async blob => {
+    const file = new File([blob], 'tournoi-resultats.png', { type: 'image/png' });
+    if(navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Résultats du tournoi Belote Contrée' });
+    } else {
+      // Fallback : téléchargement
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'tournoi-resultats.png';
+      a.click();
+    }
+  }, 'image/png');
 }
 
 function debugShowHistory() {
