@@ -1626,7 +1626,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260607_0315</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260607_0320</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1919,7 +1919,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 </div>
 
 <!-- ════════════════════════════════ SCREEN: TOURNOI ════════════════════════════════ -->
-<div id="screen-tournoi" class="screen" style="background:var(--bg);min-height:100dvh;display:none;flex-direction:column;">
+<div id="screen-tournoi" class="screen" style="background:var(--bg);min-height:100dvh;display:none;flex-direction:column;position:fixed;inset:0;z-index:1000;overflow-y:auto;">
   <div class="header" style="padding:12px 16px;justify-content:space-between;display:flex;align-items:center;flex-shrink:0;">
     <button id="settings-back-btn-tournoi" onclick="hideTournoi()" style="background:rgba(255,255,255,0.2);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">← Retour</button>
     <h1 style="margin:0;font-size:18px;">🏆 Tournoi</h1>
@@ -6839,7 +6839,7 @@ function showSettingsScreen() {
   }
   // Faire clignoter le bouton ← Retour des réglages
   const backBtn = eid('settings-back-btn');
-  if(backBtn) backBtn.style.animation = 'pulse-btn 0.8s ease infinite';
+  if(backBtn) backBtn.style.animation = 'pulse-btn 2s ease infinite';
 }
 
 function openSettings() { showSettingsScreen(); }
