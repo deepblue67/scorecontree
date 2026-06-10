@@ -1054,19 +1054,6 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     pointer-events: none !important;
   }
 
-  /* Bouton Mode Tournoi : sous Commencer la partie, même largeur mais plus petit */
-  #setup-tournoi-btn {
-    font-size:13px !important;
-    padding:9px 12px !important;
-    margin-top:8px !important;
-    width:100% !important;
-    max-width:none !important;
-    opacity:0.85 !important;
-    display:flex !important;
-    align-self:auto !important;
-    margin-left:0 !important;
-    margin-right:0 !important;
-  }
   #tab-contrat .card-title { display: none !important; }
 
   /* Masquer les 3 labels */
@@ -1279,7 +1266,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
         <span id="setup-mode-label" style="font-size:11px;font-weight:600;color:#111;opacity:0.85;"></span>
       </button>
 
-      <button id="setup-tournoi-btn" class="btn btn-outline btn-full" onclick="haptic('medium');showTournoi();" style="font-size:15px;padding:12px 16px;margin-top:10px;display:none;">
+      <button id="setup-tournoi-btn" class="btn btn-outline" onclick="haptic('medium');showTournoi();" style="font-size:13px;padding:8px 16px;margin-top:8px;display:none;width:100%;opacity:0.85;">
         🏆 Mode Tournoi
       </button>
     </div>
@@ -1639,7 +1626,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260608_2300</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260609_0330</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
