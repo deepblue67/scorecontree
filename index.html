@@ -1740,7 +1740,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260610_1130</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260611_1107</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -2272,6 +2272,30 @@ function initGameUI() {
   updateScoreDisplay();
 }
 
+function syncGameOverlayLock(isOverlay) {
+  const shouldLock = isOverlay && window.innerWidth > window.innerHeight;
+
+  document.body.classList.toggle('ipad-overlay-active', shouldLock);
+
+  if(document._blockTouch) {
+    document.removeEventListener('touchmove', document._blockTouch);
+    document._blockTouch = null;
+  }
+
+  if(shouldLock) {
+    document._blockTouch = (e) => {
+      // Laisser scroller à l'intérieur des tabs overlay.
+      let el = e.target;
+      while(el && el !== document.body) {
+        if(el.id && ['tab-contrat','tab-saisie','tab-history','tab-stats','tab-marque','tab-feuille','tab-parties'].includes(el.id)) return;
+        el = el.parentElement;
+      }
+      e.preventDefault();
+    };
+    document.addEventListener('touchmove', document._blockTouch, { passive: false });
+  }
+}
+
 function showTab(tab) {
   const onSetup = eid('screen-setup') && eid('screen-setup').classList.contains('active');
   const gameStarted = !!(S.t1 && S.t1.name);
@@ -2320,28 +2344,8 @@ function showTab(tab) {
   // Masquer la roue crantée sur les pages overlay, visible uniquement sur TABLE
   const gearBtn = eid('game-settings-btn');
   if(gearBtn) gearBtn.style.display = (tab === 'enjeu') ? 'flex' : 'none';
-  // Paysage : bloquer le scroll élastique iOS
-  const isLandscapeDevice = window.innerWidth > window.innerHeight;
-  if(isLandscapeDevice) {
-    document.body.classList.toggle('ipad-overlay-active', isOverlay);
-    if(isOverlay) {
-      document._blockTouch = (e) => {
-        // Laisser scroller à l'intérieur des tabs overlay
-        let el = e.target;
-        while(el && el !== document.body) {
-          if(el.id && ['tab-contrat','tab-saisie','tab-history','tab-stats','tab-marque','tab-feuille','tab-parties'].includes(el.id)) return;
-          el = el.parentElement;
-        }
-        e.preventDefault();
-      };
-      document.addEventListener('touchmove', document._blockTouch, { passive: false });
-    } else {
-      if(document._blockTouch) {
-        document.removeEventListener('touchmove', document._blockTouch);
-        document._blockTouch = null;
-      }
-    }
-  }
+  // Le verrou doit aussi être retiré après une rotation paysage → portrait.
+  syncGameOverlayLock(isOverlay);
 
 
   ['table','contrat','score','parties','stats'].forEach(t=>{
@@ -6019,6 +6023,12 @@ window.addEventListener('resize', () => {
   const newOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
   if(newOrientation !== _lastOrientation) {
     _lastOrientation = newOrientation;
+    const overlayTabs = ['contrat','saisie','history','stats','marque','feuille','parties'];
+    const overlayActive = overlayTabs.some(tab => {
+      const el = eid('tab-' + tab);
+      return el && el.style.display !== 'none';
+    });
+    syncGameOverlayLock(overlayActive);
     // Re-rendre la page active pour recalculer les initiales
     const activeTab = document.querySelector('#tab-feuille[style*="flex"], #tab-history[style*="flex"], #tab-parties[style*="flex"], #tab-stats[style*="flex"]');
     if(eid('tab-feuille') && eid('tab-feuille').style.display !== 'none') renderFeuille();
