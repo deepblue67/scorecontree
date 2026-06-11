@@ -14,7 +14,7 @@
 ║  URL     : https://deepblue67.github.io/scorecontree/                        ║
 ║                                                                              ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
-║  CSS  (~lignes 17-1140)                                                      ║
+║  CSS  (~lignes 125-1260)                                                     ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  Variables & Reset globals          ~19                                      ║
 ║  1. iPhone portrait  max-w:599px    ~250  (orientation:portrait)             ║
@@ -29,7 +29,7 @@
 ║        doit aller ici, jamais dans le bloc (A).                              ║
 ║                                                                              ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
-║  HTML (~lignes 1140-1935)                                                    ║
+║  HTML (~lignes 1260-2045)                                                    ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  Splash screen                      ~1147                                    ║
 ║  screen-setup (Configuration)       ~1157                                    ║
@@ -45,7 +45,7 @@
 ║  screen-tournoi (Tournoi)           ~1920                                    ║
 ║                                                                              ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
-║  JAVASCRIPT (~lignes 1935-7230)                                              ║
+║  JAVASCRIPT (~lignes 2045-7550)                                              ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  State (S) & initialisation         ~1936                                    ║
 ║  Joueurs & Setup                    ~1964                                    ║
@@ -68,7 +68,7 @@
 ║  CONVENTIONS & RÈGLES DE MAINTENANCE                                         ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  1. MEDIA QUERIES                                                            ║
-║     • 5 blocs hermétiques — ne jamais modifier un bloc pour corriger         ║
+║     • 6 blocs hermétiques — ne jamais modifier un bloc pour corriger         ║
 ║       un autre device.                                                       ║
 ║     • Toute règle iPad paysage pour la PAGE TABLE → bloc (B) après PC.      ║
 ║     • Toute règle iPad paysage pour les AUTRES pages → bloc (A).            ║
@@ -106,10 +106,10 @@
 ║     gist_token              → token GitHub Gist                              ║
 ║     gist_id                 → ID du Gist de sauvegarde                      ║
 ║                                                                              ║
-║  6. FONCTIONS DUPLIQUÉES                                                     ║
-║     Les doublons closeEndGame, checkOnboarding et dismissOnboarding ont      ║
-║     été supprimés en v20260611_1127. Chaque fonction n'a plus qu'une         ║
-║     définition à maintenir.                                                  ║
+║  6. ORGANISATION JAVASCRIPT                                                   ║
+║     Les navigations, modales, sauvegardes, états de partie et principaux     ║
+║     rendus partagés utilisent des helpers communs testés dans /tests.        ║
+║     Éviter de réintroduire une logique parallèle dans un gestionnaire local. ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
@@ -1739,7 +1739,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260611_1509</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260611_1707</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -2141,9 +2141,6 @@ function renderPlayerChips() {
   if(badge) badge.textContent = S.players.length ? S.players.length+' joueur'+(S.players.length>1?'s':'') : '';
 }
 
-let playerListOpen = true;
-function togglePlayerList() {}
-
 function refreshSelects() {
   const sorted = [...S.players].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
   ['nord','sud','est','ouest'].forEach(pos => {
@@ -2216,9 +2213,6 @@ function updateSetupModeLabel() {
     lbl.textContent = 'La partie se joue en '+p+' points';
   }
 }
-
-function getWinningScore() { return S.gameMode==='points' ? S.winningPts : null; }
-function getWinningManches() { return S.gameMode==='manches' ? S.winningManches : null; }
 
 function startGame() {
   const n=v('sel-nord'), s=v('sel-sud'), e=v('sel-est'), o=v('sel-ouest');
@@ -3082,8 +3076,6 @@ function validateScore() {
     total2: S.score.t2
   };
   S.history.push(h);
-  // Sauvegarder le numéro de manche AVANT incrémentation pour l'afficher dans le résumé
-  const mancheJouee = S.manche;
   // On n'incrémente la manche et on ne change le donneur que s'il y avait un vrai contrat
   if(S.contract) {
     S.manche++;
@@ -3091,7 +3083,6 @@ function validateScore() {
   }
   S.contract = null;
   S.form = createEmptyContractForm();
-  const ps = pendingScore; // sauvegarder avant de mettre à null
   pendingScore = null;
 
   // Check winner
@@ -3107,8 +3098,8 @@ function validateScore() {
   }
   autoSave();
   haptic('success');
-  // Résumé de fin de manche — on passe le bon numéro
-  showMancheSummary(ps, mancheJouee, function() { showScreen('game'); showTab('enjeu'); });
+  showScreen('game');
+  showTab('enjeu');
 }
 
 function showWinner(team) {
@@ -4421,17 +4412,6 @@ function deleteTournoiHistorique(id) {
   } catch(e) {}
 }
 
-
-
-function debugShowHistory() {
-  try {
-    const past = storageReadJSON('belote_history', [], Array.isArray);
-    if(!past.length || !past[0].history || !past[0].history.length) { alert('Pas de données'); return; }
-    const h = past[0].history[0];
-    alert('Champs: ' + Object.keys(h).join(', ') + '\n\nValeurs: ' + JSON.stringify(h));
-  } catch(e) { alert('Erreur: ' + e); }
-}
-
 function showPastGameStats(id) {
   const past = storageReadJSON('belote_history', [], Array.isArray);
   const p = past.find(x => x.id === id);
@@ -5486,13 +5466,6 @@ function showMancheEnCours() {
 
   showScreen('mancheencours');
 }
-
-// ── RÉSUMÉ FIN DE MANCHE ──────────────────────────────────
-function showMancheSummary(ps, mancheJouee, onConfirm) {
-  // Pas de modale intermédiaire — on passe directement à la manche suivante
-  if(typeof onConfirm === 'function') onConfirm();
-}
-
 
 function initiales(name) {
   if(typeof name !== 'string' || !name) return '?';
@@ -7394,8 +7367,6 @@ function showSettingsScreen() {
   if(backBtn) backBtn.style.animation = 'pulse-btn 2s ease infinite';
 }
 
-function openSettings() { showSettingsScreen(); }
-
 function closeSettings() { hideSettingsScreen(); }
 
 function hideSettingsScreen() {
@@ -7559,7 +7530,6 @@ setTimeout(() => {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/scorecontree/service-worker.js')
         .then(reg => {
-          console.log('SW enregistré:', reg.scope);
           // Vérifie si une mise à jour est disponible
           reg.addEventListener('updatefound', () => {
             const newSW = reg.installing;
@@ -7571,7 +7541,7 @@ setTimeout(() => {
             });
           });
         })
-        .catch(err => console.log('SW échec:', err));
+        .catch(() => {});
 
       // Recharge la page quand le nouveau SW prend le contrôle
       navigator.serviceWorker.addEventListener('controllerchange', () => {
