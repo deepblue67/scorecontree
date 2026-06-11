@@ -1739,7 +1739,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260610_1115</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260610_1120</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -2354,9 +2354,10 @@ function showTab(tab) {
   if(tab==='enjeu') {
     // Si pas de partie démarrée, retourner sur setup
     if(!S.t1.name) { showScreen('setup'); return; }
+    // Rendu immédiat + rendu différé pour gérer les changements d'orientation
     renderEnjeu(); updatePulseButtons();
-    // Double rendu après délai pour gérer les changements d'orientation
-    setTimeout(() => { if(typeof renderEnjeu==='function') renderEnjeu(); }, 150);
+    setTimeout(() => renderEnjeu(), 100);
+    setTimeout(() => renderEnjeu(), 350);
   }
   if(tab==='parties') {
     showSubTab('feuille');
@@ -6021,7 +6022,10 @@ window.addEventListener('resize', () => {
     else if(eid('tab-history') && eid('tab-history').style.display !== 'none') { renderHistory(); renderPastHistory(); }
     else if(eid('tab-parties') && eid('tab-parties').style.display !== 'none') showSubTab(currentSubTab);
     else if(eid('tab-stats') && eid('tab-stats').style.display !== 'none') renderStats();
-    else if(eid('tab-enjeu') && eid('tab-enjeu').style.display !== 'none') renderEnjeu();
+    else if(eid('tab-enjeu') && eid('tab-enjeu').style.display !== 'none') {
+      setTimeout(() => renderEnjeu(), 100);
+      setTimeout(() => renderEnjeu(), 400);
+    }
   }
 });
 requestAnimationFrame(() => requestAnimationFrame(() => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); }));
