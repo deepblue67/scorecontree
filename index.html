@@ -106,11 +106,10 @@
 ║     gist_token              → token GitHub Gist                              ║
 ║     gist_id                 → ID du Gist de sauvegarde                      ║
 ║                                                                              ║
-║  6. FONCTIONS DUPLIQUÉES (à surveiller)                                      ║
-║     closeEndGame    → définie ~5951 ET ~6299 (la 2e écrase la 1re)          ║
-║     checkOnboarding → définie ~5990 ET ~6307 (idem)                         ║
-║     Ces doublons sont inoffensifs (la 2e version prévaut) mais              ║
-║     toute modification doit être faite dans LES DEUX instances.             ║
+║  6. FONCTIONS DUPLIQUÉES                                                     ║
+║     Les doublons closeEndGame, checkOnboarding et dismissOnboarding ont      ║
+║     été supprimés en v20260611_1127. Chaque fonction n'a plus qu'une         ║
+║     définition à maintenir.                                                  ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
@@ -1371,7 +1370,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
             <button class="btn btn-green" onclick="addPlayer()" style="padding:12px 16px;flex-shrink:0;">+</button>
           </div>
           <div id="player-chips" class="chip-group" style="margin-bottom:16px;"></div>
-          <button class="btn btn-green btn-full" onclick="eid('players-modal').style.display='none'">Fermer</button>
+          <button class="btn btn-green btn-full" onclick="closeModal('players-modal')">Fermer</button>
         </div>
       </div>
 
@@ -1492,7 +1491,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
         <button id="contrat-confirmer-btn" class="btn btn-green btn-full" onclick="haptic('medium');bounce(this);confirmContract();" style="flex:1;font-size:16px;padding:16px;">
           ✓ Confirmer le contrat
         </button>
-        <button id="contrat-retour-btn" class="btn btn-outline btn-full" onclick="showTab('enjeu');setTimeout(()=>{if(typeof renderEnjeu==='function')renderEnjeu();},50);" style="flex:1;font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Retour à la table</button>
+        <button id="contrat-retour-btn" class="btn btn-outline btn-full" onclick="showTab('enjeu')" style="flex:1;font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Retour à la table</button>
       </div>
     </div>
 
@@ -1601,7 +1600,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
             ✓ Valider la manche
           </button>
         </div>
-        <button id="saisie-annuler-btn" class="btn btn-outline btn-full" onclick="showTab('enjeu');setTimeout(()=>{if(typeof renderEnjeu==='function')renderEnjeu();},50);" style="font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Annuler</button>
+        <button id="saisie-annuler-btn" class="btn btn-outline btn-full" onclick="showTab('enjeu')" style="font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Annuler</button>
       </div>
     </div>
 
@@ -1740,7 +1739,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260611_1107</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260611_1509</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -2048,36 +2047,52 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 // ═══════════════════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════════════════
-let S = {
-  players: [],
-  pos: { nord:'', sud:'', est:'', ouest:'' },
-  t1: { name:'', players:[] },  // NS
-  t2: { name:'', players:[] },  // EO
-  score: { t1:0, t2:0 },
-  history: [],
-  manche: 1,
-  gameMode: 'points',
-  winningPts: 2001,
-  winningManches: 10,
-  // rotation order: sens inverse des aiguilles d'une montre (N → O → S → E)
-  // Le prochain donneur est à la DROITE = suivant dans cet ordre
-  // Premier joueur = à droite du donneur = suivant dans cet ordre
-  dealerOrder: ['nord','ouest','sud','est'],
-  dealerIdx: 0,
-  contract: null,
-  // form state
-  form: { preneur:'', suit:'', suitKey:'', suitColor:'', value:80, isCapot:false, contre:'none' }
-};
+function createEmptyContractForm() {
+  return { preneur:'', suit:'', suitKey:'', suitColor:'', value:80, isCapot:false, contre:'none' };
+}
+
+function createInitialAppState() {
+  return {
+    players: [],
+    pos: { nord:'', sud:'', est:'', ouest:'' },
+    t1: { name:'', players:[] },  // NS
+    t2: { name:'', players:[] },  // EO
+    score: { t1:0, t2:0 },
+    history: [],
+    manche: 1,
+    gameMode: 'points',
+    winningPts: 2001,
+    winningManches: 10,
+    // rotation order: sens inverse des aiguilles d'une montre (N → O → S → E)
+    dealerOrder: ['nord','ouest','sud','est'],
+    dealerIdx: 0,
+    contract: null,
+    form: createEmptyContractForm(),
+    _gameSaved: false
+  };
+}
+
+let S = createInitialAppState();
 let pendingScore = null;
+
+function resetGameProgress() {
+  S.score = {t1:0, t2:0};
+  S.history = [];
+  S.manche = 1;
+  S.contract = null;
+  S.form = createEmptyContractForm();
+  S._gameSaved = false;
+  pendingScore = null;
+}
 
 // ═══════════════════════════════════════════════════════════
 //  SETUP
 // ═══════════════════════════════════════════════════════════
 function savePlayers() {
-  try { localStorage.setItem('belote_players', JSON.stringify(S.players)); } catch(e) {}
+  storageWriteJSON('belote_players', S.players);
 }
 function loadPlayers() {
-  try { const s=localStorage.getItem('belote_players'); if(s) S.players=JSON.parse(s); } catch(e) {}
+  S.players = storageReadJSON('belote_players', [], isStringArray);
 }
 
 function addPlayer() {
@@ -2102,12 +2117,26 @@ function removePlayer(name) {
 function renderPlayerChips() {
   const el = document.getElementById('player-chips');
   const sorted = [...S.players].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
-  if(!sorted.length) { el.innerHTML='<span style="font-size:13px;color:var(--text3);">Aucun joueur ajouté</span>'; }
-  else { el.innerHTML = sorted.map(p=>`
-    <div class="player-chip-green">
-      ${p}
-      <span onclick="removePlayer('${p}')" style="opacity:0.7;font-size:12px;cursor:pointer;">✕</span>
-    </div>`).join(''); }
+  el.replaceChildren();
+  if(!sorted.length) {
+    const empty = document.createElement('span');
+    empty.style.cssText = 'font-size:13px;color:var(--text3);';
+    empty.textContent = 'Aucun joueur ajouté';
+    el.appendChild(empty);
+  } else {
+    sorted.forEach(name => {
+      const chip = document.createElement('div');
+      chip.className = 'player-chip-green';
+      chip.appendChild(document.createTextNode(name + ' '));
+
+      const remove = document.createElement('span');
+      remove.style.cssText = 'opacity:0.7;font-size:12px;cursor:pointer;';
+      remove.textContent = '✕';
+      remove.onclick = () => removePlayer(name);
+      chip.appendChild(remove);
+      el.appendChild(chip);
+    });
+  }
   const badge = document.getElementById('player-count-badge');
   if(badge) badge.textContent = S.players.length ? S.players.length+' joueur'+(S.players.length>1?'s':'') : '';
 }
@@ -2120,7 +2149,7 @@ function refreshSelects() {
   ['nord','sud','est','ouest'].forEach(pos => {
     const sel = document.getElementById('sel-'+pos);
     const cur = sel.value;
-    sel.innerHTML = '<option value="">Choisir…</option>' + sorted.map(p=>`<option value="${p}" ${p===cur?'selected':''}>${p}</option>`).join('');
+    replaceSelectOptions(sel, sorted, 'Choisir…', cur);
   });
   refreshDealerSelect();
 }
@@ -2134,9 +2163,9 @@ function refreshDealerSelect() {
     .map(pos => v('sel-'+pos))
     .filter(p => p);
   const opts = placed.length
-    ? placed.map(p=>`<option value="${p}" ${p===fdCur?'selected':''}>${p}</option>`).join('')
-    : S.players.map(p=>`<option value="${p}" ${p===fdCur?'selected':''}>${p}</option>`).join('');
-  fd.innerHTML = '<option value="random">🎲 Tirage aléatoire</option>' + opts;
+    ? placed
+    : S.players;
+  replaceSelectOptions(fd, opts, '🎲 Tirage aléatoire', fdCur, 'random');
 }
 
 function refreshTeamPreview() {
@@ -2201,13 +2230,11 @@ function startGame() {
     showSetupAlert('⚠️ Chaque position doit avoir un joueur différent.');
     return;
   }
+  clearAutoSave();
+  resetGameProgress();
   S.pos = {nord:n,sud:s,est:e,ouest:o};
   S.t1 = {name:n+' & '+s, players:[n,s]};
   S.t2 = {name:e+' & '+o, players:[e,o]};
-  S.score = {t1:0,t2:0};
-  S.history = [];
-  S.manche = 1;
-  S.contract = null;
   // Lire le mode de fin de partie
   S.gameMode = (eid('mode-btn-manches') && eid('mode-btn-manches').dataset.active==='1') ? 'manches' : 'points';
   S.winningPts = parseInt((eid('inp-winning-pts')||{}).value) || 2001;
@@ -2234,12 +2261,12 @@ function showSetupAlert(msg) {
     modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;';
     modal.innerHTML = `<div style="background:#1a2e1a;border-radius:18px;padding:24px;width:100%;max-width:380px;border:1px solid rgba(255,255,255,0.15);">
       <div id="setup-alert-msg" style="font-size:15px;font-weight:600;color:#fff;text-align:center;margin-bottom:20px;line-height:1.5;"></div>
-      <button class="btn btn-green btn-full" onclick="eid('setup-alert-modal').style.display='none'">OK</button>
+      <button class="btn btn-green btn-full" onclick="closeModal('setup-alert-modal')">OK</button>
     </div>`;
     document.body.appendChild(modal);
   }
   eid('setup-alert-msg').textContent = msg;
-  modal.style.display = 'flex';
+  openModal(modal);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2272,6 +2299,14 @@ function initGameUI() {
   updateScoreDisplay();
 }
 
+const GAME_TABS = ['contrat','saisie','history','stats','marque','feuille','enjeu','parties'];
+const GAME_OVERLAY_TABS = ['contrat','saisie','history','stats','marque','feuille','parties'];
+let currentGameTab = 'enjeu';
+
+function getActiveGameTab() {
+  return currentGameTab;
+}
+
 function syncGameOverlayLock(isOverlay) {
   const shouldLock = isOverlay && window.innerWidth > window.innerHeight;
 
@@ -2287,7 +2322,7 @@ function syncGameOverlayLock(isOverlay) {
       // Laisser scroller à l'intérieur des tabs overlay.
       let el = e.target;
       while(el && el !== document.body) {
-        if(el.id && ['tab-contrat','tab-saisie','tab-history','tab-stats','tab-marque','tab-feuille','tab-parties'].includes(el.id)) return;
+        if(el.id && GAME_OVERLAY_TABS.map(tab => 'tab-' + tab).includes(el.id)) return;
         el = el.parentElement;
       }
       e.preventDefault();
@@ -2324,12 +2359,13 @@ function showTab(tab) {
     return;
   }
   haptic('light');
-  ['contrat','saisie','history','stats','marque','feuille','enjeu','parties'].forEach(t=>{
+  GAME_TABS.forEach(t=>{
     const el = document.getElementById('tab-'+t);
     if(el) el.style.display='none';
   });
   const target = document.getElementById('tab-'+tab);
   if(target) {
+    currentGameTab = tab;
     target.style.removeProperty('display');
     // tab-enjeu utilise display:grid en paysage — laisser le CSS décider
     if(tab !== 'enjeu') {
@@ -2339,7 +2375,7 @@ function showTab(tab) {
 
   // Bloquer le scroll de la table quand un overlay est actif
   const enjeu = document.getElementById('tab-enjeu');
-  const isOverlay = ['contrat','saisie','history','stats','marque','feuille','parties'].includes(tab);
+  const isOverlay = GAME_OVERLAY_TABS.includes(tab);
   if(enjeu) enjeu.classList.toggle('overlay-open', isOverlay);
   // Masquer la roue crantée sur les pages overlay, visible uniquement sur TABLE
   const gearBtn = eid('game-settings-btn');
@@ -2391,7 +2427,7 @@ function updateDealerInfo() {
   const firstIdx = (S.dealerIdx+1)%4;
   const firstPos = S.dealerOrder[firstIdx];
   const firstName = S.pos[firstPos];
-  el.innerHTML = `Donneur : <strong>${dName}</strong> (${cap(dPos)}) — Premier à jouer : <strong>${firstName}</strong> (${cap(firstPos)})`;
+  el.innerHTML = `Donneur : <strong>${escapeHtml(dName)}</strong> (${cap(dPos)}) — Premier à jouer : <strong>${escapeHtml(firstName)}</strong> (${cap(firstPos)})`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2483,16 +2519,16 @@ function setContractVal(v) {
 
 function passeGenerale() {
   const nextDealer = S.pos[S.dealerOrder[(S.dealerIdx+1)%4]];
-  eid('confirm-msg').innerHTML = '🤷 Tout le monde passe ?<br><span style="font-size:13px;opacity:0.75;">Aucun point marqué — Prochain donneur : <strong>' + nextDealer + '</strong></span>';
+  eid('confirm-msg').innerHTML = '🤷 Tout le monde passe ?<br><span style="font-size:13px;opacity:0.75;">Aucun point marqué — Prochain donneur : <strong>' + escapeHtml(nextDealer) + '</strong></span>';
   eid('confirm-ok').onclick = () => { closeConfirm(); confirmerPasseGenerale(); };
-  eid('confirm-modal').style.display = 'flex';
+  openModal('confirm-modal');
 }
 
 function confirmerPasseGenerale() {
   S.manche++;
   S.dealerIdx = (S.dealerIdx+1)%4;
   S.contract = null;
-  S.form = {preneur:'',suit:'',suitKey:'',suitColor:'',value:80,isCapot:false,contre:'none'};
+  S.form = createEmptyContractForm();
   autoSave();
   showTab('enjeu');
   showToast('🤷 Passe générale — Donneur : ' + S.pos[S.dealerOrder[S.dealerIdx]]);
@@ -2600,7 +2636,7 @@ function renderContractReminder() {
       <div style="font-size:52px;color:${suitColor};line-height:1;flex-shrink:0;">${c.suit}</div>
       <div style="min-width:0;">
         <div style="font-size:26px;font-weight:900;color:#fff;line-height:1.1;">${c.isCapot?'Capot':c.value}${contreTxt}</div>
-        <div style="font-size:20px;font-weight:700;color:#7ddd82;margin-top:6px;">🏆 ${pTeam}</div>
+        <div style="font-size:20px;font-weight:700;color:#7ddd82;margin-top:6px;">🏆 ${escapeHtml(pTeam)}</div>
       </div>
     </div>`;
   } else {
@@ -2705,26 +2741,22 @@ function setQuickScore(team, val) {
 }
 
 function saveLastConfig() {
-  try {
-    const cfg = {
-      nord: v('sel-nord'), sud: v('sel-sud'),
-      est: v('sel-est'), ouest: v('sel-ouest')
-    };
-    localStorage.setItem('belote_last_config', JSON.stringify(cfg));
-  } catch(e) {}
+  const cfg = {
+    nord: v('sel-nord'), sud: v('sel-sud'),
+    est: v('sel-est'), ouest: v('sel-ouest')
+  };
+  storageWriteJSON('belote_last_config', cfg);
 }
 
 function loadLastConfig() {
-  try {
-    const cfg = JSON.parse(localStorage.getItem('belote_last_config') || 'null');
-    if(!cfg) return;
-    const selNord = eid('sel-nord'), selSud = eid('sel-sud');
-    const selEst = eid('sel-est'), selOuest = eid('sel-ouest');
-    if(selNord && cfg.nord) selNord.value = cfg.nord;
-    if(selSud  && cfg.sud)  selSud.value  = cfg.sud;
-    if(selEst  && cfg.est)  selEst.value  = cfg.est;
-    if(selOuest && cfg.ouest) selOuest.value = cfg.ouest;
-  } catch(e) {}
+  const cfg = storageReadJSON('belote_last_config', null, isLastConfig);
+  if(!cfg) return;
+  const selNord = eid('sel-nord'), selSud = eid('sel-sud');
+  const selEst = eid('sel-est'), selOuest = eid('sel-ouest');
+  if(selNord && cfg.nord) selNord.value = cfg.nord;
+  if(selSud  && cfg.sud)  selSud.value  = cfg.sud;
+  if(selEst  && cfg.est)  selEst.value  = cfg.est;
+  if(selOuest && cfg.ouest) selOuest.value = cfg.ouest;
 }
 
 function stepScore(team, delta) {
@@ -2772,26 +2804,17 @@ function refreshCapotBoxes() {
   if(capotAny){ if(inp1)inp1.value=''; if(inp2)inp2.value=''; }
 }
 
-function calcAndPreview() {
-  haptic('light');
-  const pts1Raw = parseInt(eid('inp-pts-t1').value)||0;
-  const pts2Raw = parseInt(eid('inp-pts-t2').value)||0;
-  const bel1 = eid('chk-bel-t1').checked;
-  const bel2 = eid('chk-bel-t2').checked;
+function calculateBeloteScore({ contract, pts1Raw, pts2Raw, bel1, bel2, cap1, cap2 }) {
   // Capot : déterminé par quelle équipe a coché "capot"
-  const cap1 = eid('chk-cap-t1').checked;
-  const cap2 = eid('chk-cap-t2').checked;
   const capotFait = cap1 || cap2;
   // capotByPreneur = true si c'est l'équipe preneuse qui a fait capot
   // (sera utilisé pour déterminer si le contrat capot est réussi ou si c'est un capot surprise)
 
-  if(!S.contract) {
-    pendingScore = {pts1:pts1Raw+(bel1?20:0), pts2:pts2Raw+(bel2?20:0), chute:null};
-    showScoreResult(pendingScore);
-    return;
+  if(!contract) {
+    return {pts1:pts1Raw+(bel1?20:0), pts2:pts2Raw+(bel2?20:0), chute:null};
   }
 
-  const c = S.contract;
+  const c = contract;
   const mult = c.contre==='surcontre'?3:c.contre==='contre'?2:1;
   const hasContre = c.contre !== 'none';
   const preneурIsT1 = c.preneurTeam==='t1';
@@ -2891,8 +2914,21 @@ function calcAndPreview() {
   const finalT1 = Math.round(preneурIsT1 ? pPts : aPts);
   const finalT2 = Math.round(preneурIsT1 ? aPts : pPts);
 
-  pendingScore = {pts1:finalT1, pts2:finalT2, chute, bel1, bel2, capotFait,
+  return {pts1:finalT1, pts2:finalT2, chute, bel1, bel2, capotFait,
     detail: buildDetail(c, chute, plisPre, plisAdv, hasBelPre, hasBelAdv, mult, pPts, aPts)};
+}
+
+function calcAndPreview() {
+  haptic('light');
+  pendingScore = calculateBeloteScore({
+    contract: S.contract,
+    pts1Raw: parseInt(eid('inp-pts-t1').value)||0,
+    pts2Raw: parseInt(eid('inp-pts-t2').value)||0,
+    bel1: eid('chk-bel-t1').checked,
+    bel2: eid('chk-bel-t2').checked,
+    cap1: eid('chk-cap-t1').checked,
+    cap2: eid('chk-cap-t2').checked
+  });
   showScoreResult(pendingScore);
 }
 
@@ -2953,12 +2989,12 @@ function showScoreResult(ps) {
       <div style="text-align:center;margin-bottom:${mb1};">${badge}</div>
       <div class="manche-pts-grid" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:${mb2};">
         <div style="text-align:center;">
-          <div style="font-size:${nameFs};font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;margin-bottom:6px;">${S.t1.name}</div>
+          <div style="font-size:${nameFs};font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;margin-bottom:6px;">${escapeHtml(S.t1.name)}</div>
           <div class="manche-pts-big" style="font-size:${scoreFs};font-weight:900;color:${c1};line-height:1;">${ps.pts1}</div>
         </div>
         <div style="font-size:${vsFs};color:rgba(255,255,255,0.25);font-weight:700;">vs</div>
         <div style="text-align:center;">
-          <div style="font-size:${nameFs};font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;margin-bottom:6px;">${S.t2.name}</div>
+          <div style="font-size:${nameFs};font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;margin-bottom:6px;">${escapeHtml(S.t2.name)}</div>
           <div class="manche-pts-big" style="font-size:${scoreFs};font-weight:900;color:${c2};line-height:1;">${ps.pts2}</div>
         </div>
       </div>
@@ -2981,13 +3017,13 @@ function showScoreResult(ps) {
         <div style="text-align:center;margin-bottom:14px;">${badge}</div>
         <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-bottom:16px;">
           <div style="text-align:center;">
-            <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">${S.t1.name}</div>
+            <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">${escapeHtml(S.t1.name)}</div>
             <div style="font-size:44px;font-weight:900;color:${c1};line-height:1;">${ps.pts1}</div>
             <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">cette manche</div>
           </div>
           <div style="font-size:18px;color:rgba(255,255,255,0.25);font-weight:700;">vs</div>
           <div style="text-align:center;">
-            <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">${S.t2.name}</div>
+            <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">${escapeHtml(S.t2.name)}</div>
             <div style="font-size:44px;font-weight:900;color:${c2};line-height:1;">${ps.pts2}</div>
             <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">cette manche</div>
           </div>
@@ -3054,7 +3090,7 @@ function validateScore() {
     S.dealerIdx = (S.dealerIdx+1)%4;
   }
   S.contract = null;
-  S.form = {preneur:'',suit:'',suitKey:'',suitColor:'',value:80,isCapot:false,contre:'none'};
+  S.form = createEmptyContractForm();
   const ps = pendingScore; // sauvegarder avant de mettre à null
   pendingScore = null;
 
@@ -3091,13 +3127,7 @@ function showWinner(team) {
 
 function newGame() {
   clearAutoSave();
-  S.score={t1:0,t2:0};
-  S.history=[];
-  S.manche=1;
-  S.contract=null;
-  S._gameSaved=false;
-  S.form={preneur:'',suit:'',suitKey:'',suitColor:'',value:80,isCapot:false,contre:'none'};
-  pendingScore=null;
+  resetGameProgress();
   // Retour page config, équipes conservées (selects non vidés)
   refreshTeamPreview();
   showScreen('setup');
@@ -3106,25 +3136,21 @@ function newGame() {
 function askNewGame() {
   eid('confirm-msg').textContent = 'Nouvelle partie ? Les scores seront remis à 0, les équipes restent.';
   eid('confirm-ok').onclick = () => { closeConfirm(); newGame(); };
-  eid('confirm-modal').style.display = 'flex';
+  openModal('confirm-modal');
 }
 function askChangeTeams() {
   eid('confirm-msg').textContent = 'Changer les équipes ? La partie en cours sera perdue.';
   eid('confirm-ok').onclick = () => { closeConfirm(); changeTeams(); };
-  eid('confirm-modal').style.display = 'flex';
+  openModal('confirm-modal');
 }
 function closeConfirm() {
-  eid('confirm-modal').style.display = 'none';
+  closeModal('confirm-modal');
 }
 
 
 function changeTeams() {
-  S.score={t1:0,t2:0};
-  S.history=[];
-  S.manche=1;
-  S.contract=null;
-  S.form={preneur:'',suit:'',suitKey:'',suitColor:'',value:80,isCapot:false,contre:'none'};
-  pendingScore=null;
+  clearAutoSave();
+  resetGameProgress();
   ['sel-nord','sel-sud','sel-est','sel-ouest'].forEach(id=>{ const el=eid(id); if(el) el.value=''; });
   showScreen('setup');
 }
@@ -3149,53 +3175,86 @@ function getTableSizes() {
   };
 }
 
+function renderEmptyState(message, options = {}) {
+  const icon = options.icon
+    ? `<div style="font-size:${options.iconSize || '32px'};margin-bottom:${options.iconGap || '8px'};">${escapeHtml(options.icon)}</div>`
+    : '';
+  const padding = options.padding || '20px';
+  const fontSize = options.fontSize || '13px';
+  return `<div style="text-align:center;padding:${padding};color:var(--text3);font-size:${fontSize};">${icon}${escapeHtml(message)}</div>`;
+}
+
+function renderTeamMatchupTitle(team1, team2, trailingBreak = false) {
+  return escapeHtml(team1) +
+    '<br><span style="font-size:11px;color:#888;font-weight:600;">VS</span><br>' +
+    escapeHtml(team2) +
+    (trailingBreak ? '<br>&nbsp;' : '');
+}
+
+function renderRoundResultBadge(chute, sizes) {
+  const isFailure = chute === true;
+  return `<span style="background:${isFailure ? '#cc2222' : '#2a7d2e'};color:#fff;font-size:${sizes.fsBadge};font-weight:700;padding:${sizes.fsBadgePad};border-radius:4px;">${isFailure ? 'Chute' : 'Fait'}</span>`;
+}
+
+function neutralizeTableMarkup(value) {
+  return String(value ?? '').replaceAll('<', '‹').replaceAll('>', '›');
+}
+
+function renderTeamInitials(name) {
+  return escapeHtml(neutralizeTableMarkup(initiales(name)));
+}
+
+function renderCurrentRoundRow(round, sizes, withActions = false) {
+  const hasContract = round.contract && round.contract !== '—';
+  const contract = hasContract
+    ? escapeHtml(neutralizeTableMarkup(round.contract))
+    : '<em style="color:#b07800;font-size:11px;">Corr.</em>';
+  const taker = hasContract
+    ? escapeHtml(neutralizeTableMarkup(initiales(round.preneur)))
+    : '';
+  const counter = hasContract && round.contre && round.contre !== 'none'
+    ? `<span style="font-size:9px;color:#c8960a;font-weight:700;">${escapeHtml(neutralizeTableMarkup(round.contre))}</span>`
+    : '';
+  const result = hasContract ? renderRoundResultBadge(round.chute, sizes) : '';
+  const padding = withActions ? sizes.fsTdPad : '5px 4px';
+  const numSize = withActions ? sizes.fsNum : '12px';
+  const contractSize = withActions ? sizes.fsContrat : '12px';
+  const takerSize = withActions ? sizes.fsPreneur : '11px';
+  const scoreSize = withActions ? sizes.fsScore : '13px';
+  const actions = withActions
+    ? `<td style="padding:5px 2px;text-align:center;"><button onclick="openEdit(${Number(round.manche)})" style="background:#e8e4dc;border:1px solid #bbb;border-radius:6px;color:#444;font-size:10px;padding:1px 3px;cursor:pointer;font-family:inherit;">✏️</button></td>
+      <td style="padding:5px 2px;text-align:center;"><button onclick="deleteManche(${Number(round.manche)})" style="background:#fce8e8;border:1px solid #e8b0b0;border-radius:6px;color:#cc1f1f;font-size:10px;padding:1px 3px;cursor:pointer;font-family:inherit;">🗑</button></td>`
+    : '<td style="padding:5px 4px;text-align:center;"></td><td style="padding:5px 4px;text-align:center;"></td>';
+
+  return `<tr style="border-bottom:1px solid rgba(0,0,0,0.06);">
+    <td style="padding:${padding};font-size:${numSize};color:var(--text2);font-weight:600;white-space:nowrap;">${String(round.manche).padStart(2,'0')}</td>
+    <td style="padding:${padding};font-size:${contractSize};font-weight:700;white-space:nowrap;">${contract} ${counter}</td>
+    <td style="padding:${padding};font-size:${takerSize};color:#1a5295;font-weight:700;text-align:center;">${taker}</td>
+    <td style="padding:${padding};text-align:center;">${result}</td>
+    <td style="padding:${padding};font-size:${scoreSize};font-weight:800;text-align:right;color:${round.pts1>0?'#1a6b3c':'#cc2222'};">${Number(round.pts1) || 0}</td>
+    <td style="padding:${padding};font-size:${scoreSize};font-weight:800;text-align:right;color:${round.pts2>0?'#1a6b3c':'#cc2222'};">${Number(round.pts2) || 0}</td>
+    ${actions}
+  </tr>`;
+}
+
 function renderHistory() {
-  const { fsBadge, fsBadgePad, fsTdPad, fsTotal, fsTotalLabel, fsHeader, fsPad, fsScore, fsPreneur, fsNum, fsContrat } = getTableSizes();
+  const sizes = getTableSizes();
+  const { fsTdPad, fsTotal, fsTotalLabel } = sizes;
   const el = eid('history-content');
   if(!S.history.length) {
-    el.innerHTML = '<div style="text-align:center;padding:20px 16px;color:var(--text3);font-size:14px;"><div style="font-size:32px;margin-bottom:8px;">📋</div>Aucune manche jouée dans cette partie</div>';
+    el.innerHTML = renderEmptyState('Aucune manche jouée dans cette partie', {icon:'📋', padding:'20px 16px', fontSize:'14px'});
     return;
   }
 
   // Mettre à jour le titre
   const titleEl = eid('history-title');
-  if(titleEl) titleEl.innerHTML = S.t1.name + '<br><span style="font-size:11px;color:#888;font-weight:600;">VS</span><br>' + S.t2.name;
-  const i1 = initiales(S.t1.name);
-  const i2 = initiales(S.t2.name);
+  if(titleEl) titleEl.innerHTML = renderTeamMatchupTitle(S.t1.name, S.t2.name);
+  const i1 = renderTeamInitials(S.t1.name);
+  const i2 = renderTeamInitials(S.t2.name);
   const tot1 = S.history[S.history.length-1].total1;
   const tot2 = S.history[S.history.length-1].total2;
 
-  const rows = S.history.map(h => {
-    const hasContract = h.contract && h.contract !== '—';
-    // Contrat : "100 ♥" ou "Correction"
-    const contrat = hasContract ? h.contract : '<em style="color:#b07800;font-size:11px;">Corr.</em>';
-    // Équipe preneuse : initiales
-    const preneur = hasContract ? initiales(h.preneur) : '';
-    // Fait / Chute
-    const result = hasContract
-      ? (h.chute===true
-          ? `<span style="background:#cc2222;color:#fff;font-size:${fsBadge};font-weight:700;padding:${fsBadgePad};border-radius:4px;">Chute</span>`
-          : `<span style="background:#2a7d2e;color:#fff;font-size:${fsBadge};font-weight:700;padding:${fsBadgePad};border-radius:4px;">Fait</span>`)
-      : '';
-    // Contre/surcontre
-    const contre = hasContract && h.contre && h.contre !== 'none'
-      ? `<span style="font-size:9px;color:#c8960a;font-weight:700;">${h.contre}</span>` : '';
-
-    return `<tr style="border-bottom:1px solid rgba(0,0,0,0.06);">
-      <td style="padding:5px 4px;font-size:12px;color:var(--text2);font-weight:600;white-space:nowrap;">${String(h.manche).padStart(2,'0')}</td>
-      <td style="padding:5px 4px;font-size:12px;font-weight:700;white-space:nowrap;">${contrat} ${contre}</td>
-      <td style="padding:5px 4px;font-size:11px;color:#1a5295;font-weight:700;text-align:center;">${preneur}</td>
-      <td style="padding:5px 4px;text-align:center;">${result}</td>
-      <td style="padding:5px 4px;font-size:13px;font-weight:800;text-align:right;color:${h.pts1>0?'#1a6b3c':'#cc2222'};">${h.pts1}</td>
-      <td style="padding:5px 4px;font-size:13px;font-weight:800;text-align:right;color:${h.pts2>0?'#1a6b3c':'#cc2222'};">${h.pts2}</td>
-      <td style="padding:5px 4px;text-align:center;">
-
-      </td>
-      <td style="padding:5px 4px;text-align:center;">
-
-      </td>
-    </tr>`;
-  }).join('');
+  const rows = S.history.map(round => renderCurrentRoundRow(round, sizes)).join('');
 
   el.innerHTML = `
     <table style="width:100%;border-collapse:collapse;font-family:inherit;">
@@ -3249,7 +3308,7 @@ function deleteManche(mancheNum) {
     autoSave();
     renderHistory();
   };
-  eid('confirm-modal').style.display = 'flex';
+  openModal('confirm-modal');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -3258,15 +3317,16 @@ function deleteManche(mancheNum) {
 
 // ── SAUVEGARDE AUTOMATIQUE ──────────────────────────────────
 function autoSave() {
-  try {
-    localStorage.setItem('belote_autosave', JSON.stringify({
-      pos: S.pos, t1: S.t1, t2: S.t2,
-      score: S.score, history: S.history,
-      manche: S.manche, dealerIdx: S.dealerIdx,
-      contract: S.contract, form: S.form,
-      savedAt: new Date().toISOString()
-    }));
-  } catch(e) {}
+  storageWriteJSON('belote_autosave', {
+    pos: S.pos, t1: S.t1, t2: S.t2,
+    score: S.score, history: S.history,
+    manche: S.manche, dealerIdx: S.dealerIdx,
+    contract: S.contract, form: S.form,
+    gameMode: S.gameMode,
+    winningPts: S.winningPts,
+    winningManches: S.winningManches,
+    savedAt: new Date().toISOString()
+  });
 }
 
 function clearAutoSave() {
@@ -3275,8 +3335,8 @@ function clearAutoSave() {
 
 function checkAutoSave() {
   try {
-    const snap = JSON.parse(localStorage.getItem('belote_autosave') || 'null');
-    if(!snap || !snap.t1 || !snap.t1.name) return;
+    const snap = readAutosaveSnapshot();
+    if(!snap) return;
     if(snap.manche <= 1 && !snap.history.length && !snap.contract) return;
     const d = new Date(snap.savedAt);
     const dateStr = d.toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'2-digit'});
@@ -3306,13 +3366,10 @@ function checkAutoSave() {
 }
 
 function resumeGame() {
+  const snap = readAutosaveSnapshot();
   try {
-    const snap = JSON.parse(localStorage.getItem('belote_autosave'));
-    S.pos=snap.pos; S.t1=snap.t1; S.t2=snap.t2;
-    S.score=snap.score; S.history=snap.history;
-    S.manche=snap.manche; S.dealerIdx=snap.dealerIdx;
-    S.contract=snap.contract;
-    S.form=snap.form||{preneur:'',suit:'',suitKey:'',suitColor:'',value:80,isCapot:false,contre:'none'};
+    if(!snap) throw new Error('Sauvegarde invalide');
+    applyAutosaveSnapshot(snap);
     eid('autosave-modal')?.remove();
     showScreen('game'); initGameUI(); showTab('enjeu');
   } catch(e) { eid('autosave-modal')?.remove(); }
@@ -3330,7 +3387,7 @@ function savePastGame() {
   // Sauvegarde la partie en cours dans l'historique persistant
   if(!S.history.length) return;
   try {
-    const past = JSON.parse(localStorage.getItem('belote_history') || '[]');
+    const past = storageReadJSON('belote_history', [], Array.isArray);
     const now = new Date();
     const dateStr = now.toLocaleDateString('fr-FR', {weekday:'short', day:'2-digit', month:'2-digit', year:'numeric'});
     const timeStr = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
@@ -3347,7 +3404,7 @@ function savePastGame() {
       history: [...S.history]
     });
     // Garder max 50 parties
-    localStorage.setItem('belote_history', JSON.stringify(past.slice(0, 50)));
+    storageWriteJSON('belote_history', past.slice(0, 50));
   } catch(e) {}
 }
 
@@ -3431,10 +3488,10 @@ function getExportData() {
     exported: new Date().toISOString(),
     device: navigator.userAgent.includes('iPad') ? 'iPad' : navigator.userAgent.includes('iPhone') ? 'iPhone' : 'PC',
     players: S.players || [],
-    history: JSON.parse(localStorage.getItem('belote_history') || '[]'),
-    tournois_history: JSON.parse(localStorage.getItem('belote_tournois_history') || '[]'),
-    autosave: JSON.parse(localStorage.getItem('belote_autosave') || 'null'),
-    last_config: JSON.parse(localStorage.getItem('belote_last_config') || 'null'),
+    history: storageReadJSON('belote_history', [], Array.isArray),
+    tournois_history: storageReadJSON('belote_tournois_history', [], Array.isArray),
+    autosave: storageReadJSON('belote_autosave', null, isAutosaveSnapshot),
+    last_config: storageReadJSON('belote_last_config', null, isLastConfig),
     theme: localStorage.getItem('bct_theme') || 'green'
   };
 }
@@ -3485,28 +3542,30 @@ function mergeHistory(local, remote) {
 }
 
 function applyImportData(data) {
-  if(data.players?.length)  { S.players = data.players; savePlayersToStorage(); }
+  if(!isImportData(data)) return false;
+  if(data.players?.length)  { S.players = data.players; savePlayers(); }
   if(data.history?.length) {
-    const local  = JSON.parse(localStorage.getItem('belote_history') || '[]');
+    const local  = storageReadJSON('belote_history', [], Array.isArray);
     const merged = mergeHistory(local, data.history);
-    localStorage.setItem('belote_history', JSON.stringify(merged.slice(0, 50)));
+    storageWriteJSON('belote_history', merged.slice(0, 50));
   }
   if(data.tournois_history?.length) {
-    const localT  = JSON.parse(localStorage.getItem('belote_tournois_history') || '[]');
+    const localT  = storageReadJSON('belote_tournois_history', [], Array.isArray);
     const mapT    = new Map();
     [...localT, ...data.tournois_history].forEach(t => mapT.set(t.id, t));
-    localStorage.setItem('belote_tournois_history', JSON.stringify(Array.from(mapT.values()).slice(0, 20)));
+    storageWriteJSON('belote_tournois_history', Array.from(mapT.values()).slice(0, 20));
   }
-  if(data.autosave)     localStorage.setItem('belote_autosave', JSON.stringify(data.autosave));
-  if(data.last_config)  localStorage.setItem('belote_last_config', JSON.stringify(data.last_config));
+  if(data.autosave)     storageWriteJSON('belote_autosave', data.autosave);
+  if(data.last_config)  storageWriteJSON('belote_last_config', data.last_config);
   if(data.theme)        localStorage.setItem('bct_theme', data.theme);
+  return true;
 }
 
 function showGistSync() {
   closeSettings();
   const token  = getGistToken();
   const gistId = getGistId();
-  const history = JSON.parse(localStorage.getItem('belote_history') || '[]');
+  const history = storageReadJSON('belote_history', [], Array.isArray);
 
   const modal = document.createElement('div');
   modal.id = 'gist-modal';
@@ -3589,11 +3648,43 @@ function showGistSync() {
 let T = null; // État du tournoi en cours
 
 function saveTournoi() {
-  if(T) localStorage.setItem('belote_tournoi', JSON.stringify(T));
+  if(T) storageWriteJSON('belote_tournoi', T);
 }
 
 function loadTournoi() {
-  try { T = JSON.parse(localStorage.getItem('belote_tournoi') || 'null'); } catch(e) { T = null; }
+  T = normalizeTournoiState(storageReadJSON('belote_tournoi', null, isPlainObject));
+}
+
+function normalizeTournoiState(value) {
+  if(!isPlainObject(value) || !['running','done'].includes(value.status) || !Array.isArray(value.equipes)) {
+    return null;
+  }
+
+  const equipes = value.equipes.map(equipe => {
+    if(!isPlainObject(equipe) || typeof equipe.name !== 'string' || !equipe.name) return null;
+    return {
+      ...equipe,
+      victoires: Number(equipe.victoires) || 0,
+      goalAvg: Number(equipe.goalAvg) || 0,
+      scoreTotal: Number(equipe.scoreTotal) || 0,
+      exemptions: Number(equipe.exemptions) || 0,
+      rencontres: Array.isArray(equipe.rencontres) ? equipe.rencontres.filter(name => typeof name === 'string') : []
+    };
+  });
+  if(equipes.some(equipe => !equipe) || equipes.length < 3) return null;
+
+  const nbTours = Number(value.nbTours);
+  const tourActuel = Number(value.tourActuel);
+  if(!Number.isFinite(nbTours) || nbTours < 1 || !Number.isFinite(tourActuel) || tourActuel < 1) return null;
+
+  return {
+    ...value,
+    nbTours,
+    tourActuel,
+    equipes,
+    tours: Array.isArray(value.tours) ? value.tours : [],
+    appariements: isPlainObject(value.appariements) ? value.appariements : null
+  };
 }
 
 function toggleTournoiMode(on) {
@@ -3620,19 +3711,14 @@ function initTournoiToggle() {
 
 function showTournoi() {
   loadTournoi();
-  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = ''; });
-  const sc = eid('screen-tournoi');
-  sc.style.display = 'flex';
-  sc.classList.add('active');
+  openSecondaryScreen('tournoi', S.t1 && S.t1.name ? 'game' : 'setup');
   const body = eid('tournoi-body');
   if(body) body.scrollTop = 0;
   renderTournoiScreen();
 }
 
 function hideTournoi() {
-  const sc = eid('screen-tournoi');
-  sc.classList.remove('active');
-  sc.style.display = 'none';
+  const target = closeSecondaryScreen('tournoi', S.t1 && S.t1.name ? 'game' : 'setup');
 
   // Restaurer la nav du bas
   const nav = document.querySelector('.bottom-nav');
@@ -3642,10 +3728,7 @@ function hideTournoi() {
   if(backBtn) backBtn.style.animation = '';
 
   // Restaurer le bon écran
-  const gameActive = eid('screen-game');
-  if(gameActive) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    gameActive.classList.add('active');
+  if(target === 'game') {
     // Forcer le re-rendu de la table
     if(typeof renderEnjeu === 'function') {
       setTimeout(() => {
@@ -3657,9 +3740,6 @@ function hideTournoi() {
         }
       }, 50);
     }
-  } else {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    eid('screen-setup').classList.add('active');
   }
 }
 
@@ -3679,8 +3759,8 @@ function renderTournoiSetup() {
     ${saved ? `
     <div style="background:rgba(200,150,10,0.15);border:1px solid rgba(200,150,10,0.4);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
       <div>
-        <div style="font-size:14px;font-weight:700;color:var(--text);">🏆 ${T.nom||'Tournoi'} en cours</div>
-        <div style="font-size:12px;color:var(--text2);margin-top:2px;">Tour ${T.tourActuel}/${T.nbTours} · ${T.equipes.length} équipes · ${T.date||''}</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text);">🏆 ${escapeHtml(T.nom||'Tournoi')} en cours</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px;">Tour ${T.tourActuel}/${T.nbTours} · ${T.equipes.length} équipes · ${escapeHtml(T.date||'')}</div>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-gold" onclick="renderTournoiTour()" style="padding:8px 14px;font-size:13px;">Reprendre ▶</button>
@@ -3756,8 +3836,7 @@ function refreshTournoiSelects() {
     const sel = eid(id);
     if(!sel) return;
     const cur = sel.value;
-    sel.innerHTML = `<option value="">Joueur…</option>` +
-      joueursDispo.map(p => `<option value="${p}" ${p===cur?'selected':''}>${p}</option>`).join('');
+    replaceSelectOptions(sel, joueursDispo, 'Joueur…', cur);
   });
 }
 
@@ -3802,7 +3881,7 @@ function renderTEqList() {
   }
   el.innerHTML = _tSetup.equipes.map((eq, i) => `
     <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:10px;padding:10px 14px;">
-      <div style="font-size:14px;font-weight:700;color:var(--text);">${i+1}. ${eq}</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text);">${i+1}. ${escapeHtml(eq)}</div>
       <button onclick="removeTournoiEquipe(${i})" style="background:#fce8e8;border:1px solid #e8b0b0;border-radius:99px;color:#cc1f1f;font-size:12px;font-weight:700;padding:4px 10px;cursor:pointer;font-family:inherit;">✕</button>
     </div>`).join('');
 }
@@ -3865,6 +3944,14 @@ function shuffle(arr) {
   return arr;
 }
 
+function classerEquipesTournoi(equipes) {
+  return [...equipes].sort((a,b) =>
+    b.victoires - a.victoires ||
+    b.goalAvg   - a.goalAvg  ||
+    b.scoreTotal - a.scoreTotal
+  );
+}
+
 function genererAppariements(t, numTour, alea) {
   const eq = [...t.equipes];
   const n  = eq.length;
@@ -3923,6 +4010,37 @@ function genererAppariements(t, numTour, alea) {
   return { numTour, matchs, exemptee };
 }
 
+function appliquerResultatsTournoi(equipes, appariements) {
+  const updated = equipes.map(equipe => ({
+    ...equipe,
+    rencontres: [...(equipe.rencontres || [])]
+  }));
+
+  appariements.matchs.forEach(match => {
+    const eq1 = updated.find(equipe => equipe.name === match.eq1);
+    const eq2 = updated.find(equipe => equipe.name === match.eq2);
+    if(!eq1 || !eq2) return;
+
+    const diff = match.score1 - match.score2;
+    if(match.score1 > match.score2) eq1.victoires++;
+    else if(match.score2 > match.score1) eq2.victoires++;
+
+    eq1.goalAvg += diff;
+    eq2.goalAvg -= diff;
+    eq1.scoreTotal += match.score1;
+    eq2.scoreTotal += match.score2;
+    eq1.rencontres.push(match.eq2);
+    eq2.rencontres.push(match.eq1);
+  });
+
+  if(appariements.exemptee) {
+    const exemptee = updated.find(equipe => equipe.name === appariements.exemptee);
+    if(exemptee) exemptee.exemptions++;
+  }
+
+  return updated;
+}
+
 // ── SAISIE DU TOUR ────────────────────────────────────────────
 function renderTournoiTour() {
   const body = eid('tournoi-body');
@@ -3937,7 +4055,7 @@ function renderTournoiTour() {
 
     ${app.exemptee ? `
     <div style="background:rgba(200,150,10,0.15);border:1px solid rgba(200,150,10,0.3);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--text);">
-      😴 <strong>${app.exemptee}</strong> est exempté ce tour
+      😴 <strong>${escapeHtml(app.exemptee)}</strong> est exempté ce tour
     </div>` : ''}
 
     <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px;" id="t-matchs-list">
@@ -3946,14 +4064,14 @@ function renderTournoiTour() {
         <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:10px;">Table ${i+1}</div>
         <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;">
           <div style="text-align:center;">
-            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">${m.eq1}</div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">${escapeHtml(m.eq1)}</div>
             <input type="number" id="t-score-${i}-1" min="0" max="3000" placeholder="Score" inputmode="numeric"
               style="width:100%;text-align:center;font-size:24px;font-weight:900;padding:8px;border:2px solid #ccc;border-radius:10px;box-sizing:border-box;"
               oninput="onTScoreInput(${i})">
           </div>
           <div style="font-size:18px;color:var(--text2);font-weight:700;">vs</div>
           <div style="text-align:center;">
-            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">${m.eq2}</div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">${escapeHtml(m.eq2)}</div>
             <input type="number" id="t-score-${i}-2" min="0" max="3000" placeholder="Score" inputmode="numeric"
               style="width:100%;text-align:center;font-size:24px;font-weight:900;padding:8px;border:2px solid #ccc;border-radius:10px;box-sizing:border-box;"
               oninput="onTScoreInput(${i})">
@@ -4005,30 +4123,8 @@ function validerTour() {
   // Enregistrer les résultats
   T.tours.push({ ...app });
 
-  // Mettre à jour les stats des équipes
-  app.matchs.forEach(m => {
-    const eq1 = T.equipes.find(e => e.name === m.eq1);
-    const eq2 = T.equipes.find(e => e.name === m.eq2);
-    if(!eq1 || !eq2) return;
-
-    const diff = m.score1 - m.score2;
-    if(m.score1 > m.score2) { eq1.victoires++; }
-    else if(m.score2 > m.score1) { eq2.victoires++; }
-    // Égalité → 0 victoire pour les deux
-
-    eq1.goalAvg += diff;
-    eq2.goalAvg -= diff;
-    eq1.scoreTotal += m.score1;
-    eq2.scoreTotal += m.score2;
-    eq1.rencontres.push(m.eq2);
-    eq2.rencontres.push(m.eq1);
-  });
-
-  // Équipe exemptée
-  if(app.exemptee) {
-    const ex = T.equipes.find(e => e.name === app.exemptee);
-    if(ex) ex.exemptions++;
-  }
+  // Mettre à jour les statistiques sans modifier les appariements enregistrés.
+  T.equipes = appliquerResultatsTournoi(T.equipes, app);
 
   // Tour suivant ou fin
   if(T.tourActuel < T.nbTours) {
@@ -4047,11 +4143,7 @@ function validerTour() {
 
 // ── CLASSEMENT ────────────────────────────────────────────────
 function getClassement() {
-  return [...T.equipes].sort((a,b) =>
-    b.victoires - a.victoires ||
-    b.goalAvg   - a.goalAvg  ||
-    b.scoreTotal - a.scoreTotal
-  );
+  return classerEquipesTournoi(T.equipes);
 }
 
 function renderTournoiClassement() {
@@ -4081,7 +4173,7 @@ function renderTournoiClassement() {
             <td style="padding:10px 12px;font-weight:800;color:${i===0?'#c8960a':i===1?'#888':i===2?'#b87333':'var(--text2)'};">
               ${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}
             </td>
-            <td style="padding:10px 12px;font-weight:700;color:var(--text);">${eq.name}</td>
+            <td style="padding:10px 12px;font-weight:700;color:var(--text);">${escapeHtml(eq.name)}</td>
             <td style="padding:10px 12px;text-align:center;font-weight:700;color:var(--green);">${eq.victoires}</td>
             <td style="padding:10px 12px;text-align:center;color:${eq.goalAvg>=0?'var(--green)':'#cc2222'};font-weight:700;">${eq.goalAvg>0?'+':''}${eq.goalAvg}</td>
             <td style="padding:10px 12px;text-align:center;color:var(--text2);">${eq.scoreTotal}</td>
@@ -4123,14 +4215,14 @@ function renderTournoiResultat() {
       <div style="flex:1;text-align:center;">
         <div style="font-size:20px;margin-bottom:4px;">🥈</div>
         <div style="background:rgba(255,255,255,0.15);border-radius:10px 10px 0 0;padding:10px 6px;height:70px;display:flex;align-items:center;justify-content:center;">
-          <div style="font-size:18px;font-weight:800;color:#fff;line-height:1.3;">${top3[1].name}</div>
+          <div style="font-size:18px;font-weight:800;color:#fff;line-height:1.3;">${escapeHtml(top3[1].name)}</div>
         </div>
         <div style="background:rgba(255,255,255,0.1);padding:7px 4px;border-radius:0 0 8px 8px;font-size:14px;font-weight:700;color:#fff;">${top3[1].victoires}V · ${top3[1].goalAvg>0?'+':''}${top3[1].goalAvg}</div>
       </div>` : ''}
       <div style="flex:1;text-align:center;">
         <div style="font-size:28px;margin-bottom:4px;">🥇</div>
         <div style="background:rgba(200,150,10,0.4);border:2px solid #c8960a;border-radius:10px 10px 0 0;padding:10px 6px;height:95px;display:flex;align-items:center;justify-content:center;">
-          <div style="font-size:20px;font-weight:900;color:#fff;line-height:1.3;">${top3[0].name}</div>
+          <div style="font-size:20px;font-weight:900;color:#fff;line-height:1.3;">${escapeHtml(top3[0].name)}</div>
         </div>
         <div style="background:rgba(200,150,10,0.3);padding:7px 4px;border-radius:0 0 8px 8px;font-size:15px;font-weight:800;color:#c8960a;">${top3[0].victoires}V · ${top3[0].goalAvg>0?'+':''}${top3[0].goalAvg}</div>
       </div>
@@ -4138,7 +4230,7 @@ function renderTournoiResultat() {
       <div style="flex:1;text-align:center;">
         <div style="font-size:20px;margin-bottom:4px;">🥉</div>
         <div style="background:rgba(184,115,51,0.3);border-radius:10px 10px 0 0;padding:10px 6px;height:50px;display:flex;align-items:center;justify-content:center;">
-          <div style="font-size:18px;font-weight:800;color:#fff;line-height:1.3;">${top3[2].name}</div>
+          <div style="font-size:18px;font-weight:800;color:#fff;line-height:1.3;">${escapeHtml(top3[2].name)}</div>
         </div>
         <div style="background:rgba(184,115,51,0.2);padding:7px 4px;border-radius:0 0 8px 8px;font-size:14px;font-weight:700;color:#b87333;">${top3[2].victoires}V · ${top3[2].goalAvg>0?'+':''}${top3[2].goalAvg}</div>
       </div>` : ''}
@@ -4160,7 +4252,7 @@ function renderTournoiResultat() {
           ${cl.map((eq, i) => `
           <tr style="border-bottom:1px solid rgba(0,0,0,0.06);">
             <td style="padding:8px 12px;font-weight:800;color:${i===0?'#c8960a':i===1?'#888':i===2?'#b87333':'var(--text2)'};">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td>
-            <td style="padding:8px 12px;font-weight:700;color:var(--text);">${eq.name}</td>
+            <td style="padding:8px 12px;font-weight:700;color:var(--text);">${escapeHtml(eq.name)}</td>
             <td style="padding:8px 12px;text-align:center;font-weight:700;color:var(--green);">${eq.victoires}</td>
             <td style="padding:8px 12px;text-align:center;color:${eq.goalAvg>=0?'var(--green)':'#cc2222'};font-weight:700;">${eq.goalAvg>0?'+':''}${eq.goalAvg}</td>
             <td style="padding:8px 12px;text-align:center;color:var(--text2);">${eq.scoreTotal}</td>
@@ -4265,19 +4357,18 @@ function partageTournoi() {
 function saveTournoiHistorique() {
   if(!T || T.status !== 'done') return;
   try {
-    const hist = JSON.parse(localStorage.getItem('belote_tournois_history') || '[]');
+    const hist = storageReadJSON('belote_tournois_history', [], Array.isArray);
     const id = T.id || Date.now();
     T.id = id;
     const idx = hist.findIndex(t => t.id === id);
     if(idx >= 0) hist[idx] = T;
     else hist.unshift(T);
-    localStorage.setItem('belote_tournois_history', JSON.stringify(hist.slice(0, 20)));
+    storageWriteJSON('belote_tournois_history', hist.slice(0, 20));
   } catch(e) {}
 }
 
 function renderTournoiHistoriqueInline(container) {
-  let hist = [];
-  try { hist = JSON.parse(localStorage.getItem('belote_tournois_history') || '[]'); } catch(e) {}
+  const hist = storageReadJSON('belote_tournois_history', [], Array.isArray);
 
   if(!hist.length) {
     container.innerHTML = `
@@ -4295,8 +4386,8 @@ function renderTournoiHistoriqueInline(container) {
     <div class="card" style="margin-bottom:12px;padding:14px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
         <div>
-          <div style="font-size:16px;font-weight:800;color:var(--text);">🏆 ${t.nom||'Tournoi'}</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:2px;">${t.date||''} · ${t.tours?.length||0} tours · ${t.equipes?.length||0} équipes</div>
+          <div style="font-size:16px;font-weight:800;color:var(--text);">🏆 ${escapeHtml(t.nom||'Tournoi')}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px;">${escapeHtml(t.date||'')} · ${t.tours?.length||0} tours · ${t.equipes?.length||0} équipes</div>
         </div>
         <button onclick="deleteTournoiHistorique(${t.id})" style="background:#fce8e8;border:1px solid #e8b0b0;border-radius:99px;color:#cc1f1f;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer;font-family:inherit;">✕</button>
       </div>
@@ -4304,7 +4395,7 @@ function renderTournoiHistoriqueInline(container) {
         ${cl.slice(0,3).map((eq,j) => `
         <div style="display:flex;align-items:center;gap:8px;font-size:14px;">
           <span>${j===0?'🥇':j===1?'🥈':'🥉'}</span>
-          <span style="font-weight:700;color:var(--text);flex:1;">${eq.name}</span>
+          <span style="font-weight:700;color:var(--text);flex:1;">${escapeHtml(eq.name)}</span>
           <span style="color:var(--green);font-weight:700;">${eq.victoires}V</span>
           <span style="color:${eq.goalAvg>=0?'var(--green)':'#cc2222'};font-weight:700;">${eq.goalAvg>0?'+':''}${eq.goalAvg}</span>
         </div>`).join('')}
@@ -4323,9 +4414,9 @@ function updateTournoiTabVisibility() {
 function deleteTournoiHistorique(id) {
   if(!confirm('Supprimer ce tournoi ?')) return;
   try {
-    let hist = JSON.parse(localStorage.getItem('belote_tournois_history') || '[]');
+    let hist = storageReadJSON('belote_tournois_history', [], Array.isArray);
     hist = hist.filter(t => t.id !== id);
-    localStorage.setItem('belote_tournois_history', JSON.stringify(hist));
+    storageWriteJSON('belote_tournois_history', hist);
     showSubTab('tournois');
   } catch(e) {}
 }
@@ -4334,7 +4425,7 @@ function deleteTournoiHistorique(id) {
 
 function debugShowHistory() {
   try {
-    const past = JSON.parse(localStorage.getItem('belote_history') || '[]');
+    const past = storageReadJSON('belote_history', [], Array.isArray);
     if(!past.length || !past[0].history || !past[0].history.length) { alert('Pas de données'); return; }
     const h = past[0].history[0];
     alert('Champs: ' + Object.keys(h).join(', ') + '\n\nValeurs: ' + JSON.stringify(h));
@@ -4342,8 +4433,7 @@ function debugShowHistory() {
 }
 
 function showPastGameStats(id) {
-  let past = [];
-  try { past = JSON.parse(localStorage.getItem('belote_history') || '[]'); } catch(e) {}
+  const past = storageReadJSON('belote_history', [], Array.isArray);
   const p = past.find(x => x.id === id);
   if(!p || !p.history || !p.history.length) return;
 
@@ -4508,8 +4598,7 @@ function showPastGameStats(id) {
 function renderPastHistory() {
   const el = eid('past-history-content');
   if(!el) return;
-  let past = [];
-  try { past = JSON.parse(localStorage.getItem('belote_history') || '[]'); } catch(e) {}
+  const past = storageReadJSON('belote_history', [], Array.isArray);
   if(!past.length) {
     el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text3);font-size:13px;">📭 Aucune partie enregistrée</div>';
     return;
@@ -4573,14 +4662,14 @@ function deleteGame(id) {
   eid('confirm-ok').onclick = () => {
     closeConfirm();
     try {
-      let past = JSON.parse(localStorage.getItem('belote_history') || '[]');
+      let past = storageReadJSON('belote_history', [], Array.isArray);
       past = past.filter(p => p.id !== id);
-      localStorage.setItem('belote_history', JSON.stringify(past));
+      storageWriteJSON('belote_history', past);
       renderPastHistory();
       renderStats();
     } catch(e) {}
   };
-  eid('confirm-modal').style.display = 'flex';
+  openModal('confirm-modal');
 }
 
 function deleteDay(date) {
@@ -4588,14 +4677,14 @@ function deleteDay(date) {
   eid('confirm-ok').onclick = () => {
     closeConfirm();
     try {
-      let past = JSON.parse(localStorage.getItem('belote_history') || '[]');
+      let past = storageReadJSON('belote_history', [], Array.isArray);
       past = past.filter(p => p.date !== date);
-      localStorage.setItem('belote_history', JSON.stringify(past));
+      storageWriteJSON('belote_history', past);
       renderPastHistory();
       renderStats();
     } catch(e) {}
   };
-  eid('confirm-modal').style.display = 'flex';
+  openModal('confirm-modal');
 }
 
 function clearAllHistory() {
@@ -4608,7 +4697,7 @@ function clearAllHistory() {
       renderStats();
     } catch(e) {}
   };
-  eid('confirm-modal').style.display = 'flex';
+  openModal('confirm-modal');
 }
 
 let editingManche = null;
@@ -4622,11 +4711,11 @@ function openEdit(manche) {
   eid('edit-lbl-t2').textContent = S.t2.name;
   eid('edit-pts-t1').value = h.pts1;
   eid('edit-pts-t2').value = h.pts2;
-  eid('edit-modal').style.display = 'flex';
+  openModal('edit-modal');
 }
 
 function closeEdit() {
-  eid('edit-modal').style.display = 'none';
+  closeModal('edit-modal');
   editingManche = null;
 }
 
@@ -4689,7 +4778,7 @@ function renderStatsCurrent() {
   if(!el) return;
   const h = S.history.filter(m => m.contract && m.contract !== '—');
   if(!h.length) {
-    el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text3);font-size:13px;">Aucune manche jouée</div>';
+    el.innerHTML = renderEmptyState('Aucune manche jouée', {padding:'16px'});
     return;
   }
   const total = h.length;
@@ -4739,14 +4828,14 @@ function renderStatsCurrent() {
       </thead>
       <tbody>
         <tr style="border-bottom:1px solid rgba(0,0,0,0.08);">
-          <td style="padding:8px 4px;font-weight:700;color:#1a6b3c;">${S.t1.name}</td>
+          <td style="padding:8px 4px;font-weight:700;color:#1a6b3c;">${escapeHtml(S.t1.name)}</td>
           <td style="text-align:center;padding:8px 4px;">${st1.played}</td>
           <td style="text-align:center;padding:8px 4px;">${st1.won}</td>
           <td style="text-align:center;padding:8px 4px;">${st1.played?Math.round(st1.won/st1.played*100):0}%</td>
           <td style="text-align:center;padding:8px 4px;">${st1.avg1}</td>
         </tr>
         <tr>
-          <td style="padding:8px 4px;font-weight:700;color:#1a3a8c;">${S.t2.name}</td>
+          <td style="padding:8px 4px;font-weight:700;color:#1a3a8c;">${escapeHtml(S.t2.name)}</td>
           <td style="text-align:center;padding:8px 4px;">${st2.played}</td>
           <td style="text-align:center;padding:8px 4px;">${st2.won}</td>
           <td style="text-align:center;padding:8px 4px;">${st2.played?Math.round(st2.won/st2.played*100):0}%</td>
@@ -4774,7 +4863,7 @@ function renderStatsChart() {
   if(!canvas) return;
   const h = S.history;
   if(!h.length) {
-    eid('stats-chart-wrap').innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">Pas encore de données</div>';
+    eid('stats-chart-wrap').innerHTML = renderEmptyState('Pas encore de données', {padding:'20px'});
     return;
   }
   const W = canvas.offsetWidth || 300;
@@ -4841,9 +4930,8 @@ function renderStatsChart() {
 function renderStatsTeams() {
   const el = eid('stats-teams-content');
   if(!el) return;
-  let past = [];
-  try { past = JSON.parse(localStorage.getItem('belote_history')||'[]'); } catch(e) {}
-  if(!past.length) { el.innerHTML='<div style="text-align:center;padding:12px;color:var(--text3);font-size:13px;">Aucune partie enregistrée</div>'; return; }
+  const past = storageReadJSON('belote_history', [], Array.isArray);
+  if(!past.length) { el.innerHTML = renderEmptyState('Aucune partie enregistrée', {padding:'12px'}); return; }
 
   // Confrontations
   const duels = {};
@@ -4858,10 +4946,10 @@ function renderStatsTeams() {
   el.innerHTML = Object.values(duels).map(d => {
     const teams = d.key.split(' vs ');
     return `<div style="background:rgba(0,0,0,0.15);border-radius:10px;padding:10px 12px;margin-bottom:8px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;">${d.key} — ${d.games} partie${d.games>1?'s':''}</div>
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;">${escapeHtml(d.key)} — ${d.games} partie${d.games>1?'s':''}</div>
       <div style="display:flex;gap:8px;">
         ${teams.map(t=>`<div style="flex:1;text-align:center;background:rgba(255,255,255,0.07);border-radius:8px;padding:6px;">
-          <div style="font-size:11px;color:var(--text2);">${t}</div>
+          <div style="font-size:11px;color:var(--text2);">${escapeHtml(t)}</div>
           <div style="font-size:20px;font-weight:800;color:var(--text);">${d.wins[t]||0}</div>
           <div style="font-size:10px;color:var(--text);">victoire${(d.wins[t]||0)>1?'s':''}</div>
         </div>`).join('')}
@@ -4873,9 +4961,8 @@ function renderStatsTeams() {
 function renderStatsPlayers() {
   const el = eid('stats-players-content');
   if(!el) return;
-  let past = [];
-  try { past = JSON.parse(localStorage.getItem('belote_history')||'[]'); } catch(e) {}
-  if(!past.length) { el.innerHTML='<div style="text-align:center;padding:12px;color:var(--text3);font-size:13px;">Aucune partie enregistrée</div>'; return; }
+  const past = storageReadJSON('belote_history', [], Array.isArray);
+  if(!past.length) { el.innerHTML = renderEmptyState('Aucune partie enregistrée', {padding:'12px'}); return; }
 
   // Collecter stats par joueur
   const players = {};
@@ -4904,7 +4991,7 @@ function renderStatsPlayers() {
   });
 
   const sorted = Object.values(players).sort((a,b)=>b.parties-a.parties);
-  if(!sorted.length) { el.innerHTML='<div style="color:var(--text3);text-align:center;padding:12px;">Aucun joueur</div>'; return; }
+  if(!sorted.length) { el.innerHTML = renderEmptyState('Aucun joueur', {padding:'12px'}); return; }
 
   el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px;">
     <thead><tr style="border-bottom:2px solid rgba(0,0,0,0.15);">
@@ -4918,7 +5005,7 @@ function renderStatsPlayers() {
     <tbody>
       ${sorted.map((p,i)=>`
         <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
-          <td style="padding:7px 4px;font-weight:700;color:${i===0?'#b07000':'var(--text)'};">${i===0?'🥇 ':''}${p.name}</td>
+          <td style="padding:7px 4px;font-weight:700;color:${i===0?'#b07000':'var(--text)'};">${i===0?'🥇 ':''}${escapeHtml(p.name)}</td>
           <td style="text-align:center;padding:7px 2px;color:var(--text);">${p.parties}</td>
           <td style="text-align:center;padding:7px 2px;color:var(--text);font-weight:700;">${p.victoires}</td>
           <td style="text-align:center;padding:7px 2px;color:var(--text);">${p.manchesPreneur}</td>
@@ -4973,9 +5060,9 @@ function formatTeamName(name) {
   const isPC = window.innerWidth >= 1025;
   if((isLandscape || isPC) && name && name.includes(' & ')) {
     const parts = name.split(' & ');
-    return parts[0] + ' &<br>' + parts[1];
+    return escapeHtml(parts[0]) + ' &amp;<br>' + escapeHtml(parts[1]);
   }
-  return name;
+  return escapeHtml(name);
 }
 
 function renderEnjeu() {
@@ -5422,41 +5509,21 @@ function initiales(name) {
 function renderFeuille() {
   const el = eid('feuille-content');
   const titleEl = eid('feuille-title');
-  if(titleEl) titleEl.innerHTML = S.t1.name + '<br><span style="font-size:11px;color:#888;font-weight:600;">VS</span><br>' + S.t2.name + '<br>&nbsp;';
-  const { fsHeader, fsPad, fsNum, fsContrat, fsPreneur, fsBadge, fsBadgePad, fsScore, fsTotal, fsTotalLabel, fsTdPad } = getTableSizes();
+  if(titleEl) titleEl.innerHTML = renderTeamMatchupTitle(S.t1.name, S.t2.name, true);
+  const sizes = getTableSizes();
+  const { fsHeader, fsPad, fsTotal, fsTotalLabel, fsTdPad } = sizes;
 
   if(!S.history.length) {
-    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);">Aucune manche jouée</div>';
+    el.innerHTML = renderEmptyState('Aucune manche jouée', {padding:'20px'});
     return;
   }
 
-  const i1 = initiales(S.t1.name);
-  const i2 = initiales(S.t2.name);
+  const i1 = renderTeamInitials(S.t1.name);
+  const i2 = renderTeamInitials(S.t2.name);
   const tot1 = S.history[S.history.length-1].total1;
   const tot2 = S.history[S.history.length-1].total2;
 
-  const rows = S.history.map(h => {
-    const hasContract = h.contract && h.contract !== '—';
-    const contrat = hasContract ? h.contract : '<em style="color:#b07800;font-size:11px;">Corr.</em>';
-    const preneur = hasContract ? initiales(h.preneur) : '';
-    const contre = hasContract && h.contre && h.contre !== 'none'
-      ? `<span style="font-size:9px;color:#c8960a;font-weight:700;">${h.contre}</span>` : '';
-    const result = hasContract
-      ? (h.chute===true
-          ? `<span style="background:#cc2222;color:#fff;font-size:${fsBadge};font-weight:700;padding:${fsBadgePad};border-radius:4px;">Chute</span>`
-          : `<span style="background:#2a7d2e;color:#fff;font-size:${fsBadge};font-weight:700;padding:${fsBadgePad};border-radius:4px;">Fait</span>`)
-      : '';
-    return `<tr style="border-bottom:1px solid rgba(0,0,0,0.06);">
-      <td style="padding:${fsTdPad};font-size:${fsNum};color:var(--text2);font-weight:600;">${String(h.manche).padStart(2,'0')}</td>
-      <td style="padding:${fsTdPad};font-size:${fsContrat};font-weight:700;white-space:nowrap;">${contrat} ${contre}</td>
-      <td style="padding:${fsTdPad};font-size:${fsPreneur};color:#1a5295;font-weight:700;text-align:center;">${preneur}</td>
-      <td style="padding:${fsTdPad};text-align:center;">${result}</td>
-      <td style="padding:${fsTdPad};font-size:${fsScore};font-weight:800;text-align:right;color:${h.pts1>0?'#1a6b3c':'#cc2222'};">${h.pts1}</td>
-      <td style="padding:${fsTdPad};font-size:${fsScore};font-weight:800;text-align:right;color:${h.pts2>0?'#1a6b3c':'#cc2222'};">${h.pts2}</td>
-      <td style="padding:5px 2px;text-align:center;"><button onclick="openEdit(${h.manche})" style="background:#e8e4dc;border:1px solid #bbb;border-radius:6px;color:#444;font-size:10px;padding:1px 3px;cursor:pointer;font-family:inherit;">✏️</button></td>
-      <td style="padding:5px 2px;text-align:center;"><button onclick="deleteManche(${h.manche})" style="background:#fce8e8;border:1px solid #e8b0b0;border-radius:6px;color:#cc1f1f;font-size:10px;padding:1px 3px;cursor:pointer;font-family:inherit;">🗑</button></td>
-    </tr>`;
-  }).join('');
+  const rows = S.history.map(round => renderCurrentRoundRow(round, sizes, true)).join('');
 
   el.innerHTML = `
     <table style="width:100%;border-collapse:collapse;font-family:inherit;">
@@ -5745,8 +5812,7 @@ function roundRect(ctx, x, y, w, h, r) {
 }
 
 function exportStats(mode) {
-  let past = [];
-  try { past = JSON.parse(localStorage.getItem('belote_history')||'[]'); } catch(e) {}
+  const past = storageReadJSON('belote_history', [], Array.isArray);
 
   const now = new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
   let txt = `🃏 BELOTE CONTRÉE — STATISTIQUES\n`;
@@ -5844,10 +5910,58 @@ function showToast(msg) {
   setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>t.remove(),400); }, 2000);
 }
 
+const secondaryScreenOrigins = new Map();
+
+function getActiveScreenName() {
+  const active = document.querySelector('.screen.active');
+  return active ? active.id.replace('screen-', '') : null;
+}
+
+function activateAppScreen(name) {
+  const target = eid('screen-' + name);
+  if(!target) return false;
+
+  document.querySelectorAll('.screen').forEach(screen => {
+    screen.classList.remove('active');
+    if(screen.id === 'screen-tournoi') screen.style.display = 'none';
+  });
+  if(name === 'tournoi') target.style.display = 'flex';
+  target.classList.add('active');
+  return true;
+}
+
+function openSecondaryScreen(name, fallback = 'setup') {
+  const origin = getActiveScreenName();
+  if(origin && origin !== name) secondaryScreenOrigins.set(name, origin);
+  else if(!secondaryScreenOrigins.has(name)) secondaryScreenOrigins.set(name, fallback);
+  activateAppScreen(name);
+}
+
+function closeSecondaryScreen(name, fallback = 'setup') {
+  const target = secondaryScreenOrigins.get(name) || fallback;
+  secondaryScreenOrigins.delete(name);
+  if(activateAppScreen(target)) return target;
+  activateAppScreen(fallback);
+  return fallback;
+}
+
+function setModalVisible(modalOrId, visible) {
+  const modal = typeof modalOrId === 'string' ? eid(modalOrId) : modalOrId;
+  if(!modal) return false;
+  modal.style.display = visible ? 'flex' : 'none';
+  return true;
+}
+
+function openModal(modalOrId) {
+  return setModalVisible(modalOrId, true);
+}
+
+function closeModal(modalOrId) {
+  return setModalVisible(modalOrId, false);
+}
 
 function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-'+name).classList.add('active');
+  if(!activateAppScreen(name)) return;
   if(name === 'setup') {
     setTimeout(fixEastWestPC, 50);
     setTimeout(fixEastWestPC, 200);
@@ -5882,6 +5996,135 @@ function bounce(el) {
 function eid(id) { return document.getElementById(id); }
 function v(id) { return document.getElementById(id).value; }
 function cap(s) { return s.charAt(0).toUpperCase()+s.slice(1); }
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&#x3C;')
+    .replaceAll('>', '&#x3E;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function storageReadJSON(key, fallback, validator) {
+  try {
+    const raw = localStorage.getItem(key);
+    if(raw === null || raw === '') return fallback;
+    const value = JSON.parse(raw);
+    return !validator || validator(value) ? value : fallback;
+  } catch(e) {
+    console.warn('Stockage illisible :', key);
+    return fallback;
+  }
+}
+
+function storageWriteJSON(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch(e) {
+    console.warn('Écriture stockage impossible :', key);
+    return false;
+  }
+}
+
+function isPlainObject(value) {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isStringArray(value) {
+  return Array.isArray(value) && value.every(item => typeof item === 'string');
+}
+
+function isLastConfig(value) {
+  return isPlainObject(value) &&
+    ['nord','sud','est','ouest'].every(key => value[key] === undefined || typeof value[key] === 'string');
+}
+
+function isAutosaveSnapshot(value) {
+  return isPlainObject(value) &&
+    isPlainObject(value.pos) &&
+    isPlainObject(value.t1) && typeof value.t1.name === 'string' &&
+    isPlainObject(value.t2) && typeof value.t2.name === 'string' &&
+    isPlainObject(value.score) &&
+    Number.isFinite(Number(value.score.t1)) &&
+    Number.isFinite(Number(value.score.t2)) &&
+    Array.isArray(value.history) &&
+    Number.isFinite(Number(value.manche)) &&
+    Number.isFinite(Number(value.dealerIdx));
+}
+
+function normalizeAutosaveSnapshot(value) {
+  if(!isAutosaveSnapshot(value)) return null;
+  const gameMode = value.gameMode === 'manches' ? 'manches' : 'points';
+  return {
+    ...value,
+    score: {t1:Number(value.score.t1), t2:Number(value.score.t2)},
+    history: value.history,
+    manche: Math.max(1, Number(value.manche)),
+    dealerIdx: ((Number(value.dealerIdx) % 4) + 4) % 4,
+    contract: value.contract || null,
+    form: isPlainObject(value.form) ? {...createEmptyContractForm(), ...value.form} : createEmptyContractForm(),
+    gameMode,
+    winningPts: Number(value.winningPts) > 0 ? Number(value.winningPts) : 2001,
+    winningManches: Number(value.winningManches) > 0 ? Number(value.winningManches) : 10
+  };
+}
+
+function readAutosaveSnapshot() {
+  return normalizeAutosaveSnapshot(storageReadJSON('belote_autosave', null, isAutosaveSnapshot));
+}
+
+function applyAutosaveSnapshot(value) {
+  const snap = normalizeAutosaveSnapshot(value);
+  if(!snap) return false;
+  S.pos = snap.pos;
+  S.t1 = snap.t1;
+  S.t2 = snap.t2;
+  S.score = snap.score;
+  S.history = snap.history;
+  S.manche = snap.manche;
+  S.dealerIdx = snap.dealerIdx;
+  S.contract = snap.contract;
+  S.form = snap.form;
+  S.gameMode = snap.gameMode;
+  S.winningPts = snap.winningPts;
+  S.winningManches = snap.winningManches;
+  S._gameSaved = false;
+  pendingScore = null;
+  return true;
+}
+
+function isImportData(value) {
+  if(!isPlainObject(value) || !value.version || !isStringArray(value.players)) return false;
+  if(value.history !== undefined && !Array.isArray(value.history)) return false;
+  if(value.tournois_history !== undefined && !Array.isArray(value.tournois_history)) return false;
+  if(value.autosave !== undefined && value.autosave !== null && !isAutosaveSnapshot(value.autosave)) return false;
+  if(value.last_config !== undefined && value.last_config !== null && !isLastConfig(value.last_config)) return false;
+  if(value.theme !== undefined && typeof value.theme !== 'string') return false;
+  return true;
+}
+
+function replaceSelectOptions(select, values, placeholder, selectedValue, placeholderValue='') {
+  if(!select) return;
+  const fragment = document.createDocumentFragment();
+  const first = document.createElement('option');
+  first.value = placeholderValue;
+  first.textContent = placeholder;
+  fragment.appendChild(first);
+
+  values.forEach(value => {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+    fragment.appendChild(option);
+  });
+
+  select.replaceChildren(fragment);
+  select.value = values.includes(selectedValue) || selectedValue === placeholderValue
+    ? selectedValue
+    : placeholderValue;
+}
 
 // Init
 loadPlayers();
@@ -5919,11 +6162,7 @@ refreshTeamPreview();
     // Swipe horizontal significatif (>60px) et plus horizontal que vertical
     if(Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
 
-    // Trouver l'onglet actif
-    const currentTab = TAB_ORDER.find(t => {
-      const el = eid('tab-'+t);
-      return el && el.style.display !== 'none';
-    });
+    const currentTab = getActiveGameTab();
     if(!currentTab) return;
 
     const idx = TAB_ORDER.indexOf(currentTab);
@@ -6005,42 +6244,46 @@ function fixSetupTableSize() {
     svg.style.cssText = 'display:block;border-radius:16px;';
   }
 }
-window.addEventListener('load', () => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); setTimeout(fixEastWestPC, 400); setTimeout(fixEastWestPC, 800); });
-window.addEventListener('resize', () => {
+let _lastOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+
+function renderActiveGameTabAfterViewportChange() {
+  if(currentGameTab === 'feuille') renderFeuille();
+  else if(currentGameTab === 'history') { renderHistory(); renderPastHistory(); }
+  else if(currentGameTab === 'parties') showSubTab(currentSubTab);
+  else if(currentGameTab === 'stats') renderStats();
+  else if(currentGameTab === 'enjeu') {
+    setTimeout(() => renderEnjeu(), 100);
+    setTimeout(() => renderEnjeu(), 400);
+  }
+}
+
+function handleViewportChange() {
   fixSetupTableSize();
   setTimeout(fixEastWestPC, 100);
   setTimeout(fixEastWestPC, 400);
+
+  syncGameOverlayLock(GAME_OVERLAY_TABS.includes(currentGameTab));
+
   // Relancer le layout manche si l'écran est visible
   if (document.getElementById('screen-mancheencours') &&
       document.getElementById('screen-mancheencours').classList.contains('active') && S.contract) {
     showMancheEnCours();
   }
-});
 
-// Re-rendre la page active quand on tourne le téléphone (initiales 3↔6 chars)
-let _lastOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
-window.addEventListener('resize', () => {
   const newOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
   if(newOrientation !== _lastOrientation) {
     _lastOrientation = newOrientation;
-    const overlayTabs = ['contrat','saisie','history','stats','marque','feuille','parties'];
-    const overlayActive = overlayTabs.some(tab => {
-      const el = eid('tab-' + tab);
-      return el && el.style.display !== 'none';
-    });
-    syncGameOverlayLock(overlayActive);
-    // Re-rendre la page active pour recalculer les initiales
-    const activeTab = document.querySelector('#tab-feuille[style*="flex"], #tab-history[style*="flex"], #tab-parties[style*="flex"], #tab-stats[style*="flex"]');
-    if(eid('tab-feuille') && eid('tab-feuille').style.display !== 'none') renderFeuille();
-    else if(eid('tab-history') && eid('tab-history').style.display !== 'none') { renderHistory(); renderPastHistory(); }
-    else if(eid('tab-parties') && eid('tab-parties').style.display !== 'none') showSubTab(currentSubTab);
-    else if(eid('tab-stats') && eid('tab-stats').style.display !== 'none') renderStats();
-    else if(eid('tab-enjeu') && eid('tab-enjeu').style.display !== 'none') {
-      setTimeout(() => renderEnjeu(), 100);
-      setTimeout(() => renderEnjeu(), 400);
-    }
+    renderActiveGameTabAfterViewportChange();
   }
+}
+
+window.addEventListener('load', () => {
+  fixSetupTableSize();
+  setTimeout(fixEastWestPC, 100);
+  setTimeout(fixEastWestPC, 400);
+  setTimeout(fixEastWestPC, 800);
 });
+window.addEventListener('resize', handleViewportChange);
 requestAnimationFrame(() => requestAnimationFrame(() => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); }));
 loadTheme();
 
@@ -6069,45 +6312,32 @@ function askEndGame() {
   const losePts= s1 > s2 ? s2 : s1;
   let msg;
   if(winner) {
-    msg = `🏆 <strong style="color:var(--green);">${winner}</strong> — <strong>${winPts} pts</strong><br>` +
-          `<span style="opacity:0.7;">${loser} — ${losePts} pts</span>`;
+    msg = `🏆 <strong style="color:var(--green);">${escapeHtml(winner)}</strong> — <strong>${winPts} pts</strong><br>` +
+          `<span style="opacity:0.7;">${escapeHtml(loser)} — ${losePts} pts</span>`;
   } else {
     msg = `Égalité — <strong>${s1} pts</strong> partout.`;
   }
   eid('end-game-msg').innerHTML = msg;
-  eid('end-game-modal').style.display = 'flex';
+  openModal('end-game-modal');
 }
 
 function closeEndGame() {
-  eid('end-game-modal').style.display = 'none';
+  closeModal('end-game-modal');
 }
 
 function confirmEndGame(mode) {
   closeEndGame();
   if(!S._gameSaved && S.history.length > 0) savePastGame();
-  S._gameSaved = false;
   haptic('heavy');
+  clearAutoSave();
+  resetGameProgress();
   if(mode === 'same') {
     // Même équipe : équipes conservées, retour config (comme ancien "Nouvelle partie")
-    clearAutoSave();
-    S.score={t1:0,t2:0};
-    S.history=[];
-    S.manche=1;
-    S.contract=null;
-    S.form={preneur:'',suit:'',suitKey:'',suitColor:'',value:80,isCapot:false,contre:'none'};
-    pendingScore=null;
     refreshTeamPreview();
     showScreen('setup');
     showToast('✅ Partie enregistrée !');
   } else {
     // Changer d'équipe : selects vidés, retour config (comme ancien "Changement d'équipe")
-    clearAutoSave();
-    S.score={t1:0,t2:0};
-    S.history=[];
-    S.manche=1;
-    S.contract=null;
-    S.form={preneur:'',suit:'',suitKey:'',suitColor:'',value:80,isCapot:false,contre:'none'};
-    pendingScore=null;
     ['sel-nord','sel-sud','sel-est','sel-ouest'].forEach(id=>{ const el=eid(id); if(el) el.value=''; });
     showScreen('setup');
     showToast('✅ Partie enregistrée !');
@@ -6417,50 +6647,6 @@ Retourne UNIQUEMENT un objet JSON valide, sans texte avant ni après, avec ces c
   }
 }
 
-
-
-
-
-
-// ═══════════════════════════════════════════════════════════
-// TERMINER LA PARTIE MANUELLEMENT
-// ═══════════════════════════════════════════════════════════
-
-function closeEndGame() {
-  eid('end-game-modal').style.display = 'none';
-}
-
-
-// ═══════════════════════════════════════════════════════════
-// ONBOARDING — Premier lancement
-// ═══════════════════════════════════════════════════════════
-function checkOnboarding() {
-  try {
-    const done = localStorage.getItem('bct_onboarded');
-    if(!done && (!S.players || S.players.length === 0)) {
-      setTimeout(() => {
-        const tt = eid('onboarding-tooltip');
-        if(tt) tt.style.display = 'block';
-      }, 1200);
-    }
-  } catch(e) {}
-}
-
-function dismissOnboarding() {
-  const tt = eid('onboarding-tooltip');
-  if(tt) {
-    tt.style.opacity = '0';
-    tt.style.transition = 'opacity .3s';
-    setTimeout(() => tt.style.display = 'none', 300);
-  }
-  try { localStorage.setItem('bct_onboarded', '1'); } catch(e) {}
-}
-
-// ═══════════════════════════════════════════════════════════
-// SOUS-ONGLETS PARTIES
-// ═══════════════════════════════════════════════════════════
-
-
 // ═══════════════════════════════════════════════════════════
 // RECONNAISSANCE VOCALE — CONFIGURATION
 // ═══════════════════════════════════════════════════════════
@@ -6531,8 +6717,7 @@ function parseVoiceSetup(text) {
   const t = norm(text);
 
   // ── Récupérer la liste des joueurs disponibles ──
-  let joueurs = [];
-  try { joueurs = JSON.parse(localStorage.getItem('belote_players') || '[]'); } catch(e) {}
+  const joueurs = storageReadJSON('belote_players', [], isStringArray);
 
   // ── Détecter la position cardinale ──
   const posMap = {
@@ -6671,8 +6856,7 @@ function loadTheme() {
 
 function showHelpScreen() {
   renderHelpContent();
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  eid('screen-help').classList.add('active');
+  openSecondaryScreen('help', 'settings');
   // Remonter en haut — scroller le conteneur scrollable
   setTimeout(() => {
     const hc = eid('help-content');
@@ -6683,11 +6867,7 @@ function showHelpScreen() {
 }
 
 function hideHelpScreen() {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  // Retour vers réglages ou setup selon d'où on vient
-  const prev = eid('screen-settings');
-  if(prev) eid('screen-settings').classList.add('active');
-  else eid('screen-setup').classList.add('active');
+  closeSecondaryScreen('help', 'settings');
 }
 
 function renderHelpContent() {
@@ -6996,15 +7176,13 @@ function showMarqueScreen() {
     const tabMarque = eid('tab-marque');
     if(tabMarque) el.innerHTML = tabMarque.innerHTML;
   }
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  eid('screen-marque').classList.add('active');
+  openSecondaryScreen('marque', 'settings');
   const sc = eid('screen-marque');
   if(sc) sc.scrollTop = 0;
 }
 
 function hideMarqueScreen() {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  eid('screen-settings').classList.add('active');
+  closeSecondaryScreen('marque', 'settings');
 }
 
 
@@ -7018,9 +7196,9 @@ function showSyncExport() {
     version: 1,
     exported: new Date().toISOString(),
     players: S.players || [],
-    history: JSON.parse(localStorage.getItem('belote_history') || '[]'),
-    autosave: JSON.parse(localStorage.getItem('belote_autosave') || 'null'),
-    last_config: JSON.parse(localStorage.getItem('belote_last_config') || 'null'),
+    history: storageReadJSON('belote_history', [], Array.isArray),
+    autosave: storageReadJSON('belote_autosave', null, isAutosaveSnapshot),
+    last_config: storageReadJSON('belote_last_config', null, isLastConfig),
     theme: localStorage.getItem('bct_theme') || 'green'
   };
   const json = JSON.stringify(exportData);
@@ -7130,10 +7308,10 @@ function showSyncExport() {
   closeBtn.textContent = 'Fermer';
   closeBtn.className = 'btn btn-outline-dark btn-full';
   closeBtn.style.marginTop = '14px';
-  closeBtn.onclick = () => modal.style.display = 'none';
+  closeBtn.onclick = () => closeModal(modal);
   content.appendChild(closeBtn);
 
-  modal.style.display = 'flex';
+  openModal(modal);
 }
 
 function showSyncImport() {
@@ -7164,18 +7342,18 @@ function showSyncImport() {
     try {
       const json = decodeURIComponent(escape(atob(raw.slice(5))));
       const data = JSON.parse(json);
-      if(!data.version || !Array.isArray(data.players)) { errDiv.textContent = 'Format invalide.'; return; }
+      if(!isImportData(data)) { errDiv.textContent = 'Format invalide ou données incomplètes.'; return; }
       const msg = `Importer ${data.players.length} joueur(s) et ${(data.history||[]).length} partie(s) ? Vos données actuelles seront remplacées.`;
       if(!confirm(msg)) return;
       // Appliquer les données
       S.players = data.players || [];
       savePlayers();
-      if(data.history) localStorage.setItem('belote_history', JSON.stringify(data.history));
-      if(data.autosave) localStorage.setItem('belote_autosave', JSON.stringify(data.autosave));
-      if(data.last_config) localStorage.setItem('belote_last_config', JSON.stringify(data.last_config));
+      if(data.history) storageWriteJSON('belote_history', data.history);
+      if(data.autosave) storageWriteJSON('belote_autosave', data.autosave);
+      if(data.last_config) storageWriteJSON('belote_last_config', data.last_config);
       if(data.theme) { localStorage.setItem('bct_theme', data.theme); applyTheme(data.theme); }
       refreshSelects();
-      modal.style.display = 'none';
+      closeModal(modal);
       showToast('✅ Import réussi !');
     } catch(e) {
       errDiv.textContent = 'Erreur de décodage : ' + e.message;
@@ -7186,18 +7364,13 @@ function showSyncImport() {
   const cancelBtn = document.createElement('button');
   cancelBtn.textContent = 'Annuler';
   cancelBtn.className = 'btn btn-outline-dark btn-full';
-  cancelBtn.onclick = () => modal.style.display = 'none';
+  cancelBtn.onclick = () => closeModal(modal);
   content.appendChild(cancelBtn);
 
-  modal.style.display = 'flex';
+  openModal(modal);
 }
 
-let _settingsPreviousScreen = 'setup';
 function showSettingsScreen() {
-  // Mémoriser l'écran actif avant d'ouvrir les réglages
-  const active = document.querySelector('.screen.active');
-  _settingsPreviousScreen = active ? active.id.replace('screen-', '') : 'setup';
-
   dismissOnboarding();
   renderSettingsPlayers();
   updateSetupModeLabel();
@@ -7208,8 +7381,7 @@ function showSettingsScreen() {
       if(btn) btn.style.borderColor = k===cur ? '#c8960a' : 'transparent';
     });
   } catch(e) {}
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  eid('screen-settings').classList.add('active');
+  openSecondaryScreen('settings', 'setup');
 
   // Bloquer la nav du bas
   const nav = document.querySelector('.bottom-nav');
@@ -7227,10 +7399,7 @@ function openSettings() { showSettingsScreen(); }
 function closeSettings() { hideSettingsScreen(); }
 
 function hideSettingsScreen() {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const target = _settingsPreviousScreen || 'setup';
-  const el = eid('screen-' + target);
-  if(el) el.classList.add('active');
+  closeSecondaryScreen('settings', 'setup');
 
   // Restaurer la nav du bas
   const nav = document.querySelector('.bottom-nav');
@@ -7267,22 +7436,61 @@ function renderSettingsPlayers() {
   const list = eid('settings-players-list');
   if(!list) return;
   const players = [...S.players].sort((a,b) => a.localeCompare(b,'fr'));
+  list.replaceChildren();
   if(!players.length) {
-    list.innerHTML = '<div style="padding:12px 14px;font-size:13px;color:var(--text2);">Aucun joueur — ajoutez-en ci-dessus</div>';
+    const empty = document.createElement('div');
+    empty.style.cssText = 'padding:12px 14px;font-size:13px;color:var(--text2);';
+    empty.textContent = 'Aucun joueur — ajoutez-en ci-dessus';
+    list.appendChild(empty);
     return;
   }
-  list.innerHTML = players.map(function(p, i) {
-    const border = i < players.length-1 ? '1px solid rgba(0,0,0,0.06)' : 'none';
-    const pid = 'player-row-' + i;
-    return '<div id="' + pid + '" style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:' + border + ';">' +
-      '<span style="font-size:16px;">&#128100;</span>' +
-      '<span id="player-name-' + i + '" style="flex:1;font-size:14px;font-weight:600;color:var(--text);">' + p + '</span>' +
-      '<input id="player-inp-' + i + '" type="text" value="' + p + '" maxlength="18" style="display:none;flex:1;border:1.5px solid var(--green);border-radius:8px;padding:5px 8px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;" onkeydown="if(event.key===\'Enter\')confirmRenamePlayer(\'' + p + '\','+ i +');">' +
-      '<button onclick="startRenamePlayer(\'' + p + '\',' + i + ')" id="btn-edit-' + i + '" title="Modifier" style="background:rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:4px 9px;font-size:13px;cursor:pointer;flex-shrink:0;">✏️</button>' +
-      '<button onclick="confirmRenamePlayer(\'' + p + '\',' + i + ')" id="btn-ok-' + i + '" style="display:none;background:var(--green);border:none;border-radius:8px;padding:4px 9px;font-size:13px;cursor:pointer;color:#fff;font-weight:700;flex-shrink:0;">OK</button>' +
-      '<button onclick="removePlayerFromSettings(\'' + p + '\')" title="Supprimer" style="background:rgba(200,30,30,0.08);border:1px solid rgba(200,30,30,0.2);border-radius:8px;padding:4px 9px;font-size:13px;color:#cc1f1f;cursor:pointer;flex-shrink:0;">🗑</button>' +
-      '</div>';
-  }).join('');
+  players.forEach((name, i) => {
+    const row = document.createElement('div');
+    row.id = 'player-row-' + i;
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:' +
+      (i < players.length-1 ? '1px solid rgba(0,0,0,0.06)' : 'none') + ';';
+
+    const icon = document.createElement('span');
+    icon.style.fontSize = '16px';
+    icon.textContent = '👤';
+
+    const nameEl = document.createElement('span');
+    nameEl.id = 'player-name-' + i;
+    nameEl.style.cssText = 'flex:1;font-size:14px;font-weight:600;color:var(--text);';
+    nameEl.textContent = name;
+
+    const input = document.createElement('input');
+    input.id = 'player-inp-' + i;
+    input.type = 'text';
+    input.value = name;
+    input.maxLength = 18;
+    input.style.cssText = 'display:none;flex:1;border:1.5px solid var(--green);border-radius:8px;padding:5px 8px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;';
+    input.onkeydown = event => {
+      if(event.key === 'Enter') confirmRenamePlayer(name, i);
+    };
+
+    const edit = document.createElement('button');
+    edit.id = 'btn-edit-' + i;
+    edit.title = 'Modifier';
+    edit.style.cssText = 'background:rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:4px 9px;font-size:13px;cursor:pointer;flex-shrink:0;';
+    edit.textContent = '✏️';
+    edit.onclick = () => startRenamePlayer(name, i);
+
+    const confirm = document.createElement('button');
+    confirm.id = 'btn-ok-' + i;
+    confirm.style.cssText = 'display:none;background:var(--green);border:none;border-radius:8px;padding:4px 9px;font-size:13px;cursor:pointer;color:#fff;font-weight:700;flex-shrink:0;';
+    confirm.textContent = 'OK';
+    confirm.onclick = () => confirmRenamePlayer(name, i);
+
+    const remove = document.createElement('button');
+    remove.title = 'Supprimer';
+    remove.style.cssText = 'background:rgba(200,30,30,0.08);border:1px solid rgba(200,30,30,0.2);border-radius:8px;padding:4px 9px;font-size:13px;color:#cc1f1f;cursor:pointer;flex-shrink:0;';
+    remove.textContent = '🗑';
+    remove.onclick = () => removePlayerFromSettings(name);
+
+    row.append(icon, nameEl, input, edit, confirm, remove);
+    list.appendChild(row);
+  });
 }
 
 function startRenamePlayer(name, idx) {
