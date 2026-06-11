@@ -1491,7 +1491,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
         <button id="contrat-confirmer-btn" class="btn btn-green btn-full" onclick="haptic('medium');bounce(this);confirmContract();" style="flex:1;font-size:16px;padding:16px;">
           ✓ Confirmer le contrat
         </button>
-        <button id="contrat-retour-btn" class="btn btn-outline btn-full" onclick="showTab('enjeu')" style="flex:1;font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Retour à la table</button>
+        <button id="contrat-retour-btn" class="btn btn-outline btn-full" onclick="showTab('enjeu');setTimeout(()=>{if(typeof renderEnjeu==='function')renderEnjeu();},50);" style="flex:1;font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Retour à la table</button>
       </div>
     </div>
 
@@ -1600,7 +1600,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
             ✓ Valider la manche
           </button>
         </div>
-        <button id="saisie-annuler-btn" class="btn btn-outline btn-full" onclick="showTab('enjeu')" style="font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Annuler</button>
+        <button id="saisie-annuler-btn" class="btn btn-outline btn-full" onclick="showTab('enjeu');setTimeout(()=>{if(typeof renderEnjeu==='function')renderEnjeu();},50);" style="font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Annuler</button>
       </div>
     </div>
 
@@ -1739,7 +1739,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260610_1110</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260610_1115</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -2355,6 +2355,8 @@ function showTab(tab) {
     // Si pas de partie démarrée, retourner sur setup
     if(!S.t1.name) { showScreen('setup'); return; }
     renderEnjeu(); updatePulseButtons();
+    // Double rendu après délai pour gérer les changements d'orientation
+    setTimeout(() => { if(typeof renderEnjeu==='function') renderEnjeu(); }, 150);
   }
   if(tab==='parties') {
     showSubTab('feuille');
