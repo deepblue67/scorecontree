@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Audit final ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+
+    const check = (condition, message) => {
+      checks += 1;
+      if(!condition) failures.push(message);
+    };
+    const duplicateIds = () => {
+      const ids = Array.from(doc.querySelectorAll('[id]'), element => element.id);
+      return Array.from(new Set(ids.filter((id, index) => ids.indexOf(id) !== index)));
+    };
+
+    try {
+      check(duplicateIds().length === 0, 'IDs du DOM initial dupliqués : ' + duplicateIds().join(', '));
+
+      [
+        'showScreen','showTab','showSettingsScreen','hideSettingsScreen',
+        'openModal','closeModal','autoSave','resumeGame',
+        'renderHistory','renderFeuille','renderStats',
+        'askUndoLastRound','undoLastRound','recalculateGameFromHistory',
+        'openEdit','saveEdit','buildGameSummaryHtml',
+        'showScoreCorrectionPrompt','dismissScoreCorrectionPrompt',
+        'quickEditLastRound','quickUndoLastRound'
+      ].forEach(name => check(typeof app[name] === 'function', 'Fonction publique absente : ' + name));
+
+      [
+        'togglePlayerList','getWinningScore','getWinningManches',
+        'debugShowHistory','openSettings','showMancheSummary'
+      ].forEach(name => check(typeof app[name] === 'undefined', 'Ancien symbole encore présent : ' + name));
+
+      app.eval(`
+        S.pos = {nord:'A',sud:'B',est:'C',ouest:'D'};
+        S.t1 = {name:'A & B',players:['A','B']};
+        S.t2 = {name:'C & D',players:['C','D']};
+        S.score = {t1:100,t2:80};
+        S.history = [{
+          manche:1,contract:'80 ♥',contre:'none',preneur:'A & B',
+          chute:false,pts1:100,pts2:80,total1:100,total2:80
+        }];
+        S.manche = 2;
+        S.contract = null;
+        showScreen('game');
+        initGameUI();
+      `);
+
+      app.showTab('parties');
+      app.showSubTab('feuille');
+      check(duplicateIds().length === 0, 'IDs dupliqués après Feuille : ' + duplicateIds().join(', '));
+
+      app.showSubTab('history');
+      check(duplicateIds().length === 0, 'IDs dupliqués après Historique : ' + duplicateIds().join(', '));
+
+      app.showTab('stats');
+      check(duplicateIds().length === 0, 'IDs dupliqués après Stats : ' + duplicateIds().join(', '));
+
+      app.showTab('enjeu');
+      check(doc.getElementById('btn-undo-last-round').style.display !== 'none', 'Bouton annulation derniere donne absent avec historique');
+
+      app.showSettingsScreen();
+      app.showHelpScreen();
+      app.hideHelpScreen();
+      app.hideSettingsScreen();
+      check(app.getActiveScreenName() === 'game', 'Parcours Réglages/Aide ne revient pas au jeu');
+      check(duplicateIds().length === 0, 'IDs dupliqués après écrans secondaires : ' + duplicateIds().join(', '));
+
+      check(doc.querySelectorAll('.screen.active').length === 1, 'Plusieurs écrans actifs simultanément');
+      check(doc.querySelectorAll('.game-tab:not([style*="display: none"])').length <= 1, 'Plusieurs onglets de jeu visibles');
+
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message;
+      result.dataset.status = 'error';
+    }
+  });
+</script>
+</body>
+</html>

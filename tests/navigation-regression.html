@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests navigation ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+
+    const setViewport = (width, height) => {
+      Object.defineProperty(app, 'innerWidth', { configurable:true, value:width });
+      Object.defineProperty(app, 'innerHeight', { configurable:true, value:height });
+      app.handleViewportChange();
+    };
+
+    try {
+      app.eval(`
+        S.pos = {nord:'A',sud:'B',est:'C',ouest:'D'};
+        S.t1 = {name:'A & B',players:['A','B']};
+        S.t2 = {name:'C & D',players:['C','D']};
+        S.score = {t1:0,t2:0};
+        S.history = [];
+        S.manche = 1;
+        S.dealerIdx = 0;
+        S.contract = {preneurTeam:'t1',suit:'♥',suitKey:'h',value:80,isCapot:false,contre:'none',manche:1,dealer:'A'};
+        S.form = {preneur:'t1',suit:'♥',suitKey:'h',suitColor:'red',value:80,isCapot:false,contre:'none'};
+        showScreen('game');
+        initGameUI();
+      `);
+
+      // Parcours du bug historique : paysage -> Saisie -> portrait -> Annuler/Table.
+      setViewport(844, 390);
+      app.showTab('saisie');
+      if(app.getActiveGameTab() !== 'saisie') failures.push('Saisie non mémorisée');
+      if(!doc.body.classList.contains('ipad-overlay-active')) failures.push('Overlay paysage non verrouillé');
+
+      setViewport(390, 844);
+      if(doc.body.classList.contains('ipad-overlay-active')) failures.push('Overlay non retiré en portrait');
+      if(app.getActiveGameTab() !== 'saisie') failures.push('Onglet perdu pendant la rotation');
+
+      doc.getElementById('saisie-annuler-btn').click();
+      if(app.getActiveGameTab() !== 'enjeu') failures.push('Retour Table non mémorisé');
+      if(doc.getElementById('tab-enjeu').style.display === 'none') failures.push('Table encore masquée');
+      if(doc.body.classList.contains('ipad-overlay-active')) failures.push('Verrou tactile restant sur Table');
+      if(doc.getElementById('tab-enjeu').classList.contains('overlay-open')) failures.push('Classe overlay restant sur Table');
+
+      ['contrat','saisie','parties','stats','enjeu'].forEach(tab => {
+        app.showTab(tab);
+        if(app.getActiveGameTab() !== tab) failures.push('État incorrect pour ' + tab);
+        const active = doc.getElementById('tab-' + tab);
+        if(active.style.display === 'none') failures.push('Onglet masqué : ' + tab);
+        ['contrat','saisie','stats','enjeu','parties'].filter(other => other !== tab).forEach(other => {
+          if(doc.getElementById('tab-' + other).style.display !== 'none') {
+            failures.push('Onglet concurrent visible : ' + other + ' avec ' + tab);
+          }
+        });
+      });
+
+      setViewport(1024, 768);
+      app.showTab('stats');
+      setViewport(768, 1024);
+      if(app.getActiveGameTab() !== 'stats') failures.push('Stats perdu après rotation iPad');
+      if(doc.body.classList.contains('ipad-overlay-active')) failures.push('Verrou iPad restant en portrait');
+
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS 15';
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message;
+      result.dataset.status = 'error';
+    }
+  });
+</script>
+</body>
+</html>

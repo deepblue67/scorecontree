@@ -120,7 +120,6 @@
 <meta name="apple-mobile-web-app-title" content="Belote">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#2e6b28">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <!-- Icône écran d'accueil -->
 <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCI+CiAgPHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIHJ4PSIyMCIgZmlsbD0iIzJkNmIyNiIvPgogIDxwYXR0ZXJuIGlkPSJwMSIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgIDxwYXRoIGQ9Ik01LDBMMTAsNUw1LDEwTDAsNVoiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgwLDAsMCwwLjEpIiBzdHJva2Utd2lkdGg9IjAuNSIvPgogIDwvcGF0dGVybj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSJ1cmwoI3AxKSIvPgogIDxyZWN0IHg9IjgiIHk9IjgiIHdpZHRoPSI4NCIgaGVpZ2h0PSI4NCIgcng9IjE0IiBmaWxsPSJub25lIiBzdHJva2U9IiNjOGE4NGEiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHJlY3QgeD0iMjIiIHk9IjEyIiB3aWR0aD0iNTYiIGhlaWdodD0iNzYiIHJ4PSI3IiBmaWxsPSIjZjhmNGVjIiBzdHJva2U9IiNjOGE4NGEiIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjMwIiB5PSIyOCIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzExMSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtd2VpZ2h0PSJib2xkIj5BPC90ZXh0PgogIDx0ZXh0IHg9IjUwIiB5PSI2MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIzNCIgZmlsbD0iIzExMSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiPiYjOTgyNDs8L3RleHQ+CiAgPHRleHQgeD0iNzAiIHk9IjgyIiBmb250LXNpemU9IjExIiBmaWxsPSIjMTExIiBmb250LWZhbWlseT0iR2VvcmdpYSxzZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIHRyYW5zZm9ybT0icm90YXRlKDE4MCA3MCA4MikiPkE8L3RleHQ+Cjwvc3ZnPg==">
 <title>Belote Contrée</title>
@@ -1418,6 +1417,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
         <div id="ej-action-grid">
           <button id="btn-action-contrat" class="btn btn-outline" onclick="showTab('contrat')" style="font-size:13px;padding:10px 6px;">✏️ Contrat</button>
           <button id="btn-action-saisie" class="btn btn-green" onclick="showTab('saisie');updateSaisieForm();" style="font-size:13px;padding:10px 6px;">📊 Saisir score</button>
+          <button id="btn-undo-last-round" class="btn btn-outline" onclick="askUndoLastRound()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;color:#111;border-color:#111;background:rgba(255,255,255,0.12);display:none;">↩ Annuler dernière donne</button>
           <button class="btn btn-outline" onclick="askEndGame()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">🏁 Terminer la partie</button>
           <button id="btn-tournoi-shortcut" class="btn btn-gold" onclick="showTournoi()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;display:none;">🏆 Saisir scores du tournoi</button>
         </div>
@@ -1739,7 +1739,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260611_1707</div>
+      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260618_1626</div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
@@ -1843,7 +1843,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
             <span style="font-size:24px;">📤</span>
             <div style="flex:1;">
               <div style="font-size:15px;font-weight:700;color:var(--text);">Exporter mes données</div>
-              <div style="font-size:12px;color:var(--text2);">QR Code ou code texte à envoyer</div>
+              <div style="font-size:12px;color:var(--text2);">Code texte ou fichier à envoyer</div>
             </div>
             <span style="color:var(--text2);font-size:18px;">›</span>
           </button>
@@ -1907,6 +1907,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
           <div class="ws-val" id="w-s2">0</div>
         </div>
       </div>
+      <div id="w-summary" style="width:100%;max-width:460px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.16);border-radius:16px;padding:12px 14px;font-size:13px;line-height:1.55;text-align:left;"></div>
       <button class="btn btn-gold btn-full" onclick="goToScoreSheet()" style="font-size:16px;padding:16px;margin-top:8px;">
         📋 Visualiser la feuille des scores
       </button>
@@ -2074,6 +2075,7 @@ function createInitialAppState() {
 
 let S = createInitialAppState();
 let pendingScore = null;
+let scoreCorrectionPromptTimer = null;
 
 function resetGameProgress() {
   S.score = {t1:0, t2:0};
@@ -2270,6 +2272,7 @@ function updatePulseButtons() {
   const c = S.contract;
   const btnContrat = eid('btn-action-contrat');
   const btnSaisie  = eid('btn-action-saisie');
+  const btnUndo    = eid('btn-undo-last-round');
   const navScore = eid('nav-score');
   if(btnContrat) btnContrat.classList.toggle('btn-pulse', !c);
   if(btnSaisie) {
@@ -2277,6 +2280,7 @@ function updatePulseButtons() {
     btnSaisie.style.opacity = c ? '1' : '0.35';
     btnSaisie.disabled = !c;
   }
+  if(btnUndo) btnUndo.style.display = S.history.length ? '' : 'none';
   if(navScore) {
     navScore.style.opacity = c ? '1' : '0.35';
     navScore.dataset.blocked = c ? '' : '1';
@@ -3100,6 +3104,46 @@ function validateScore() {
   haptic('success');
   showScreen('game');
   showTab('enjeu');
+  showScoreCorrectionPrompt(h.manche);
+}
+
+function dismissScoreCorrectionPrompt() {
+  if(scoreCorrectionPromptTimer) {
+    clearTimeout(scoreCorrectionPromptTimer);
+    scoreCorrectionPromptTimer = null;
+  }
+  const prompt = eid('score-correction-prompt');
+  if(prompt) prompt.remove();
+}
+
+function showScoreCorrectionPrompt(manche) {
+  dismissScoreCorrectionPrompt();
+  if(!S.history.length) return;
+  const prompt = document.createElement('div');
+  prompt.id = 'score-correction-prompt';
+  prompt.dataset.manche = String(manche);
+  prompt.style.cssText = 'position:fixed;left:12px;right:12px;bottom:calc(62px + env(safe-area-inset-bottom,0px));z-index:10001;background:rgba(26,46,26,0.96);border:1px solid rgba(200,168,74,0.55);box-shadow:0 8px 24px rgba(0,0,0,0.35);border-radius:16px;padding:12px;display:flex;align-items:center;gap:10px;max-width:520px;margin:0 auto;color:#fff;';
+  prompt.innerHTML = `
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:14px;font-weight:900;line-height:1.2;">Donne enregistrée</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.68);margin-top:2px;">Erreur de saisie ?</div>
+    </div>
+    <button onclick="quickEditLastRound()" style="background:#c8a84a;color:#1a1a1a;border:none;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;">Modifier</button>
+    <button onclick="quickUndoLastRound()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:9px 12px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;">Annuler</button>`;
+  document.body.appendChild(prompt);
+  scoreCorrectionPromptTimer = setTimeout(dismissScoreCorrectionPrompt, 7000);
+}
+
+function quickUndoLastRound() {
+  dismissScoreCorrectionPrompt();
+  undoLastRound();
+}
+
+function quickEditLastRound() {
+  const prompt = eid('score-correction-prompt');
+  const manche = Number(prompt?.dataset.manche || S.history[S.history.length - 1]?.manche);
+  dismissScoreCorrectionPrompt();
+  if(Number.isFinite(manche)) openEdit(manche);
 }
 
 function showWinner(team) {
@@ -3113,7 +3157,33 @@ function showWinner(team) {
   eid('w-s1').textContent = S.score[team];
   eid('w-n2').textContent = lTeam.name;
   eid('w-s2').textContent = S.score[team==='t1'?'t2':'t1'];
+  const summary = eid('w-summary');
+  if(summary) summary.innerHTML = buildGameSummaryHtml();
   showScreen('winner');
+}
+
+function buildGameSummaryHtml() {
+  const rounds = S.history.filter(m => m.contract && m.contract !== '—');
+  if(!rounds.length) return '<div style="text-align:center;opacity:0.75;">Aucune donne jouée.</div>';
+  const faits = rounds.filter(m => m.chute === false).length;
+  const chutes = rounds.filter(m => m.chute === true).length;
+  let best = null;
+  rounds.forEach(m => {
+    const value = String(m.contract).startsWith('Capot') ? 250 : (parseInt(m.contract, 10) || 0);
+    if(!best || value > best.value) best = {...m, value};
+  });
+  let maxStreak = 0, cur = 0, last = '';
+  rounds.forEach(m => {
+    const winner = m.pts1 > m.pts2 ? S.t1.name : S.t2.name;
+    if(winner === last) cur++;
+    else { last = winner; cur = 1; }
+    maxStreak = Math.max(maxStreak, cur);
+  });
+  return `
+    <div style="font-weight:800;margin-bottom:6px;text-align:center;">Résumé de la partie</div>
+    <div>Donnes jouées : <strong>${rounds.length}</strong> · Réussies : <strong>${faits}</strong> · Chutées : <strong>${chutes}</strong></div>
+    <div>Plus gros contrat : <strong>${best ? escapeHtml(best.contract) : '—'}</strong>${best && best.preneur ? ' par ' + escapeHtml(best.preneur) : ''}</div>
+    <div>Meilleure série gagnante : <strong>${maxStreak}</strong> donne${maxStreak>1?'s':''}</div>`;
 }
 
 function newGame() {
@@ -3245,7 +3315,7 @@ function renderHistory() {
   const tot1 = S.history[S.history.length-1].total1;
   const tot2 = S.history[S.history.length-1].total2;
 
-  const rows = S.history.map(round => renderCurrentRoundRow(round, sizes)).join('');
+  const rows = S.history.map(round => renderCurrentRoundRow(round, sizes, true)).join('');
 
   el.innerHTML = `
     <table style="width:100%;border-collapse:collapse;font-family:inherit;">
@@ -3272,6 +3342,47 @@ function renderHistory() {
     </table>`;
 }
 
+function recalculateGameFromHistory() {
+  let cum1 = 0, cum2 = 0;
+  S.history.forEach(h => {
+    cum1 += Number(h.pts1) || 0;
+    cum2 += Number(h.pts2) || 0;
+    h.total1 = cum1;
+    h.total2 = cum2;
+  });
+  S.score.t1 = cum1;
+  S.score.t2 = cum2;
+}
+
+function askUndoLastRound() {
+  if(!S.history.length) {
+    showToast('Aucune donne à annuler');
+    return;
+  }
+  const last = S.history[S.history.length - 1];
+  eid('confirm-msg').textContent = 'Annuler la dernière donne (manche ' + last.manche + ') ? Les points et le donneur seront restaurés.';
+  eid('confirm-ok').onclick = () => { closeConfirm(); undoLastRound(); };
+  openModal('confirm-modal');
+}
+
+function undoLastRound() {
+  if(!S.history.length) return;
+  dismissScoreCorrectionPrompt();
+  S.history.pop();
+  recalculateGameFromHistory();
+  S.manche = Math.max(1, S.manche - 1);
+  S.dealerIdx = (S.dealerIdx + S.dealerOrder.length - 1) % S.dealerOrder.length;
+  S.contract = null;
+  S.form = createEmptyContractForm();
+  pendingScore = null;
+  S._gameSaved = false;
+  autoSave();
+  haptic('medium');
+  showToast('Dernière donne annulée');
+  showScreen('game');
+  showTab('enjeu');
+}
+
 // ═══════════════════════════════════════════════════════════
 //  SUPPRESSION MANCHE COURANTE
 // ═══════════════════════════════════════════════════════════
@@ -3282,20 +3393,9 @@ function deleteManche(mancheNum) {
     // Retrouver l'index de la manche
     const idx = S.history.findIndex(h => h.manche === mancheNum);
     if(idx === -1) return;
-    const deleted = S.history[idx];
-    // Soustraire les points de cette manche du score total
-    S.score.t1 -= deleted.pts1;
-    S.score.t2 -= deleted.pts2;
-    // Recalculer les totaux cumulés pour les manches suivantes
+    // Recalculer les totaux cumulés pour les manches restantes
     S.history.splice(idx, 1);
-    // Recalculer total1/total2 pour toutes les manches restantes
-    let cum1 = 0, cum2 = 0;
-    S.history.forEach(h => {
-      cum1 += h.pts1;
-      cum2 += h.pts2;
-      h.total1 = cum1;
-      h.total2 = cum2;
-    });
+    recalculateGameFromHistory();
     autoSave();
     renderHistory();
   };
@@ -3343,13 +3443,13 @@ function checkAutoSave() {
     modal.innerHTML = `
       <div style="background:#1a3318;border-radius:20px;padding:28px;width:100%;max-width:400px;border:2px solid rgba(200,168,74,0.5);text-align:center;">
         <div style="font-size:40px;margin-bottom:12px;">🃏</div>
-        <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:6px;">Partie en cours trouvée</div>
+        <div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:6px;">Partie en cours détectée</div>
         <div style="font-size:14px;color:rgba(255,255,255,0.8);margin-bottom:4px;font-weight:600;">${snap.t1.name} vs ${snap.t2.name}</div>
         <div style="font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:4px;">Manche ${snap.manche} &nbsp;·&nbsp; ${snap.score.t1} – ${snap.score.t2}</div>
         <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:24px;">Sauvegardée le ${dateStr} à ${timeStr}</div>
         <div style="display:flex;flex-direction:column;gap:10px;">
-          <button onclick="resumeGame()" style="background:#3d8b3d;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">▶ Reprendre la partie</button>
-          <button onclick="discardAutoSave()" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.65);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:12px;font-size:14px;cursor:pointer;">Commencer une nouvelle partie</button>
+          <button onclick="resumeGame()" style="background:#3d8b3d;color:#fff;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:800;cursor:pointer;">▶ Reprendre cette partie</button>
+          <button onclick="discardAutoSave()" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.72);border:1px solid rgba(255,255,255,0.22);border-radius:12px;padding:12px;font-size:14px;cursor:pointer;">Ignorer et revenir à la configuration</button>
         </div>
       </div>`;
     document.body.appendChild(modal);
@@ -3467,6 +3567,7 @@ function buildPastTable(p) {
 // ═══════════════════════════════════════════════════════════════
 
 const GIST_FILENAME = 'scorecontree-backup.json';
+const PRE_IMPORT_BACKUP_KEY = 'belote_pre_import_backup';
 
 function getGistToken() { return localStorage.getItem('gist_token') || ''; }
 function getGistId()    { return localStorage.getItem('gist_id')    || ''; }
@@ -3485,6 +3586,62 @@ function getExportData() {
     last_config: storageReadJSON('belote_last_config', null, isLastConfig),
     theme: localStorage.getItem('bct_theme') || 'green'
   };
+}
+
+function getPreImportBackup() {
+  const backup = storageReadJSON(PRE_IMPORT_BACKUP_KEY, null, isPlainObject);
+  if(!backup || backup.type !== 'pre-import' || !backup.created || !isImportData(backup.data)) return null;
+  return backup;
+}
+
+function createPreImportBackup(reason) {
+  const backup = {
+    type: 'pre-import',
+    version: 1,
+    created: new Date().toISOString(),
+    reason: reason || 'import',
+    data: getExportData()
+  };
+  try {
+    localStorage.removeItem(PRE_IMPORT_BACKUP_KEY);
+    localStorage.setItem(PRE_IMPORT_BACKUP_KEY, JSON.stringify(backup));
+    return true;
+  } catch(e) {
+    console.warn('Sauvegarde pre-import impossible', e);
+    return false;
+  }
+}
+
+function applyBackupData(data) {
+  if(!isImportData(data)) return false;
+  S.players = data.players || [];
+  savePlayers();
+  storageWriteJSON('belote_history', Array.isArray(data.history) ? data.history : []);
+  storageWriteJSON('belote_tournois_history', Array.isArray(data.tournois_history) ? data.tournois_history : []);
+  if(data.autosave) storageWriteJSON('belote_autosave', data.autosave);
+  else localStorage.removeItem('belote_autosave');
+  if(data.last_config) storageWriteJSON('belote_last_config', data.last_config);
+  else localStorage.removeItem('belote_last_config');
+  if(data.theme) {
+    localStorage.setItem('bct_theme', data.theme);
+    applyTheme(data.theme);
+  }
+  refreshSelects();
+  return true;
+}
+
+function restorePreImportBackup() {
+  const backup = getPreImportBackup();
+  if(!backup) { showToast('Aucune sauvegarde pré-import disponible'); return false; }
+  const date = new Date(backup.created);
+  const dateStr = Number.isNaN(date.getTime()) ? backup.created : date.toLocaleString('fr-FR');
+  if(!confirm('Restaurer les données sauvegardées avant import du ' + dateStr + ' ?')) return false;
+  if(!applyBackupData(backup.data)) {
+    showToast('❌ Restauration impossible');
+    return false;
+  }
+  showToast('✅ Données restaurées');
+  return true;
 }
 
 async function gistUpload() {
@@ -3534,6 +3691,7 @@ function mergeHistory(local, remote) {
 
 function applyImportData(data) {
   if(!isImportData(data)) return false;
+  if(!createPreImportBackup('gist-download')) return false;
   if(data.players?.length)  { S.players = data.players; savePlayers(); }
   if(data.history?.length) {
     const local  = storageReadJSON('belote_history', [], Array.isArray);
@@ -3624,10 +3782,16 @@ function showGistSync() {
     statusMsg.style.color='#888'; statusMsg.textContent='⏳ Download en cours…';
     const data = await gistDownload();
     if(data) {
-      applyImportData(data);
-      statusMsg.style.color='#2a8c2a';
-      statusMsg.textContent='✅ Données fusionnées !';
-      showToast('✅ Sync terminé — ' + (data.history?.length||0) + ' partie(s) importée(s)');
+      const imported = applyImportData(data);
+      if(imported) {
+        statusMsg.style.color='#2a8c2a';
+        statusMsg.textContent='✅ Données fusionnées ! Sauvegarde pré-import créée.';
+        showToast('✅ Sync terminé — ' + (data.history?.length||0) + ' partie(s) importée(s)');
+      } else {
+        statusMsg.style.color='#c03030';
+        statusMsg.textContent='❌ Import annulé : sauvegarde pré-import impossible.';
+        showToast('❌ Import annulé — sauvegarde impossible');
+      }
     }
   };
 }
@@ -4718,17 +4882,12 @@ function saveEdit() {
   S.history[idx].pts2 = newP2;
 
   // Recalculer tous les totaux cumulés depuis le début
-  let cum1 = 0, cum2 = 0;
-  S.history.forEach(h => {
-    cum1 += h.pts1;
-    cum2 += h.pts2;
-    h.total1 = cum1;
-    h.total2 = cum2;
-  });
+  recalculateGameFromHistory();
+  S._gameSaved = false;
+  autoSave();
 
   // Mettre à jour le score global
-  S.score.t1 = cum1;
-  S.score.t2 = cum2;
+  renderStats();
 
   closeEdit();
   renderHistory();
@@ -4741,6 +4900,7 @@ function saveEdit() {
   } else {
     renderFeuille();
   }
+  showToast('Manche modifiée');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -4947,7 +5107,7 @@ function renderStatsPlayers() {
   // Collecter stats par joueur
   const players = {};
   function addPlayer(name) {
-    if(!players[name]) players[name]={name,parties:0,victoires:0,manchesPreneur:0,manchesFaites:0,manchesChutees:0,capots:0,totalPts:0};
+    if(!players[name]) players[name]={name,parties:0,victoires:0,manchesPreneur:0,manchesFaites:0,manchesChutees:0,capots:0,totalPtsPreneur:0,partners:{}};
   }
 
   past.forEach(p => {
@@ -4957,12 +5117,19 @@ function renderStatsPlayers() {
     [...t1players,...t2players].forEach(n=>addPlayer(n));
     t1players.forEach(n=>{ players[n].parties++; if(winner==='t1') players[n].victoires++; });
     t2players.forEach(n=>{ players[n].parties++; if(winner==='t2') players[n].victoires++; });
+    [t1players, t2players].forEach(team => {
+      team.forEach(n => team.filter(pn => pn !== n).forEach(pn => {
+        players[n].partners[pn] = (players[n].partners[pn] || 0) + 1;
+      }));
+    });
     if(p.history) p.history.forEach(m=>{
       if(!m.preneur||m.preneur==='—') return;
       const preneurs = m.preneur.split(' & ');
+      const takerPts = m.preneur === p.t1 ? m.pts1 : m.preneur === p.t2 ? m.pts2 : Math.max(Number(m.pts1)||0, Number(m.pts2)||0);
       preneurs.forEach(n=>{
         if(!players[n]) addPlayer(n);
         players[n].manchesPreneur++;
+        players[n].totalPtsPreneur += Number(takerPts) || 0;
         if(m.chute===false) players[n].manchesFaites++;
         if(m.chute===true)  players[n].manchesChutees++;
         if(m.contract&&m.contract.startsWith('Capot')&&m.chute===false) players[n].capots++;
@@ -4980,18 +5147,28 @@ function renderStatsPlayers() {
       <th style="text-align:center;padding:6px 2px;color:var(--text2);font-size:10px;">Victoires</th>
       <th style="text-align:center;padding:6px 2px;color:var(--text2);font-size:10px;">Prises</th>
       <th style="text-align:center;padding:6px 2px;color:var(--text2);font-size:10px;">%Réussi</th>
+      <th style="text-align:center;padding:6px 2px;color:var(--text2);font-size:10px;">Chutes</th>
+      <th style="text-align:center;padding:6px 2px;color:var(--text2);font-size:10px;">Moy.</th>
       <th style="text-align:center;padding:6px 2px;color:var(--text2);font-size:10px;">Capots</th>
+      <th style="text-align:left;padding:6px 2px;color:var(--text2);font-size:10px;">Partenaire</th>
     </tr></thead>
     <tbody>
-      ${sorted.map((p,i)=>`
+      ${sorted.map((p,i)=>{
+        const partner = Object.entries(p.partners).sort((a,b)=>b[1]-a[1])[0];
+        const avg = p.manchesPreneur ? Math.round(p.totalPtsPreneur / p.manchesPreneur) : '—';
+        return `
         <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
           <td style="padding:7px 4px;font-weight:700;color:${i===0?'#b07000':'var(--text)'};">${i===0?'🥇 ':''}${escapeHtml(p.name)}</td>
           <td style="text-align:center;padding:7px 2px;color:var(--text);">${p.parties}</td>
           <td style="text-align:center;padding:7px 2px;color:var(--text);font-weight:700;">${p.victoires}</td>
           <td style="text-align:center;padding:7px 2px;color:var(--text);">${p.manchesPreneur}</td>
           <td style="text-align:center;padding:7px 2px;color:var(--text);">${p.manchesPreneur?Math.round(p.manchesFaites/p.manchesPreneur*100)+'%':'—'}</td>
+          <td style="text-align:center;padding:7px 2px;color:var(--text);">${p.manchesChutees}</td>
+          <td style="text-align:center;padding:7px 2px;color:var(--text);">${avg}</td>
           <td style="text-align:center;padding:7px 2px;color:var(--text);">${p.capots||0}</td>
-        </tr>`).join('')}
+          <td style="padding:7px 2px;color:var(--text);font-size:11px;">${partner ? escapeHtml(partner[0]) + ' (' + partner[1] + ')' : '—'}</td>
+        </tr>`;
+      }).join('')}
     </tbody>
   </table>`;
 }
@@ -7075,7 +7252,7 @@ function renderHelpContent() {
       step(2, '<strong>Joueurs</strong> — ajoutez vos prénoms (mémorisés entre les parties). Dépliez/repliez la liste avec le bouton accordéon.'),
       step(3, '<strong>Mode de fin de partie</strong> — choisissez <em>Points</em> (ex: 2001) ou <em>Manches</em> (ex: 10). Modifiable à tout moment avant de lancer.'),
       step(4, '<strong>Thème du tapis</strong> — Vert, Bleu ou Rouge.'),
-      tip('La synchronisation QR Code permet de transférer vos données vers un autre iPhone ou iPad.'),
+      tip('La synchronisation permet de transférer vos données par code texte, fichier JSON ou GitHub Gist.'),
     ].join(''), svgReglages) +
 
     // ── 2. Configuration ──
@@ -7170,6 +7347,7 @@ function showSyncExport() {
     exported: new Date().toISOString(),
     players: S.players || [],
     history: storageReadJSON('belote_history', [], Array.isArray),
+    tournois_history: storageReadJSON('belote_tournois_history', [], Array.isArray),
     autosave: storageReadJSON('belote_autosave', null, isAutosaveSnapshot),
     last_config: storageReadJSON('belote_last_config', null, isLastConfig),
     theme: localStorage.getItem('bct_theme') || 'green'
@@ -7187,59 +7365,12 @@ function showSyncExport() {
   content.innerHTML += `<div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:6px;">📤 Exporter mes données</div>`;
   content.innerHTML += `<div style="font-size:13px;color:var(--text2);margin-bottom:16px;text-align:center;line-height:1.5;">${exportData.players.length} joueur(s) · ${exportData.history.length} partie(s) archivée(s)</div>`;
 
-  // Tabs QR / Texte
-  const tabs = document.createElement('div');
-  tabs.style.cssText = 'display:flex;gap:8px;margin-bottom:16px;';
-  let currentTab = 'qr';
-
-  const qrSection = document.createElement('div');
-  qrSection.style.textAlign = 'center';
   const textSection = document.createElement('div');
-  textSection.style.display = 'none';
-
-  function switchTab(t) {
-    currentTab = t;
-    tabQr.style.background = t==='qr' ? 'var(--green)' : 'rgba(0,0,0,0.07)';
-    tabQr.style.color = t==='qr' ? '#fff' : 'var(--text2)';
-    tabTxt.style.background = t==='text' ? 'var(--green)' : 'rgba(0,0,0,0.07)';
-    tabTxt.style.color = t==='text' ? '#fff' : 'var(--text2)';
-    qrSection.style.display = t==='qr' ? 'block' : 'none';
-    textSection.style.display = t==='text' ? 'block' : 'none';
-  }
-
-  const tabQr = document.createElement('button');
-  tabQr.textContent = '📷 QR Code';
-  tabQr.style.cssText = 'flex:1;padding:9px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;background:var(--green);color:#fff;';
-  tabQr.onclick = () => switchTab('qr');
-  const tabTxt = document.createElement('button');
-  tabTxt.textContent = '📋 Texte';
-  tabTxt.style.cssText = 'flex:1;padding:9px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;background:rgba(0,0,0,0.07);color:var(--text2);';
-  tabTxt.onclick = () => switchTab('text');
-  tabs.appendChild(tabQr); tabs.appendChild(tabTxt);
-  content.appendChild(tabs);
-
-  // Section QR
-  if(code.length > 2900) {
-    qrSection.innerHTML = '<div style="font-size:13px;color:#c03030;padding:16px;text-align:center;">⚠️ Données trop volumineuses pour un QR Code (' + Math.round(code.length/1024*10)/10 + ' Ko).<br>Utilisez le mode Texte.</div>';
-  } else {
-    qrSection.innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Scannez avec l\'appareil photo de l\'autre appareil</div>';
-    const qrDiv = document.createElement('div');
-    qrDiv.style.cssText = 'display:inline-block;background:#fff;padding:16px;border-radius:14px;margin-bottom:12px;';
-    qrSection.appendChild(qrDiv);
-    setTimeout(() => {
-      try {
-        new QRCode(qrDiv, { text:code, width:220, height:220, colorDark:'#1a3318', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M });
-      } catch(e) {
-        qrDiv.innerHTML = '<div style="padding:20px;font-size:13px;color:#c03030">Erreur QR Code</div>';
-      }
-    }, 100);
-  }
-  content.appendChild(qrSection);
 
   // Section Texte
   const hint = document.createElement('div');
   hint.style.cssText = 'font-size:12px;color:var(--text2);margin-bottom:10px;text-align:center;';
-  hint.textContent = 'Copiez ce code et envoyez-le à l\'autre appareil';
+  hint.textContent = 'Copiez ce code ou envoyez le fichier JSON à l\'autre appareil';
   textSection.appendChild(hint);
   const ta = document.createElement('textarea');
   ta.value = code; ta.readOnly = true;
@@ -7305,6 +7436,25 @@ function showSyncImport() {
   errDiv.style.cssText = 'font-size:13px;color:#c03030;margin-bottom:10px;min-height:18px;text-align:center;';
   content.appendChild(errDiv);
 
+  const backup = getPreImportBackup();
+  if(backup) {
+    const date = new Date(backup.created);
+    const dateStr = Number.isNaN(date.getTime()) ? backup.created : date.toLocaleString('fr-FR');
+    const restoreWrap = document.createElement('div');
+    restoreWrap.style.cssText = 'background:rgba(200,168,74,0.12);border:1px solid rgba(200,168,74,0.35);border-radius:12px;padding:12px;margin-bottom:12px;text-align:left;';
+    restoreWrap.innerHTML =
+      '<div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px;">Sauvegarde avant import disponible</div>' +
+      '<div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Créée le ' + escapeHtml(dateStr) + '</div>';
+    const restoreBtn = document.createElement('button');
+    restoreBtn.textContent = 'Restaurer cette sauvegarde';
+    restoreBtn.className = 'btn btn-outline-dark btn-full';
+    restoreBtn.onclick = () => {
+      if(restorePreImportBackup()) closeModal(modal);
+    };
+    restoreWrap.appendChild(restoreBtn);
+    content.appendChild(restoreWrap);
+  }
+
   const importBtn = document.createElement('button');
   importBtn.textContent = '✅ Importer';
   importBtn.className = 'btn btn-green btn-full';
@@ -7318,10 +7468,15 @@ function showSyncImport() {
       if(!isImportData(data)) { errDiv.textContent = 'Format invalide ou données incomplètes.'; return; }
       const msg = `Importer ${data.players.length} joueur(s) et ${(data.history||[]).length} partie(s) ? Vos données actuelles seront remplacées.`;
       if(!confirm(msg)) return;
+      if(!createPreImportBackup('code-import')) {
+        errDiv.textContent = 'Import annulé : impossible de créer la sauvegarde de sécurité.';
+        return;
+      }
       // Appliquer les données
       S.players = data.players || [];
       savePlayers();
       if(data.history) storageWriteJSON('belote_history', data.history);
+      if(data.tournois_history) storageWriteJSON('belote_tournois_history', data.tournois_history);
       if(data.autosave) storageWriteJSON('belote_autosave', data.autosave);
       if(data.last_config) storageWriteJSON('belote_last_config', data.last_config);
       if(data.theme) { localStorage.setItem('bct_theme', data.theme); applyTheme(data.theme); }
@@ -7527,25 +7682,58 @@ setTimeout(() => {
 <script>
   // Enregistrement du Service Worker (PWA offline)
   if ('serviceWorker' in navigator) {
+    let pendingUpdateWorker = null;
+    let updateReloadRequested = false;
+
+    function showUpdatePrompt(worker) {
+      if(!worker || document.getElementById('update-prompt-modal')) return;
+      pendingUpdateWorker = worker;
+      const modal = document.createElement('div');
+      modal.id = 'update-prompt-modal';
+      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.62);z-index:12000;display:flex;align-items:center;justify-content:center;padding:20px;';
+      modal.innerHTML = `
+        <div style="background:#1a2e1a;border-radius:16px;padding:22px;width:100%;max-width:380px;border:1px solid rgba(255,255,255,0.18);box-shadow:0 10px 30px rgba(0,0,0,0.35);">
+          <div style="font-size:18px;font-weight:800;color:#fff;text-align:center;margin-bottom:8px;">Nouvelle version disponible.</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.68);text-align:center;line-height:1.45;margin-bottom:18px;">La page va se recharger pour installer la mise à jour.</div>
+          <div style="display:flex;gap:10px;">
+            <button id="update-prompt-ok" class="btn btn-green" style="flex:1;font-size:15px;">Mettre à jour</button>
+            <button id="update-prompt-later" class="btn btn-outline" style="flex:1;font-size:15px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Plus tard</button>
+          </div>
+        </div>`;
+      document.body.appendChild(modal);
+      document.getElementById('update-prompt-ok').onclick = () => {
+        updateReloadRequested = true;
+        modal.remove();
+        pendingUpdateWorker.postMessage({ type: 'SKIP_WAITING' });
+      };
+      document.getElementById('update-prompt-later').onclick = () => {
+        modal.remove();
+      };
+    }
+
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/scorecontree/service-worker.js')
         .then(reg => {
+          if(reg.waiting && navigator.serviceWorker.controller) {
+            showUpdatePrompt(reg.waiting);
+          }
+
           // Vérifie si une mise à jour est disponible
           reg.addEventListener('updatefound', () => {
             const newSW = reg.installing;
+            if(!newSW) return;
             newSW.addEventListener('statechange', () => {
               if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-                // Nouvelle version disponible — on l'active immédiatement
-                newSW.postMessage({ type: 'SKIP_WAITING' });
+                showUpdatePrompt(newSW);
               }
             });
           });
         })
         .catch(() => {});
 
-      // Recharge la page quand le nouveau SW prend le contrôle
+      // Recharge la page uniquement après validation de l'utilisateur
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        window.location.reload();
+        if(updateReloadRequested) window.location.reload();
       });
     });
   }

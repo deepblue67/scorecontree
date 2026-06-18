@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests noms de joueurs ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const names = ["Jean d'Arc", 'A&B', '<img src=x onerror=alert(1)>', 'Paul "Junior"'];
+    const failures = [];
+
+    try {
+      app.eval('S.players = ' + JSON.stringify(names) + '; renderPlayerChips(); refreshSelects(); renderSettingsPlayers();');
+      const doc = app.document;
+
+      const chipText = doc.getElementById('player-chips').textContent;
+      names.forEach(name => {
+        if(!chipText.includes(name)) failures.push('Nom absent des pastilles : ' + name);
+      });
+
+      if(doc.getElementById('player-chips').querySelector('img')) {
+        failures.push('Un nom a créé un élément img dans les pastilles');
+      }
+      if(doc.getElementById('settings-players-list').querySelector('img')) {
+        failures.push('Un nom a créé un élément img dans les réglages');
+      }
+
+      const options = Array.from(doc.getElementById('sel-nord').options).slice(1).map(option => option.value);
+      names.forEach(name => {
+        if(!options.includes(name)) failures.push('Valeur absente du sélecteur : ' + name);
+      });
+
+      const inputValues = Array.from(doc.querySelectorAll('#settings-players-list input')).map(input => input.value);
+      names.forEach(name => {
+        if(!inputValues.includes(name)) failures.push('Valeur absente des champs de renommage : ' + name);
+      });
+
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + names.length;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message;
+      result.dataset.status = 'error';
+    }
+  });
+</script>
+</body>
+</html>

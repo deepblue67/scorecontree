@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests tournoi ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const failures = [];
+    const equipe = (name, values={}) => ({
+      name,
+      victoires:0,
+      goalAvg:0,
+      scoreTotal:0,
+      exemptions:0,
+      rencontres:[],
+      ...values
+    });
+
+    try {
+      const pairState = { equipes:['A','B','C','D'].map(name => equipe(name)) };
+      const pairings = app.genererAppariements(pairState, 1, true);
+      if(pairings.matchs.length !== 2 || pairings.exemptee !== null) {
+        failures.push('Appariement pair incorrect');
+      }
+      const pairedNames = pairings.matchs.flatMap(match => [match.eq1, match.eq2]);
+      if(new Set(pairedNames).size !== 4) failures.push('Équipe doublée ou absente en nombre pair');
+
+      const oddState = {
+        equipes:[
+          equipe('A', {exemptions:1}),
+          equipe('B', {victoires:2}),
+          equipe('C', {goalAvg:-10}),
+          equipe('D'),
+          equipe('E', {goalAvg:10})
+        ]
+      };
+      const oddPairings = app.genererAppariements(oddState, 2, false);
+      if(oddPairings.exemptee !== 'C') failures.push('Exemption non équitable');
+      const oddNames = oddPairings.matchs.flatMap(match => [match.eq1, match.eq2]);
+      if(oddPairings.matchs.length !== 2 || oddNames.includes('C') || new Set(oddNames).size !== 4) {
+        failures.push('Appariement impair incorrect');
+      }
+
+      const rematchState = {
+        equipes:[
+          equipe('A', {rencontres:['B']}),
+          equipe('B', {rencontres:['A']}),
+          equipe('C'),
+          equipe('D')
+        ]
+      };
+      const rematchPairings = app.genererAppariements(rematchState, 2, false);
+      const firstMatch = rematchPairings.matchs[0];
+      if(firstMatch.eq1 !== 'A' || firstMatch.eq2 !== 'C') {
+        failures.push('Revanche non évitée malgré une alternative');
+      }
+
+      const original = ['A','B','C','D','E'].map(name => equipe(name));
+      const round = {
+        numTour:1,
+        matchs:[
+          {eq1:'A',eq2:'B',score1:100,score2:80},
+          {eq1:'C',eq2:'D',score1:50,score2:50}
+        ],
+        exemptee:'E'
+      };
+      const updated = app.appliquerResultatsTournoi(original, round);
+      const byName = name => updated.find(item => item.name === name);
+      if(byName('A').victoires !== 1 || byName('A').goalAvg !== 20 || byName('A').scoreTotal !== 100) {
+        failures.push('Statistiques du vainqueur incorrectes');
+      }
+      if(byName('B').victoires !== 0 || byName('B').goalAvg !== -20 || byName('B').scoreTotal !== 80) {
+        failures.push('Statistiques du perdant incorrectes');
+      }
+      if(byName('C').victoires !== 0 || byName('D').victoires !== 0 ||
+         byName('C').scoreTotal !== 50 || byName('D').scoreTotal !== 50) {
+        failures.push('Égalité incorrectement comptabilisée');
+      }
+      if(byName('E').exemptions !== 1) failures.push('Exemption non comptabilisée');
+      if(original.some(item => item.scoreTotal !== 0 || item.rencontres.length !== 0)) {
+        failures.push('Les données sources ont été modifiées');
+      }
+
+      const ranking = app.classerEquipesTournoi([
+        equipe('Score', {victoires:2,goalAvg:10,scoreTotal:500}),
+        equipe('Goal',  {victoires:2,goalAvg:20,scoreTotal:100}),
+        equipe('Wins',  {victoires:3,goalAvg:-100,scoreTotal:10}),
+        equipe('Low',   {victoires:2,goalAvg:10,scoreTotal:400})
+      ]).map(item => item.name);
+      if(ranking.join(',') !== 'Wins,Goal,Score,Low') {
+        failures.push('Ordre du classement incorrect : ' + ranking.join(','));
+      }
+
+      const legacyState = {
+        status:'running',
+        nbTours:3,
+        tourActuel:1,
+        equipes:[{name:'A'},{name:'B'},{name:'C'}]
+      };
+      const normalized = app.normalizeTournoiState(legacyState);
+      if(!normalized || normalized.equipes.some(item =>
+        item.victoires !== 0 || item.goalAvg !== 0 || item.scoreTotal !== 0 ||
+        item.exemptions !== 0 || !Array.isArray(item.rencontres))) {
+        failures.push('Ancien tournoi compatible non normalisé');
+      }
+      if(app.normalizeTournoiState({status:'running',equipes:[{name:'A'}]}) !== null) {
+        failures.push('Tournoi inutilisable accepté');
+      }
+
+      app.eval("_tSetup.equipes = [\"Jean d'Arc & <Paul>\"]; renderTournoiSetup();");
+      const teamList = app.document.getElementById('t-eq-list');
+      if(!teamList.textContent.includes("Jean d'Arc & <Paul>")) {
+        failures.push('Nom spécial de tournoi altéré');
+      }
+      if(teamList.querySelector('img')) {
+        failures.push('Nom de tournoi interprété comme HTML');
+      }
+
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS 16';
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message;
+      result.dataset.status = 'error';
+    }
+  });
+</script>
+</body>
+</html>

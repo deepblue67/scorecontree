@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 18 juin 2026.
 
-Version applicative actuellement documentée : `v20260611_1707`.
+Version applicative actuellement documentée : `v20260618_1626`.
 
 ---
 
@@ -33,6 +33,13 @@ Elle permet de :
 - exporter/importer les données ;
 - synchroniser via GitHub Gist ;
 - fonctionner comme application installable sur iPhone/iPad via PWA.
+- proposer une mise à jour PWA par prompt utilisateur quand une nouvelle version est disponible ;
+- annuler rapidement la dernière donne saisie depuis la page TABLE.
+- modifier une donne depuis l'historique ou la feuille de score, avec recalcul automatique des totaux ;
+- afficher une reprise de partie interrompue plus explicite ;
+- afficher un résumé enrichi en fin de partie ;
+- afficher des statistiques joueur plus détaillées.
+- exporter les données par code texte, partage natif ou fichier JSON, sans option QR Code.
 
 L'application est aujourd'hui volontairement livrée sous forme de deux fichiers principaux :
 
@@ -274,7 +281,7 @@ Le fichier `service-worker.js` permet le fonctionnement PWA et le cache.
 Nom du cache actuel :
 
 ```js
-scorecontree-v20260611_1707
+scorecontree-v20260618_1542
 ```
 
 Le service worker utilise une stratégie :
@@ -312,7 +319,7 @@ vAAAAMMJJ_HHMM
 Exemple :
 
 ```text
-v20260611_1707
+v20260618_1542
 ```
 
 Pourquoi c'est important :
@@ -383,18 +390,19 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 |---|---:|---:|
 | `scoring-regression.html` | calcul des scores | 10 |
 | `player-names-regression.html` | noms de joueurs, caractères spéciaux, sécurité d'affichage | 4 |
-| `storage-regression.html` | localStorage, import/export, formats invalides | 9 |
+| `storage-regression.html` | localStorage, import/export, formats invalides, sauvegarde pré-import | 15 |
 | `tournament-regression.html` | appariements, classement, résultats tournoi | 16 |
 | `navigation-regression.html` | navigation, onglets, rotation, écran actif | 15 |
-| `screen-modal-regression.html` | écrans secondaires, modales, réglages, aide | 30 |
-| `game-state-regression.html` | état de partie, autosave, normalisation | 28 |
-| `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille | 21 |
-| `final-audit-regression.html` | audit final structurel | 25 |
+| `screen-modal-regression.html` | écrans secondaires, modales, réglages, aide, export | 32 |
+| `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne, correction rapide après saisie | 46 |
+| `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats | 23 |
+| `final-audit-regression.html` | audit final structurel | 36 |
+| `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
 
-Total dernière campagne :
+Total des contrôles disponibles :
 
 ```text
-158 contrôles réussis
+255 contrôles réussis
 ```
 
 ### 7.2 Ce que les tests vérifient
@@ -538,6 +546,191 @@ Si le découpage est fait un jour, il faudra procéder progressivement :
 3. extraire un module JS peu dépendant ;
 4. valider ;
 5. seulement ensuite extraire les modules centraux.
+
+### 8.4 Prompt de mise à jour PWA
+
+Évolution ajoutée en version `v20260618_1502`.
+
+Avant cette version, l'application activait silencieusement le nouveau service worker et rechargeait automatiquement la page quand une nouvelle version était détectée.
+
+Désormais :
+
+- une nouvelle version installée en attente déclenche un prompt dans l'application ;
+- le message affiché est `Nouvelle version disponible.` ;
+- l'utilisateur choisit `Mettre à jour` ou `Plus tard` ;
+- le message `SKIP_WAITING` n'est envoyé au service worker que si l'utilisateur valide ;
+- la page ne se recharge qu'après cette validation.
+
+Le service worker ne force donc plus `skipWaiting()` pendant l'événement `install`. Il attend l'ordre envoyé par l'application.
+
+### 8.5 Annulation de la dernière donne
+
+Évolution ajoutée en version `v20260618_1502`.
+
+Un bouton `Annuler dernière donne` est disponible sur la page TABLE lorsqu'au moins une donne existe dans l'historique de la partie en cours.
+
+Comportement :
+
+- demande de confirmation ;
+- suppression uniquement de la dernière donne ;
+- recalcul des totaux cumulés ;
+- restauration du score global ;
+- retour du numéro de manche à la valeur précédente ;
+- retour du donneur au donneur précédent ;
+- suppression du contrat courant et du score en attente ;
+- sauvegarde automatique de l'état corrigé.
+
+Cette fonction est volontairement distincte de la suppression d'une manche depuis la feuille de score. L'annulation rapide restaure aussi le donneur, ce qui n'est cohérent que pour la dernière donne.
+
+### 8.6 Évolutions gameplay prioritaires
+
+Évolutions ajoutées en version `v20260618_1524`.
+
+Modifier une donne :
+
+- l'édition d'une manche est maintenant accessible depuis l'historique de la partie en cours et depuis la feuille de score ;
+- la modification recalcule les totaux cumulés ;
+- le score global est restauré à partir de l'historique recalculé ;
+- l'autosave est mise à jour après modification ;
+- les rendus historique, feuille, table et statistiques sont rafraîchis.
+
+Reprise de partie :
+
+- le prompt d'autosave affiche plus clairement qu'une partie en cours a été détectée ;
+- l'action principale est maintenant `Reprendre cette partie` ;
+- l'action secondaire indique qu'elle ignore la sauvegarde et revient à la configuration.
+
+Fin de partie :
+
+- l'écran de victoire affiche un résumé enrichi ;
+- le résumé indique nombre de donnes, réussites, chutes, plus gros contrat et meilleure série gagnante.
+
+Stats joueur :
+
+- ajout du nombre de chutes ;
+- ajout de la moyenne de points quand le joueur est preneur ;
+- ajout du partenaire le plus fréquent ;
+- conservation des statistiques déjà présentes : parties, victoires, prises, taux de réussite, capots.
+
+### 8.7 Suppression de l'export QR Code
+
+Évolution ajoutée en version `v20260618_1542`.
+
+Le mode QR Code a été retiré de l'export des données.
+
+Raisons :
+
+- l'historique réel peut être trop volumineux pour un QR Code fiable ;
+- l'application affichait déjà souvent un message de données trop volumineuses ;
+- le QR Code nécessitait une dépendance externe CDN ;
+- l'export texte, le partage natif, le fichier JSON et la synchronisation GitHub Gist sont plus adaptés.
+
+Ce qui reste disponible :
+
+- copie du code texte `BCT1:...` ;
+- partage natif du code quand disponible ;
+- export en fichier JSON quand le navigateur le permet ;
+- import du code `BCT1:...` ;
+- synchronisation GitHub Gist.
+
+### 8.8 Vérification hors ligne automatisée
+
+Évolution ajoutée en version `v20260618_1549`.
+
+Le test `tests/offline-pwa-regression.js` vérifie maintenant :
+
+- la synchronisation entre la version visible dans `index.html` et `CACHE_NAME` ;
+- la présence de `/scorecontree/` et `/scorecontree/index.html` dans le cache d'installation ;
+- l'absence de dépendance externe bloquante pour le chargement de l'application ;
+- l'absence de dépendance QR Code résiduelle ;
+- le comportement simulé du service worker quand le réseau est coupé ;
+- le fallback hors ligne vers `/scorecontree/index.html` ;
+- la suppression des anciens caches ;
+- l'activation contrôlée par le prompt de mise à jour.
+
+Les fonctions connectées restent volontairement dépendantes du réseau :
+
+- synchronisation GitHub Gist ;
+- appel IA pour l'analyse vocale avancée.
+
+Une validation réelle sur PWA installée iPhone/iPad reste utile quand le service worker, le cache ou l'installation sont modifiés.
+
+### 8.9 Backup avant import
+
+Évolution ajoutée en version `v20260618_1604`.
+
+Avant tout import qui modifie les données locales, l'application crée une sauvegarde de sécurité dans `localStorage`, sous la clé :
+
+```text
+belote_pre_import_backup
+```
+
+Cette sauvegarde contient l'état local avant import :
+
+- joueurs ;
+- historique des parties ;
+- historique des tournois ;
+- autosave ;
+- dernière configuration ;
+- thème.
+
+Chemins protégés :
+
+- import par code texte `BCT1:...` ;
+- import/fusion depuis GitHub Gist.
+
+Si la sauvegarde ne peut pas être créée, l'import est annulé. C'est volontaire : mieux vaut refuser l'import que risquer de remplacer les données sans filet.
+
+Quand une sauvegarde pré-import existe, l'écran d'import affiche un bouton `Restaurer cette sauvegarde`.
+
+### 8.10 Tests PWA/cache
+
+Évolution ajoutée en version `v20260618_1617`.
+
+Le test `tests/offline-pwa-regression.js` couvre maintenant aussi le cycle de mise à jour PWA :
+
+- présence du prompt `Nouvelle version disponible.` ;
+- présence des boutons `Mettre à jour` et `Plus tard` ;
+- détection d'un service worker déjà en attente via `reg.waiting` ;
+- détection d'une nouvelle version via `updatefound` puis `statechange` ;
+- affichage du prompt seulement si une version précédente contrôle déjà la page ;
+- envoi de `SKIP_WAITING` seulement après clic sur `Mettre à jour` ;
+- absence de `SKIP_WAITING` sur `Plus tard` ;
+- rechargement de la page seulement après validation utilisateur ;
+- conservation du comportement prudent : pas de `skipWaiting()` automatique pendant l'installation.
+
+Ce test complète la vérification hors ligne, mais ne remplace pas un essai réel sur PWA installée iPhone/iPad quand on veut valider l'expérience utilisateur complète.
+
+### 8.11 Mode erreur de saisie
+
+Évolution ajoutée en version `v20260618_1626`.
+
+Après validation d'une donne, l'application affiche brièvement un bandeau :
+
+```text
+Donne enregistrée
+Modifier | Annuler
+```
+
+Objectif :
+
+- corriger rapidement une erreur de doigt ;
+- éviter de chercher la fonction dans l'historique juste après la saisie ;
+- garder le comportement normal si l'utilisateur ne fait rien.
+
+Comportement :
+
+- le bandeau s'affiche après une validation de donne non finale ;
+- il disparaît automatiquement au bout de quelques secondes ;
+- `Modifier` ouvre directement la modale d'édition de la donne qui vient d'être validée ;
+- `Annuler` retire immédiatement la dernière donne et restaure score, manche et donneur via la fonction existante ;
+- le bandeau se ferme dès qu'une action est utilisée.
+
+Ce mode réutilise les mécanismes déjà présents :
+
+- `openEdit()` pour modifier une donne ;
+- `undoLastRound()` pour annuler la dernière donne ;
+- `autoSave()` via les chemins existants.
 
 ---
 
@@ -722,7 +915,35 @@ Avant de considérer une modification comme livrée :
 Dernière campagne complète connue :
 
 ```text
-158 / 158 contrôles réussis
+211 / 211 contrôles réussis avant l'ajout du backup pré-import
+```
+
+Validation de la livraison `v20260618_1604` :
+
+```text
+Syntaxe index.html OK
+Syntaxe service-worker.js OK
+Test PWA/hors ligne : PASS 32
+Contrôle statique backup/import OK
+Relance navigateur complète non effectuée : URL locale bloquée par l'outil navigateur intégré
+```
+
+Validation de la livraison `v20260618_1617` :
+
+```text
+Syntaxe index.html OK
+Syntaxe service-worker.js OK
+Test PWA/cache/hors ligne : PASS 58
+```
+
+Validation de la livraison `v20260618_1626` :
+
+```text
+Syntaxe index.html OK
+Syntaxe service-worker.js OK
+Test PWA/cache/hors ligne : PASS 58
+Campagne navigateur : 197 / 197 contrôles réussis
+Total : 255 / 255 contrôles réussis
 ```
 
 ---
@@ -762,6 +983,16 @@ Points d'attention :
 - service worker simple et cohérent ;
 - tests de non-régression présents ;
 - version synchronisée ;
+- prompt de mise à jour PWA présent ;
+- annulation rapide de la dernière donne présente ;
+- modification de donne plus visible et sauvegardée ;
+- reprise de partie interrompue plus explicite ;
+- résumé de fin de partie enrichi ;
+- statistiques joueur enrichies ;
+- export QR Code supprimé ;
+- vérification hors ligne automatisée présente ;
+- backup avant import présent avec restauration depuis l'écran d'import ;
+- mode erreur de saisie présent après validation d'une donne ;
 - découpage en fichiers non recommandé à court terme ;
 - priorité aux évolutions ciblées et testées.
 
@@ -772,3 +1003,51 @@ Ne pas chercher à rendre le code "parfait" au détriment de la stabilité.
 Améliorer progressivement, avec tests, en conservant la qualité actuelle de l'application.
 ```
 
+---
+
+## 15. Tableau de suivi des évolutions
+
+Ce tableau doit être complété à chaque nouvelle demande, correction ou évolution.
+
+Statuts utilisés :
+
+- `Fait` : livré dans l'application ;
+- `Priorité` : prochaine évolution recommandée ;
+- `Moyen terme` : intéressant, mais pas urgent ;
+- `À éviter pour l'instant` : possible techniquement, mais risque supérieur au bénéfice immédiat.
+
+### 15.1 Technique et architecture
+
+| Sujet | Description | Statut | Priorité | Version / remarque |
+|---|---|---:|---:|---|
+| README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260618_1626` |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 255 contrôles réussis |
+| Correction navigation rotation TABLE | Sécuriser le retour TABLE après passage saisie/rotation/annulation sur iPhone et iPad. | Fait | Haute | Corrigé avant `v20260611_1707` |
+| Nettoyage code mort | Supprimer fonctions/variables inutilisées et diagnostics non nécessaires sans toucher au comportement. | Fait | Moyenne | Fait avant `v20260611_1707` |
+| Prompt mise à jour PWA | Afficher `Nouvelle version disponible` puis laisser l'utilisateur cliquer sur `Mettre à jour`. | Fait | Haute | Livré en `v20260618_1502` |
+| Service worker prudent | Ne plus forcer `skipWaiting()` à l'installation ; attendre la validation utilisateur. | Fait | Haute | Livré en `v20260618_1502` |
+| Tests annulation dernière donne | Vérifier score, historique, manche, donneur, contrat et score en attente après annulation. | Fait | Haute | Livré en `v20260618_1502` |
+| Vérification hors ligne complète | Vérifier que la PWA fonctionne vraiment hors ligne sans dépendance CDN connue. | Fait | Haute | Test automatisé livré en `v20260618_1549` |
+| Suppression QR Code | Retirer l'export QR Code devenu inadapté aux gros historiques et supprimer la dépendance CDN associée. | Fait | Haute | Livré en `v20260618_1542` |
+| Backup avant import | Créer une sauvegarde locale de sécurité avant tout import/remplacement de données. | Fait | Haute | Livré en `v20260618_1604` |
+| Tests PWA/cache | Ajouter des contrôles ou procédure de test pour le cycle nouvelle version/service worker. | Fait | Haute | Test automatisé renforcé en `v20260618_1617` |
+| Tests cas limites score | Ajouter des cas supplémentaires de score/contrat/capot/contre/surcontre. | À faire | Priorité | Renforce le métier |
+| Découpage complet en fichiers | Séparer CSS/JS en plusieurs fichiers comme ScoreDarts. | À éviter pour l'instant | Basse | Risque de régression trop élevé actuellement |
+| Extraction progressive CSS/JS | Extraire un petit module seulement si une évolution le justifie naturellement. | Moyen terme | Moyenne | À faire par étapes, jamais en grand chantier unique |
+| Manifest et assets séparés | Ajouter/extraire `manifest.json`, icônes et assets propres. | Moyen terme | Moyenne | Utile PWA, moins risqué qu'un découpage JS complet |
+| Centralisation handlers complexes | Réduire progressivement les handlers inline quand une zone est modifiée. | Moyen terme | Moyenne | Ne pas faire en refonte globale |
+
+### 15.2 Gameplay et usage
+
+| Sujet | Description | Statut | Priorité | Version / remarque |
+|---|---|---:|---:|---|
+| Annuler dernière donne | Depuis la TABLE, retirer la dernière donne avec confirmation et restaurer score/manche/donneur. | Fait | Haute | Livré en `v20260618_1502` |
+| Modifier une donne | Depuis l'historique ou la feuille, rouvrir une donne, modifier les points et recalculer les scores suivants. | Fait | Haute | Livré en `v20260618_1524` |
+| Reprise partie interrompue | Afficher au démarrage une reprise plus claire de la partie autosauvegardée. | Fait | Haute | Livré en `v20260618_1524` |
+| Mode erreur de saisie | Après validation d'une donne, proposer quelques secondes `Annuler / Modifier`. | Fait | Haute | Livré en `v20260618_1626` |
+| Résumé fin de partie enrichi | Ajouter nombre de donnes, contrats réussis/chutés, plus gros contrat, meilleure série. | Fait | Haute | Livré en `v20260618_1524` |
+| Statistiques joueur avancées | Contrats pris, taux de réussite, chutes, points moyens, partenaires, victoires. | Fait | Haute | Livré en `v20260618_1524` |
+| Aide contextuelle | Petits boutons `?` sur contrat, belote, capot, tournoi. | À faire | Moyen terme | Faible risque si ciblé |
+| Export résumé lisible | Générer un résumé texte/image de la partie à partager. | À faire | Moyen terme | Peut compléter l'export image actuel |
+| Amélioration tournoi | Continuer à enrichir appariements, saisie scores tournoi et historique tournoi. | À préciser | Moyen terme | Besoin de demandes plus concrètes |

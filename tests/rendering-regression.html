@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests rendus HTML ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+
+    const check = (condition, message) => {
+      checks += 1;
+      if(!condition) failures.push(message);
+    };
+
+    try {
+      const hostile = '<img src=x onerror=alert(1)>';
+      const emptyHtml = app.renderEmptyState(hostile, {icon:'📋', padding:'12px', fontSize:'14px'});
+      check(emptyHtml.includes('&#x3C;img'), 'Message vide non échappé');
+      check(emptyHtml.includes('📋'), 'Icône d’état vide absente');
+
+      const titleHtml = app.renderTeamMatchupTitle(hostile, 'A&B', true);
+      check(titleHtml.includes('&#x3C;img'), 'Titre équipe non échappé');
+      check(titleHtml.includes('A&amp;B'), 'Esperluette du titre non échappée');
+      check(titleHtml.endsWith('<br>&nbsp;'), 'Saut final du titre absent');
+
+      const madeBadge = app.renderRoundResultBadge(false, {fsBadge:'10px',fsBadgePad:'1px'});
+      const failedBadge = app.renderRoundResultBadge(true, {fsBadge:'10px',fsBadgePad:'1px'});
+      check(madeBadge.includes('Fait') && madeBadge.includes('#2a7d2e'), 'Badge Fait incorrect');
+      check(failedBadge.includes('Chute') && failedBadge.includes('#cc2222'), 'Badge Chute incorrect');
+
+      const sizes = app.getTableSizes();
+      const round = {
+        manche:2,
+        contract:'100 ♥ <img src=x>',
+        preneur:hostile,
+        contre:'surcontre<img>',
+        chute:false,
+        pts1:120,
+        pts2:40
+      };
+      const simpleRow = app.renderCurrentRoundRow(round, sizes, false);
+      const actionRow = app.renderCurrentRoundRow(round, sizes, true);
+      check(simpleRow.includes('‹img'), 'Ligne de manche non neutralisée');
+      check(!simpleRow.includes('openEdit('), 'Ligne simple contient des actions');
+      check(actionRow.includes('openEdit(2)') && actionRow.includes('deleteManche(2)'), 'Actions absentes de Feuille');
+      check(actionRow.includes('120') && actionRow.includes('40'), 'Scores absents de la ligne');
+
+      app.eval(`
+        S.t1 = {name:${JSON.stringify(hostile)},players:[]};
+        S.t2 = {name:'A&B',players:[]};
+        S.score = {t1:120,t2:40};
+        S.history = [${JSON.stringify(round)}];
+        S.manche = 3;
+      `);
+      app.renderHistory();
+      app.renderFeuille();
+      const historyImage = doc.getElementById('history-content').querySelector('img');
+      const feuilleImage = doc.getElementById('feuille-content').querySelector('img');
+      check(!historyImage, 'Historique a créé une image');
+      check(!feuilleImage, 'Feuille a créé une image');
+      check(doc.getElementById('history-content').textContent.includes('100 ♥ ‹img src=x›'), 'Contrat absent de l’Historique');
+      check(doc.getElementById('history-content').querySelectorAll('button').length === 2, 'Boutons Historique absents');
+      check(doc.getElementById('feuille-content').querySelectorAll('button').length === 2, 'Boutons Feuille modifiés');
+      check(!doc.getElementById('history-title').querySelector('img'), 'Titre Historique non sécurisé');
+      check(!doc.getElementById('feuille-title').querySelector('img'), 'Titre Feuille non sécurisé');
+
+      app.renderStatsCurrent();
+      check(!doc.getElementById('stats-current-content').querySelector('img'), 'Stats courantes non sécurisées');
+
+      app.localStorage.setItem('belote_history', JSON.stringify([{
+        id:1,
+        t1:hostile + ' & Alice',
+        t2:'Bob & Charlie',
+        score1:100,
+        score2:80,
+        history:[]
+      }]));
+      app.renderStatsTeams();
+      app.renderStatsPlayers();
+      check(!doc.getElementById('stats-teams-content').querySelector('img'), 'Stats équipes non sécurisées');
+      check(!doc.getElementById('stats-players-content').querySelector('img'), 'Stats joueurs non sécurisées');
+      check(doc.getElementById('stats-players-content').textContent.includes('<img src=x onerror=alert(1)>'), 'Nom joueur absent des stats');
+      check(doc.getElementById('stats-players-content').textContent.includes('Partenaire'), 'Stat partenaire absente');
+
+      app.localStorage.removeItem('belote_history');
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message;
+      result.dataset.status = 'error';
+    }
+  });
+</script>
+</body>
+</html>

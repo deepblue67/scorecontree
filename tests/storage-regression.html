@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests stockage ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const failures = [];
+
+    try {
+      const storage = app.localStorage;
+      storage.setItem('test_bad_json', '{cassé');
+      if(app.storageReadJSON('test_bad_json', 'fallback') !== 'fallback') {
+        failures.push('JSON corrompu non remplacé');
+      }
+
+      storage.setItem('test_bad_array', JSON.stringify({not:'array'}));
+      const arrayFallback = app.storageReadJSON('test_bad_array', [], Array.isArray);
+      if(!Array.isArray(arrayFallback) || arrayFallback.length !== 0) {
+        failures.push('Type tableau invalide non remplacé');
+      }
+
+      storage.setItem('test_players', JSON.stringify(["Jean d'Arc", 'A&B']));
+      const players = app.storageReadJSON('test_players', [], app.isStringArray);
+      if(players.length !== 2 || players[0] !== "Jean d'Arc") {
+        failures.push('Liste de joueurs valide refusée');
+      }
+
+      const validSnap = {
+        pos:{nord:'A',sud:'B',est:'C',ouest:'D'},
+        t1:{name:'A & B',players:['A','B']},
+        t2:{name:'C & D',players:['C','D']},
+        score:{t1:100,t2:80},
+        history:[],
+        manche:2,
+        dealerIdx:1,
+        contract:null,
+        form:null,
+        savedAt:new Date().toISOString()
+      };
+      if(!app.isAutosaveSnapshot(validSnap)) failures.push('Autosave valide refusée');
+      if(app.isAutosaveSnapshot({t1:{name:'A'}})) failures.push('Autosave incomplète acceptée');
+
+      const importData = {
+        version:1,
+        players:["O'Neil", '<Paul>'],
+        history:[],
+        tournois_history:[],
+        autosave:validSnap,
+        last_config:{nord:"O'Neil",sud:'<Paul>',est:'',ouest:''},
+        theme:'green'
+      };
+      if(!app.isImportData(importData)) failures.push('Import valide refusé');
+      if(app.isImportData({version:1,players:'incorrect'})) failures.push('Import invalide accepté');
+
+      app.localStorage.setItem('belote_players', JSON.stringify(['Ancien']));
+      app.eval("S.players = ['Ancien']");
+      app.localStorage.setItem('belote_history', JSON.stringify([{id:1,t1:'Anciens',t2:'Joueurs'}]));
+      app.localStorage.setItem('belote_tournois_history', JSON.stringify([{id:7,name:'Ancien tournoi'}]));
+      const applied = app.applyImportData(importData);
+      const savedPlayers = JSON.parse(app.localStorage.getItem('belote_players'));
+      if(!applied || savedPlayers[0] !== "O'Neil" || savedPlayers[1] !== '<Paul>') {
+        failures.push('Import Gist des joueurs non enregistré');
+      }
+
+      const backup = app.getPreImportBackup();
+      if(!backup) failures.push('Sauvegarde pré-import absente');
+      if(backup && backup.data.players[0] !== 'Ancien') failures.push('Sauvegarde pré-import joueurs incorrecte');
+      if(backup && backup.data.history[0]?.id !== 1) failures.push('Sauvegarde pré-import historique incorrecte');
+      if(backup && backup.data.tournois_history[0]?.id !== 7) failures.push('Sauvegarde pré-import tournoi incorrecte');
+      if(backup && !app.applyBackupData(backup.data)) failures.push('Restauration pré-import refusée');
+      const restoredPlayers = JSON.parse(app.localStorage.getItem('belote_players'));
+      const restoredHistory = JSON.parse(app.localStorage.getItem('belote_history'));
+      if(restoredPlayers[0] !== 'Ancien' || restoredHistory[0]?.id !== 1) {
+        failures.push('Restauration pré-import incorrecte');
+      }
+
+      ['test_bad_json','test_bad_array','test_players','belote_history','belote_tournois_history','belote_pre_import_backup'].forEach(key => storage.removeItem(key));
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS 15';
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message;
+      result.dataset.status = 'error';
+    }
+  });
+</script>
+</body>
+</html>

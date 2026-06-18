@@ -1,7 +1,7 @@
 // ScoreContrée — Service Worker
 // IMPORTANT : CACHE_NAME est synchronisé avec la version de l'appli
 // Il change automatiquement à chaque déploiement → mise à jour propre sans vider le cache
-const CACHE_NAME = 'scorecontree-v20260611_1707';
+const CACHE_NAME = 'scorecontree-v20260618_1626';
 
 const ASSETS = [
   '/scorecontree/',
@@ -13,8 +13,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
-  // Force l'activation immédiate sans attendre la fermeture des onglets
-  self.skipWaiting();
+  // En mise à jour, l'activation attend la validation de l'utilisateur côté app.
 });
 
 // Activation : suppression des ANCIENS caches uniquement

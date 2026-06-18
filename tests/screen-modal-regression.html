@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests écrans et modales ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+
+    const check = (condition, message) => {
+      checks += 1;
+      if(!condition) failures.push(message);
+    };
+    const activeScreen = () => app.getActiveScreenName();
+
+    try {
+      app.showScreen('setup');
+      check(activeScreen() === 'setup', 'Configuration non active');
+
+      app.showSettingsScreen();
+      check(activeScreen() === 'settings', 'Réglages non ouverts depuis Configuration');
+      check(doc.querySelector('.bottom-nav').style.pointerEvents === 'none', 'Navigation non bloquée dans Réglages');
+
+      app.showHelpScreen();
+      check(activeScreen() === 'help', 'Aide non ouverte');
+      app.hideHelpScreen();
+      check(activeScreen() === 'settings', 'Aide ne revient pas aux Réglages');
+
+      app.hideSettingsScreen();
+      check(activeScreen() === 'setup', 'Réglages ne reviennent pas à Configuration');
+      check(doc.querySelector('.bottom-nav').style.pointerEvents === '', 'Navigation non restaurée');
+
+      app.showScreen('game');
+      check(activeScreen() === 'game', 'Partie non active');
+      app.showSettingsScreen();
+      check(activeScreen() === 'settings', 'Réglages non ouverts depuis Partie');
+
+      app.showMarqueScreen();
+      check(activeScreen() === 'marque', 'Aide à la marque non ouverte');
+      app.hideMarqueScreen();
+      check(activeScreen() === 'settings', 'Marque ne revient pas aux Réglages');
+      app.hideSettingsScreen();
+      check(activeScreen() === 'game', 'Réglages ne reviennent pas à la Partie');
+
+      app.localStorage.removeItem('belote_tournoi');
+      app.eval('T = null');
+      app.showScreen('setup');
+      app.showTournoi();
+      check(activeScreen() === 'tournoi', 'Tournoi non ouvert depuis Configuration');
+      app.hideTournoi();
+      check(activeScreen() === 'setup', 'Tournoi ne revient pas à Configuration');
+
+      app.showScreen('game');
+      app.showTournoi();
+      check(activeScreen() === 'tournoi', 'Tournoi non ouvert depuis Partie');
+      app.hideTournoi();
+      check(activeScreen() === 'game', 'Tournoi ne revient pas à la Partie');
+      check(doc.getElementById('screen-tournoi').style.display === 'none', 'Écran Tournoi encore affiché');
+
+      check(app.activateAppScreen('inconnu') === false, 'Écran inconnu accepté');
+      check(activeScreen() === 'game', 'Écran actif perdu après cible inconnue');
+
+      ['players-modal','sync-modal','confirm-modal','edit-modal','end-game-modal'].forEach(id => {
+        check(app.openModal(id) && doc.getElementById(id).style.display === 'flex', 'Ouverture modale impossible : ' + id);
+        check(app.closeModal(id) && doc.getElementById(id).style.display === 'none', 'Fermeture modale impossible : ' + id);
+      });
+      check(app.openModal('modal-inconnue') === false, 'Modale inconnue acceptée');
+
+      app.showSyncExport();
+      const syncText = doc.getElementById('sync-modal-content').textContent;
+      check(syncText.includes('Copier le code'), 'Export texte absent');
+      check(!syncText.includes('QR Code'), 'Option QR Code encore presente dans export');
+      app.closeModal('sync-modal');
+
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message;
+      result.dataset.status = 'error';
+    }
+  });
+</script>
+</body>
+</html>

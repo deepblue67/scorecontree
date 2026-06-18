@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests calcul ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script src="scoring-regression.js"></script>
+<script>
+  document.getElementById('app').addEventListener('load', function() {
+    try {
+      window.calculateBeloteScore = this.contentWindow.calculateBeloteScore;
+      const result = runScoringRegressionTests();
+      const el = document.getElementById('result');
+      el.textContent = result.passed ? 'PASS ' + result.count : 'FAIL ' + result.failures.join(' | ');
+      el.dataset.status = result.passed ? 'pass' : 'fail';
+    } catch(error) {
+      const el = document.getElementById('result');
+      el.textContent = 'ERROR ' + error.message;
+      el.dataset.status = 'error';
+    }
+  });
+</script>
+</body>
+</html>

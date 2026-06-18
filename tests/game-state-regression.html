@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests état de partie ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+
+    const check = (condition, message) => {
+      checks += 1;
+      if(!condition) failures.push(message);
+    };
+    const state = () => JSON.parse(app.eval('JSON.stringify(S)'));
+    const setState = source => app.eval(source);
+
+    try {
+      const initial = app.createInitialAppState();
+      check(Array.isArray(initial.players) && initial.players.length === 0, 'Joueurs initiaux incorrects');
+      check(initial.score.t1 === 0 && initial.score.t2 === 0, 'Score initial incorrect');
+      check(initial.manche === 1 && initial.gameMode === 'points', 'Mode initial incorrect');
+      check(initial.form.value === 80 && initial.form.contre === 'none', 'Formulaire initial incorrect');
+
+      const form1 = app.createEmptyContractForm();
+      const form2 = app.createEmptyContractForm();
+      form1.value = 160;
+      check(form2.value === 80, 'Formulaires partagés par référence');
+
+      setState(`
+        S.pos = {nord:'A',sud:'B',est:'C',ouest:'D'};
+        S.t1 = {name:'A & B',players:['A','B']};
+        S.t2 = {name:'C & D',players:['C','D']};
+        S.score = {t1:450,t2:320};
+        S.history = [{manche:1,pts1:450,pts2:320}];
+        S.manche = 2;
+        S.contract = {value:100};
+        S.form = {preneur:'t1',suit:'♥',suitKey:'h',suitColor:'red',value:100,isCapot:false,contre:'none'};
+        S.gameMode = 'manches';
+        S.winningPts = 1501;
+        S.winningManches = 7;
+        S._gameSaved = true;
+        pendingScore = {pts1:1};
+      `);
+      app.resetGameProgress();
+      let current = state();
+      check(current.t1.name === 'A & B' && current.t2.name === 'C & D', 'Équipes perdues à la remise à zéro');
+      check(current.score.t1 === 0 && current.history.length === 0, 'Progression non remise à zéro');
+      check(current.manche === 1 && current.contract === null, 'Manche ou contrat non réinitialisé');
+      check(current.gameMode === 'manches' && current.winningManches === 7, 'Objectif de partie perdu');
+      check(current.form.value === 80 && current._gameSaved === false, 'Formulaire ou drapeau non réinitialisé');
+      check(app.eval('pendingScore === null'), 'Score en attente non réinitialisé');
+
+      setState(`
+        S.score = {t1:90,t2:70};
+        S.history = [{manche:1,pts1:90,pts2:70}];
+        S.manche = 2;
+        S.dealerIdx = 3;
+        S.contract = null;
+        S.gameMode = 'manches';
+        S.winningPts = 1001;
+        S.winningManches = 5;
+      `);
+      app.autoSave();
+      const saved = JSON.parse(app.localStorage.getItem('belote_autosave'));
+      check(saved.gameMode === 'manches', 'Mode absent de la sauvegarde');
+      check(saved.winningPts === 1001 && saved.winningManches === 5, 'Objectifs absents de la sauvegarde');
+
+      const legacy = {
+        pos:{nord:'L1',sud:'L2',est:'L3',ouest:'L4'},
+        t1:{name:'L1 & L2',players:['L1','L2']},
+        t2:{name:'L3 & L4',players:['L3','L4']},
+        score:{t1:'120',t2:'80'},
+        history:[],
+        manche:'2',
+        dealerIdx:-1,
+        contract:null,
+        form:null,
+        savedAt:new Date().toISOString()
+      };
+      const normalizedLegacy = app.normalizeAutosaveSnapshot(legacy);
+      check(normalizedLegacy.gameMode === 'points', 'Ancienne sauvegarde sans mode non compatible');
+      check(normalizedLegacy.winningPts === 2001 && normalizedLegacy.winningManches === 10, 'Anciens objectifs non restaurés');
+      check(normalizedLegacy.score.t1 === 120 && normalizedLegacy.dealerIdx === 3, 'Valeurs anciennes non normalisées');
+      check(normalizedLegacy.form.value === 80, 'Formulaire ancien non reconstruit');
+
+      check(app.applyAutosaveSnapshot(saved), 'Sauvegarde valide non appliquée');
+      current = state();
+      check(current.score.t1 === 90 && current.manche === 2 && current.dealerIdx === 3, 'Progression mal restaurée');
+      check(current.gameMode === 'manches' && current.winningManches === 5, 'Mode manches mal restauré');
+      check(app.eval('pendingScore === null'), 'Score en attente conservé à la reprise');
+      check(!app.applyAutosaveSnapshot({bad:true}), 'Sauvegarde invalide appliquée');
+
+      setState(`
+        S.pos = {nord:'A',sud:'B',est:'C',ouest:'D'};
+        S.t1 = {name:'A & B',players:['A','B']};
+        S.t2 = {name:'C & D',players:['C','D']};
+        S.score = {t1:250,t2:150};
+        S.history = [
+          {manche:1,pts1:90,pts2:70,total1:90,total2:70,contract:'90 coeur',contre:'none',preneur:'A & B',chute:false},
+          {manche:2,pts1:160,pts2:80,total1:250,total2:150,contract:'100 trefle',contre:'none',preneur:'C & D',chute:true}
+        ];
+        S.manche = 3;
+        S.dealerIdx = 2;
+        S.contract = {value:120};
+        S.form = {preneur:'t2',suit:'trefle',suitKey:'c',suitColor:'dark',value:120,isCapot:false,contre:'none'};
+        S._gameSaved = true;
+        pendingScore = {pts1:10,pts2:150};
+      `);
+      app.undoLastRound();
+      current = state();
+      check(current.history.length === 1, 'Annulation derniere donne ne retire pas la derniere ligne');
+      check(current.score.t1 === 90 && current.score.t2 === 70, 'Annulation derniere donne ne restaure pas les scores');
+      check(current.history[0].total1 === 90 && current.history[0].total2 === 70, 'Annulation derniere donne ne recalcule pas les totaux');
+      check(current.manche === 2 && current.dealerIdx === 1, 'Annulation derniere donne ne restaure pas manche/donneur');
+      check(current.contract === null && current.form.value === 80, 'Annulation derniere donne ne reinitialise pas le contrat');
+      check(app.eval('pendingScore === null'), 'Annulation derniere donne conserve un score en attente');
+
+      setState(`
+        S.pos = {nord:'A',sud:'B',est:'C',ouest:'D'};
+        S.t1 = {name:'A & B',players:['A','B']};
+        S.t2 = {name:'C & D',players:['C','D']};
+        S.score = {t1:250,t2:150};
+        S.history = [
+          {manche:1,pts1:90,pts2:70,total1:90,total2:70,contract:'90 coeur',contre:'none',preneur:'A & B',chute:false},
+          {manche:2,pts1:160,pts2:80,total1:250,total2:150,contract:'100 trefle',contre:'none',preneur:'C & D',chute:true}
+        ];
+        S.manche = 3;
+        S.dealerIdx = 2;
+        showScreen('game');
+        initGameUI();
+      `);
+      app.openEdit(1);
+      doc.getElementById('edit-pts-t1').value = '120';
+      doc.getElementById('edit-pts-t2').value = '40';
+      app.saveEdit();
+      current = state();
+      check(current.score.t1 === 280 && current.score.t2 === 120, 'Modification donne ne recalcule pas le score global');
+      check(current.history[0].total1 === 120 && current.history[1].total1 === 280, 'Modification donne ne recalcule pas les cumuls');
+      check(app.localStorage.getItem('belote_autosave') !== null, 'Modification donne non sauvegardee');
+      check(doc.getElementById('edit-modal').style.display === 'none', 'Modale edition non fermee');
+
+      setState(`
+        S.pos = {nord:'A',sud:'B',est:'C',ouest:'D'};
+        S.t1 = {name:'A & B',players:['A','B']};
+        S.t2 = {name:'C & D',players:['C','D']};
+        S.score = {t1:0,t2:0};
+        S.history = [];
+        S.manche = 1;
+        S.dealerIdx = 0;
+        S.contract = {value:80,suit:'♥',preneurTeam:'t1',isCapot:false,contre:'none'};
+        S.form = {preneur:'t1',suit:'♥',suitKey:'h',suitColor:'red',value:80,isCapot:false,contre:'none'};
+        S.gameMode = 'points';
+        S.winningPts = 2001;
+        S.winningManches = 10;
+        pendingScore = {pts1:160,pts2:0,chute:false};
+        showScreen('game');
+        initGameUI();
+      `);
+      app.validateScore();
+      current = state();
+      check(current.history.length === 1 && current.history[0].manche === 1, 'Validation score ne cree pas la donne attendue');
+      check(!!doc.getElementById('score-correction-prompt'), 'Bandeau correction absent apres validation');
+      check(doc.getElementById('score-correction-prompt').textContent.includes('Modifier'), 'Action Modifier absente du bandeau correction');
+      check(doc.getElementById('score-correction-prompt').textContent.includes('Annuler'), 'Action Annuler absente du bandeau correction');
+      app.quickEditLastRound();
+      check(!doc.getElementById('score-correction-prompt'), 'Bandeau correction non ferme par Modifier');
+      check(doc.getElementById('edit-modal').style.display === 'flex', 'Modifier depuis bandeau n ouvre pas edition');
+      app.closeEdit();
+      app.showScoreCorrectionPrompt(1);
+      app.quickUndoLastRound();
+      current = state();
+      check(current.history.length === 0 && current.score.t1 === 0 && current.manche === 1, 'Annuler depuis bandeau ne restaure pas la partie');
+      check(!doc.getElementById('score-correction-prompt'), 'Bandeau correction non ferme par Annuler');
+
+      app.localStorage.setItem('belote_autosave', JSON.stringify(saved));
+      app.newGame();
+      current = state();
+      check(app.localStorage.getItem('belote_autosave') === null, 'Sauvegarde non supprimée par Nouvelle partie');
+      check(current.t1.name === 'A & B' && current.score.t1 === 0, 'Nouvelle partie ne conserve pas les équipes');
+      check(app.getActiveScreenName() === 'setup', 'Nouvelle partie ne revient pas à Configuration');
+
+      ['nord','sud','est','ouest'].forEach((position, index) => {
+        const select = doc.getElementById('sel-' + position);
+        const option = doc.createElement('option');
+        option.value = String(index);
+        option.textContent = String(index);
+        select.appendChild(option);
+        select.value = String(index);
+      });
+      app.localStorage.setItem('belote_autosave', JSON.stringify(saved));
+      app.changeTeams();
+      check(app.localStorage.getItem('belote_autosave') === null, 'Sauvegarde non supprimée au changement d’équipes');
+      check(['nord','sud','est','ouest'].every(position => doc.getElementById('sel-' + position).value === ''), 'Positions non vidées');
+      check(state().score.t1 === 0 && state().history.length === 0, 'Progression conservée au changement d’équipes');
+
+      app.localStorage.removeItem('belote_autosave');
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message;
+      result.dataset.status = 'error';
+    }
+  });
+</script>
+</body>
+</html>
