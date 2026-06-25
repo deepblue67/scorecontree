@@ -451,6 +451,32 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   .card .stepper button { width:44px; height:48px; }
   .card .stepper .sv { font-size:20px; }
 
+  /* Modale modification score : préserver la place des valeurs sur iPhone portrait */
+  #edit-modal { padding:16px !important; }
+  #edit-modal > div { padding:24px 16px !important; }
+  #edit-modal-title { margin-bottom:18px !important; }
+  #edit-scores-grid { gap:10px !important; margin-bottom:20px !important; }
+  #edit-scores-grid .stepper button {
+    width:44px !important;
+    min-width:44px !important;
+    height:52px !important;
+    min-height:52px !important;
+  }
+  #edit-scores-grid .stepper .sv {
+    width:100% !important;
+    min-width:0 !important;
+    padding:0 2px !important;
+    font-size:28px !important;
+    line-height:52px !important;
+    -webkit-appearance:none;
+    appearance:textfield;
+  }
+  #edit-scores-grid .stepper .sv::-webkit-inner-spin-button,
+  #edit-scores-grid .stepper .sv::-webkit-outer-spin-button {
+    margin:0;
+    -webkit-appearance:none;
+  }
+
   /* Tableau historique compact */
   #history-content table td, #history-content table th { padding:5px 2px !important; font-size:11px !important; }
   #history-content table td:nth-child(5), #history-content table td:nth-child(6) { font-size:12px !important; }
@@ -1762,7 +1788,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260625_1522</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260625_1544</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -1999,7 +2025,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div style="background:var(--card);border-radius:var(--radius);padding:28px 24px;width:100%;max-width:560px;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
       <div style="font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Modifier la manche</div>
       <div id="edit-modal-title" style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:24px;"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+      <div id="edit-scores-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
         <div>
           <label id="edit-lbl-t1" style="display:block;font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Équipe 1</label>
           <div class="stepper" style="background:#e8e4dc;border-color:#bbb8b0;">

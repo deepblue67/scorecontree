@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 25 juin 2026.
 
-Version applicative actuellement documentée : `v20260625_1522`.
+Version applicative actuellement documentée : `v20260625_1544`.
 
 ---
 
@@ -398,13 +398,13 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne, correction rapide et permutation des places | 55 |
 | `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats et zones joueurs interactives | 27 |
 | `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 44 |
-| `iphone-table-actions-regression.html` | placement et état des actions TABLE dans les cinq contextes d'affichage | 22 |
+| `iphone-table-actions-regression.html` | actions TABLE et lisibilité de la modale d'édition dans les cinq contextes | 30 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
 
 Total des contrôles disponibles :
 
 ```text
-298 contrôles réussis
+306 contrôles réussis
 ```
 
 ### 7.2 Ce que les tests vérifient
@@ -784,6 +784,22 @@ La permutation :
 - est enregistrée immédiatement dans la sauvegarde automatique ;
 - fonctionne au toucher, à la souris et au clavier.
 
+### 8.15 Lisibilité de la modification d'une donne sur iPhone portrait
+
+Correction ajoutée en version `v20260625_1544`.
+
+Sur iPhone portrait, les valeurs de la fenêtre `Modifier la manche` étaient rognées, car le padding général appliqué aux champs numériques occupait presque toute la largeur disponible entre les boutons `−` et `+`.
+
+La correction est limitée au media query iPhone portrait :
+
+- padding horizontal des deux valeurs réduit à `2px` ;
+- taille des chiffres ajustée à `28px` ;
+- largeur tactile des boutons conservée à `44px` ;
+- espace entre les deux équipes légèrement réduit ;
+- contrôles numériques natifs masqués afin de ne pas réduire la zone de lecture.
+
+L'organisation reste en deux colonnes. iPhone paysage, iPad portrait, iPad paysage et PC conservent leurs styles précédents.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1018,6 +1034,16 @@ Campagne navigateur : 240 / 240 contrôles réussis
 Total : 298 / 298 contrôles réussis
 ```
 
+Validation de la livraison `v20260625_1544` :
+
+```text
+Syntaxe index.html OK
+Syntaxe service-worker.js OK
+Test PWA/cache/hors ligne : PASS 58
+Campagne navigateur : 248 / 248 contrôles réussis
+Total : 306 / 306 contrôles réussis
+```
+
 ---
 
 ## 13. Notes pour Codex lors d'une reprise
@@ -1093,8 +1119,8 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260625_1522` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 298 contrôles réussis |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260625_1544` |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 306 contrôles réussis |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
 | Correction navigation rotation TABLE | Sécuriser le retour TABLE après passage saisie/rotation/annulation sur iPhone et iPad. | Fait | Haute | Corrigé avant `v20260611_1707` |
@@ -1121,6 +1147,7 @@ Statuts utilisés :
 | Reprise partie interrompue | Afficher au démarrage une reprise plus claire de la partie autosauvegardée. | Fait | Haute | Livré en `v20260618_1524` |
 | Mode erreur de saisie | Après validation d'une donne, proposer quelques secondes `Annuler / Modifier`. | Fait | Haute | Livré en `v20260618_1626` |
 | Permuter les partenaires sur la TABLE | Appuyer sur un joueur pour échanger sa place avec son partenaire, sans changer les équipes et en conservant le donneur. | Fait | Haute | Livré en `v20260625_1522` |
+| Modification d'une donne sur iPhone portrait | Rendre les valeurs des deux équipes entièrement lisibles dans la fenêtre d'édition. | Fait | Haute | Corrigé en `v20260625_1544` |
 | Résumé fin de partie enrichi | Ajouter nombre de donnes, contrats réussis/chutés, plus gros contrat, meilleure série. | Fait | Haute | Livré en `v20260618_1524` |
 | Statistiques joueur avancées | Contrats pris, taux de réussite, chutes, points moyens, partenaires, victoires. | Fait | Haute | Livré en `v20260618_1524` |
 | Aide contextuelle | Petits boutons `?` sur contrat, belote, capot, tournoi. | À faire | Moyen terme | Faible risque si ciblé |
