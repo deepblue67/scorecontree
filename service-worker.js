@@ -1,7 +1,7 @@
 // ScoreContrée — Service Worker
 // IMPORTANT : CACHE_NAME est synchronisé avec la version de l'appli
 // Il change automatiquement à chaque déploiement → mise à jour propre sans vider le cache
-const CACHE_NAME = 'scorecontree-v20260625_1601';
+const CACHE_NAME = 'scorecontree-v20260625_1624';
 
 const ASSETS = [
   '/scorecontree/',

@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 25 juin 2026.
 
-Version applicative actuellement documentée : `v20260625_1601`.
+Version applicative actuellement documentée : `v20260625_1624`.
 
 ---
 
@@ -395,16 +395,16 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `tournament-regression.html` | appariements, classement, résultats tournoi | 16 |
 | `navigation-regression.html` | navigation, onglets, rotation, écran actif | 15 |
 | `screen-modal-regression.html` | écrans secondaires, modales, réglages, aide, export | 32 |
-| `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne et permutation des places | 49 |
+| `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne et permutation des places | 54 |
 | `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats et zones joueurs interactives | 27 |
-| `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 44 |
+| `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 45 |
 | `iphone-table-actions-regression.html` | actions TABLE et lisibilité de la modale d'édition dans les cinq contextes | 30 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
 
 Total des contrôles disponibles :
 
 ```text
-300 contrôles réussis
+306 contrôles réussis
 ```
 
 ### 7.2 Ce que les tests vérifient
@@ -573,7 +573,7 @@ Un bouton `Annuler dernière donne` est disponible sur la page TABLE lorsqu'au m
 
 Comportement :
 
-- demande de confirmation ;
+- demande de confirmation détaillée ;
 - suppression uniquement de la dernière donne ;
 - recalcul des totaux cumulés ;
 - restauration du score global ;
@@ -583,6 +583,18 @@ Comportement :
 - sauvegarde automatique de l'état corrigé.
 
 Cette fonction est volontairement distincte de la suppression d'une manche depuis la feuille de score. L'annulation rapide restaure aussi le donneur, ce qui n'est cohérent que pour la dernière donne.
+
+Depuis la version `v20260625_1624`, la confirmation indique avant l'annulation :
+
+- le numéro de manche ;
+- le contrat et sa couleur ;
+- le contre ou surcontre éventuel ;
+- l'équipe preneuse ;
+- le résultat `Fait` ou `Chuté` ;
+- les points attribués aux deux équipes pendant cette donne ;
+- le score actuel et le score qui sera restauré après l'annulation.
+
+Les anciennes données incomplètes restent acceptées avec des mentions neutres comme `Sans contrat` ou `Non renseigné`.
 
 ### 8.6 Évolutions gameplay prioritaires
 
@@ -1062,6 +1074,16 @@ Campagne navigateur : 242 / 242 contrôles réussis
 Total : 300 / 300 contrôles réussis
 ```
 
+Validation de la livraison `v20260625_1624` :
+
+```text
+Syntaxe index.html OK
+Syntaxe service-worker.js OK
+Test PWA/cache/hors ligne : PASS 58
+Campagne navigateur : 248 / 248 contrôles réussis
+Total : 306 / 306 contrôles réussis
+```
+
 ---
 
 ## 13. Notes pour Codex lors d'une reprise
@@ -1137,8 +1159,8 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260625_1601` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 300 contrôles réussis |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260625_1624` |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 306 contrôles réussis |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
 | Correction navigation rotation TABLE | Sécuriser le retour TABLE après passage saisie/rotation/annulation sur iPhone et iPad. | Fait | Haute | Corrigé avant `v20260611_1707` |
@@ -1160,7 +1182,7 @@ Statuts utilisés :
 
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
-| Annuler dernière donne | Depuis la TABLE, retirer la dernière donne avec confirmation et restaurer score/manche/donneur. | Fait | Haute | Livré en `v20260618_1502` |
+| Annuler dernière donne | Depuis la TABLE, afficher le détail de la dernière donne puis restaurer score/manche/donneur après confirmation. | Fait | Haute | Enrichi en `v20260625_1624` |
 | Modifier une donne | Depuis l'historique ou la feuille, rouvrir une donne, modifier les points et recalculer les scores suivants. | Fait | Haute | Livré en `v20260618_1524` |
 | Reprise partie interrompue | Afficher au démarrage une reprise plus claire de la partie autosauvegardée. | Fait | Haute | Livré en `v20260618_1524` |
 | Mode erreur de saisie | Après validation d'une donne, proposer quelques secondes `Annuler / Modifier`. | Retiré | Haute | Livré en `v20260618_1626`, retiré en `v20260625_1601` |

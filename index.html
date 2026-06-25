@@ -1788,7 +1788,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260625_1601</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260625_1624</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -3367,13 +3367,44 @@ function recalculateGameFromHistory() {
   S.score.t2 = cum2;
 }
 
+function buildUndoLastRoundSummaryHtml(last) {
+  const historyIndex = S.history.length - 1;
+  const previous = historyIndex > 0 ? S.history[historyIndex - 1] : null;
+  const pts1 = Number(last?.pts1) || 0;
+  const pts2 = Number(last?.pts2) || 0;
+  const current1 = Number(last?.total1 ?? S.score.t1) || 0;
+  const current2 = Number(last?.total2 ?? S.score.t2) || 0;
+  const restored1 = Number(previous?.total1 ?? (current1 - pts1)) || 0;
+  const restored2 = Number(previous?.total2 ?? (current2 - pts2)) || 0;
+  const contract = last?.contract && last.contract !== '—' ? last.contract : 'Sans contrat';
+  const counter = last?.contre === 'surcontre' ? ' · Surcontre ×3'
+    : last?.contre === 'contre' ? ' · Contre ×2'
+    : '';
+  const taker = last?.preneur && last.preneur !== '—' ? last.preneur : 'Non renseigné';
+  const result = last?.chute === true ? 'Chuté' : last?.chute === false ? 'Fait' : 'Non renseigné';
+  const resultColor = last?.chute === true ? '#ff8585' : last?.chute === false ? '#82df88' : 'rgba(255,255,255,0.75)';
+
+  return `
+    <div style="font-size:17px;font-weight:800;margin-bottom:14px;">Annuler la dernière donne ?</div>
+    <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px;text-align:left;font-size:13px;line-height:1.55;">
+      <div style="font-weight:800;margin-bottom:6px;">Manche ${escapeHtml(last?.manche ?? '?')} · ${escapeHtml(contract)}${escapeHtml(counter)}</div>
+      <div><span style="opacity:0.65;">Preneur :</span> <strong>${escapeHtml(taker)}</strong></div>
+      <div><span style="opacity:0.65;">Résultat :</span> <strong style="color:${resultColor};">${result}</strong></div>
+      <div style="border-top:1px solid rgba(255,255,255,0.12);margin-top:9px;padding-top:9px;">
+        <div><strong>${escapeHtml(S.t1.name)}</strong> : +${pts1} pts · ${current1} → ${restored1}</div>
+        <div><strong>${escapeHtml(S.t2.name)}</strong> : +${pts2} pts · ${current2} → ${restored2}</div>
+      </div>
+    </div>
+    <div style="font-size:12px;opacity:0.65;margin-top:12px;">Les points et le donneur seront restaurés.</div>`;
+}
+
 function askUndoLastRound() {
   if(!S.history.length) {
     showToast('Aucune donne à annuler');
     return;
   }
   const last = S.history[S.history.length - 1];
-  eid('confirm-msg').textContent = 'Annuler la dernière donne (manche ' + last.manche + ') ? Les points et le donneur seront restaurés.';
+  eid('confirm-msg').innerHTML = buildUndoLastRoundSummaryHtml(last);
   eid('confirm-ok').onclick = () => { closeConfirm(); undoLastRound(); };
   openModal('confirm-modal');
 }
