@@ -1788,7 +1788,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260625_1544</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260625_1601</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -2124,7 +2124,6 @@ function createInitialAppState() {
 
 let S = createInitialAppState();
 let pendingScore = null;
-let scoreCorrectionPromptTimer = null;
 
 function resetGameProgress() {
   S.score = {t1:0, t2:0};
@@ -3158,46 +3157,6 @@ function validateScore() {
   haptic('success');
   showScreen('game');
   showTab('enjeu');
-  showScoreCorrectionPrompt(h.manche);
-}
-
-function dismissScoreCorrectionPrompt() {
-  if(scoreCorrectionPromptTimer) {
-    clearTimeout(scoreCorrectionPromptTimer);
-    scoreCorrectionPromptTimer = null;
-  }
-  const prompt = eid('score-correction-prompt');
-  if(prompt) prompt.remove();
-}
-
-function showScoreCorrectionPrompt(manche) {
-  dismissScoreCorrectionPrompt();
-  if(!S.history.length) return;
-  const prompt = document.createElement('div');
-  prompt.id = 'score-correction-prompt';
-  prompt.dataset.manche = String(manche);
-  prompt.style.cssText = 'position:fixed;left:12px;right:12px;bottom:calc(62px + env(safe-area-inset-bottom,0px));z-index:10001;background:rgba(26,46,26,0.96);border:1px solid rgba(200,168,74,0.55);box-shadow:0 8px 24px rgba(0,0,0,0.35);border-radius:16px;padding:12px;display:flex;align-items:center;gap:10px;max-width:520px;margin:0 auto;color:#fff;';
-  prompt.innerHTML = `
-    <div style="flex:1;min-width:0;">
-      <div style="font-size:14px;font-weight:900;line-height:1.2;">Donne enregistrée</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.68);margin-top:2px;">Erreur de saisie ?</div>
-    </div>
-    <button onclick="quickEditLastRound()" style="background:#c8a84a;color:#1a1a1a;border:none;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;">Modifier</button>
-    <button onclick="quickUndoLastRound()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.28);border-radius:10px;padding:9px 12px;font-size:13px;font-weight:800;font-family:inherit;cursor:pointer;">Annuler</button>`;
-  document.body.appendChild(prompt);
-  scoreCorrectionPromptTimer = setTimeout(dismissScoreCorrectionPrompt, 7000);
-}
-
-function quickUndoLastRound() {
-  dismissScoreCorrectionPrompt();
-  undoLastRound();
-}
-
-function quickEditLastRound() {
-  const prompt = eid('score-correction-prompt');
-  const manche = Number(prompt?.dataset.manche || S.history[S.history.length - 1]?.manche);
-  dismissScoreCorrectionPrompt();
-  if(Number.isFinite(manche)) openEdit(manche);
 }
 
 function showWinner(team) {
@@ -3421,7 +3380,6 @@ function askUndoLastRound() {
 
 function undoLastRound() {
   if(!S.history.length) return;
-  dismissScoreCorrectionPrompt();
   S.history.pop();
   recalculateGameFromHistory();
   S.manche = Math.max(1, S.manche - 1);
