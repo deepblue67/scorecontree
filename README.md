@@ -7,9 +7,9 @@ Ce document sert à deux choses :
 
 Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou technique de l'application.
 
-Dernière mise à jour du README : 18 juin 2026.
+Dernière mise à jour du README : 25 juin 2026.
 
-Version applicative actuellement documentée : `v20260618_1626`.
+Version applicative actuellement documentée : `v20260625_1447`.
 
 ---
 
@@ -307,7 +307,7 @@ Règle de maintenance importante :
 
 À chaque livraison applicative, il faut synchroniser le numéro de version à deux endroits :
 
-1. dans `index.html`, en bas de l'écran Réglages ;
+1. dans `index.html`, dans l'encart situé en haut du contenu de l'écran Réglages ;
 2. dans `service-worker.js`, dans `CACHE_NAME`.
 
 Format attendu :
@@ -396,13 +396,13 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `screen-modal-regression.html` | écrans secondaires, modales, réglages, aide, export | 32 |
 | `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne, correction rapide après saisie | 46 |
 | `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats | 23 |
-| `final-audit-regression.html` | audit final structurel | 36 |
+| `final-audit-regression.html` | audit final structurel et emplacement de la version | 38 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
 
 Total des contrôles disponibles :
 
 ```text
-255 contrôles réussis
+257 contrôles réussis
 ```
 
 ### 7.2 Ce que les tests vérifient
@@ -732,6 +732,21 @@ Ce mode réutilise les mécanismes déjà présents :
 - `undoLastRound()` pour annuler la dernière donne ;
 - `autoSave()` via les chemins existants.
 
+### 8.12 Version en haut des Réglages
+
+Évolution ajoutée en version `v20260625_1447`.
+
+Le numéro de version n'est plus affiché dans le bandeau supérieur de l'écran Réglages. Le bandeau conserve uniquement le bouton `Retour` et le titre centré.
+
+Un encart `Application` est désormais placé tout en haut du contenu des Réglages. Il présente :
+
+- le nom `Belote Contrée` ;
+- la version applicative visible ;
+- la prise en charge du fonctionnement hors ligne ;
+- le principe de notification lorsqu'une mise à jour est disponible.
+
+La carte utilise une largeur fluide et un retour à la ligne automatique afin de rester lisible sur les cinq contextes suivis : PC, iPad portrait, iPad paysage, iPhone portrait et iPhone paysage.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1021,8 +1036,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260618_1626` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 255 contrôles réussis |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260625_1447` |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 257 contrôles réussis |
+| Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1447` |
 | Correction navigation rotation TABLE | Sécuriser le retour TABLE après passage saisie/rotation/annulation sur iPhone et iPad. | Fait | Haute | Corrigé avant `v20260611_1707` |
 | Nettoyage code mort | Supprimer fonctions/variables inutilisées et diagnostics non nécessaires sans toucher au comportement. | Fait | Moyenne | Fait avant `v20260611_1707` |
 | Prompt mise à jour PWA | Afficher `Nouvelle version disponible` puis laisser l'utilisateur cliquer sur `Mettre à jour`. | Fait | Haute | Livré en `v20260618_1502` |

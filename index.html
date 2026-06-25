@@ -90,7 +90,7 @@
 ║                                                                              ║
 ║  4. VERSIONING                                                               ║
 ║     • Format : vAAAAMMJJ_HHMM (ex: v20260610_1100)                          ║
-║     • Mettre à jour dans le header réglages ET dans CACHE_NAME du SW.       ║
+║     • Mettre à jour dans l'encart Réglages ET dans CACHE_NAME du SW.        ║
 ║     • Le SW (service-worker.js) doit avoir le même numéro de version        ║
 ║       pour invalider le cache à chaque déploiement.                         ║
 ║                                                                              ║
@@ -1739,10 +1739,23 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;position:sticky;top:0;z-index:100;">
       <button id="settings-back-btn" onclick="hideSettingsScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">⚙️ Réglages</h1>
-      <div style="width:80px;text-align:right;font-size:10px;opacity:0.45;color:#fff;">v20260618_1626</div>
+      <div style="width:80px;flex-shrink:0;" aria-hidden="true"></div>
     </div>
     <div style="overflow-y:auto;flex:1;padding:16px 16px 80px;">
       <div style="max-width:500px;margin:0 auto;">
+
+        <!-- ── Version de l'application ── -->
+        <div id="settings-app-version-card" style="background:var(--card);border-radius:16px;padding:16px;margin-bottom:20px;">
+          <div style="font-size:11px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">📱 Application</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <div style="min-width:0;flex:1;">
+              <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
+            </div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260625_1447</div>
+          </div>
+          <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
+        </div>
 
         <!-- ── Joueurs ── -->
         <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">👥 Liste des joueurs</div>
