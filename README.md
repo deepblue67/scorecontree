@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 25 juin 2026.
 
-Version applicative actuellement documentée : `v20260625_1447`.
+Version applicative actuellement documentée : `v20260625_1457`.
 
 ---
 
@@ -76,6 +76,7 @@ ScoreBelote/
     game-state-regression.html
     rendering-regression.html
     final-audit-regression.html
+    iphone-table-actions-regression.html
 ```
 
 Ancien emplacement des fichiers fournis au début de la conversation :
@@ -396,13 +397,14 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `screen-modal-regression.html` | écrans secondaires, modales, réglages, aide, export | 32 |
 | `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne, correction rapide après saisie | 46 |
 | `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats | 23 |
-| `final-audit-regression.html` | audit final structurel et emplacement de la version | 38 |
+| `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 42 |
+| `iphone-table-actions-regression.html` | placement et état des actions TABLE dans les cinq contextes d'affichage | 22 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
 
 Total des contrôles disponibles :
 
 ```text
-257 contrôles réussis
+283 contrôles réussis
 ```
 
 ### 7.2 Ce que les tests vérifient
@@ -734,7 +736,7 @@ Ce mode réutilise les mécanismes déjà présents :
 
 ### 8.12 Version en haut des Réglages
 
-Évolution ajoutée en version `v20260625_1447`.
+Évolution ajoutée en version `v20260625_1457`.
 
 Le numéro de version n'est plus affiché dans le bandeau supérieur de l'écran Réglages. Le bandeau conserve uniquement le bouton `Retour` et le titre centré.
 
@@ -746,6 +748,21 @@ Un encart `Application` est désormais placé tout en haut du contenu des Régla
 - le principe de notification lorsqu'une mise à jour est disponible.
 
 La carte utilise une largeur fluide et un retour à la ligne automatique afin de rester lisible sur les cinq contextes suivis : PC, iPad portrait, iPad paysage, iPhone portrait et iPhone paysage.
+
+### 8.13 Boutons secondaires de la TABLE sur iPhone
+
+Évolution ajoutée en version `v20260625_1457`.
+
+Uniquement sur iPhone portrait et iPhone paysage, les actions de la TABLE sont organisées sur deux colonnes :
+
+```text
+Contrat                  | Saisir score
+Annuler dernière donne   | Terminer la partie
+```
+
+Le bouton `Annuler dernière donne` reste visible sur iPhone. Lorsqu'aucune donne ne peut être annulée, il est grisé, désactivé et signalé comme indisponible aux technologies d'assistance.
+
+Sur iPad portrait, iPad paysage et PC, l'organisation et la visibilité précédentes sont conservées : le bouton d'annulation reste masqué tant qu'aucune donne n'a été jouée.
 
 ---
 
@@ -961,6 +978,16 @@ Campagne navigateur : 197 / 197 contrôles réussis
 Total : 255 / 255 contrôles réussis
 ```
 
+Validation de la livraison `v20260625_1457` :
+
+```text
+Syntaxe index.html OK
+Syntaxe service-worker.js OK
+Test PWA/cache/hors ligne : PASS 58
+Campagne navigateur : 225 / 225 contrôles réussis
+Total : 283 / 283 contrôles réussis
+```
+
 ---
 
 ## 13. Notes pour Codex lors d'une reprise
@@ -1036,9 +1063,10 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260625_1447` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 257 contrôles réussis |
-| Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1447` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260625_1457` |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 283 contrôles réussis |
+| Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
+| Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
 | Correction navigation rotation TABLE | Sécuriser le retour TABLE après passage saisie/rotation/annulation sur iPhone et iPad. | Fait | Haute | Corrigé avant `v20260611_1707` |
 | Nettoyage code mort | Supprimer fonctions/variables inutilisées et diagnostics non nécessaires sans toucher au comportement. | Fait | Moyenne | Fait avant `v20260611_1707` |
 | Prompt mise à jour PWA | Afficher `Nouvelle version disponible` puis laisser l'utilisateur cliquer sur `Mettre à jour`. | Fait | Haute | Livré en `v20260618_1502` |

@@ -465,7 +465,12 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   .winner-score-item { padding:12px 20px; }
   .winner-score-item .ws-name { font-size:11px; }
   .winner-score-item .ws-val { font-size:28px; }
-  #ej-action-grid { margin-top:20px !important; }
+  #ej-action-grid { margin-top:20px !important; grid-template-columns:1fr 1fr !important; }
+  #btn-action-contrat { grid-column:1 !important; grid-row:1 !important; }
+  #btn-action-saisie { grid-column:2 !important; grid-row:1 !important; }
+  #btn-undo-last-round { display:block !important; grid-column:1 !important; grid-row:2 !important; }
+  #btn-end-game-table { grid-column:2 !important; grid-row:2 !important; }
+  #btn-undo-last-round:disabled { opacity:0.38 !important; filter:grayscale(1); cursor:not-allowed !important; box-shadow:none !important; }
 }
 
 
@@ -552,6 +557,11 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   #ej-score-wrap .score-team .t-need { display:none !important; }
   #ej-action-grid { grid-column:2 !important; grid-row:2 !important; display:grid !important; grid-template-columns:1fr 1fr !important; gap:4px !important; padding:0 !important; max-width:none !important; margin:0 !important; width:100% !important; margin-top:16px !important; }
   #ej-action-grid .btn { font-size:10px !important; padding:7px 3px !important; }
+  #btn-action-contrat { grid-column:1 !important; grid-row:1 !important; }
+  #btn-action-saisie { grid-column:2 !important; grid-row:1 !important; }
+  #btn-undo-last-round { display:block !important; grid-column:1 !important; grid-row:2 !important; }
+  #btn-end-game-table { grid-column:2 !important; grid-row:2 !important; }
+  #btn-undo-last-round:disabled { opacity:0.38 !important; filter:grayscale(1); cursor:not-allowed !important; box-shadow:none !important; }
   #tab-enjeu.overlay-open { overflow:hidden !important; pointer-events:none !important; }
 
   /* Page CONTRAT */
@@ -1418,7 +1428,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
           <button id="btn-action-contrat" class="btn btn-outline" onclick="showTab('contrat')" style="font-size:13px;padding:10px 6px;">✏️ Contrat</button>
           <button id="btn-action-saisie" class="btn btn-green" onclick="showTab('saisie');updateSaisieForm();" style="font-size:13px;padding:10px 6px;">📊 Saisir score</button>
           <button id="btn-undo-last-round" class="btn btn-outline" onclick="askUndoLastRound()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;color:#111;border-color:#111;background:rgba(255,255,255,0.12);display:none;">↩ Annuler dernière donne</button>
-          <button class="btn btn-outline" onclick="askEndGame()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">🏁 Terminer la partie</button>
+          <button id="btn-end-game-table" class="btn btn-outline" onclick="askEndGame()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">🏁 Terminer la partie</button>
           <button id="btn-tournoi-shortcut" class="btn btn-gold" onclick="showTournoi()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;display:none;">🏆 Saisir scores du tournoi</button>
         </div>
 
@@ -1752,7 +1762,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260625_1447</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260625_1457</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -2293,7 +2303,12 @@ function updatePulseButtons() {
     btnSaisie.style.opacity = c ? '1' : '0.35';
     btnSaisie.disabled = !c;
   }
-  if(btnUndo) btnUndo.style.display = S.history.length ? '' : 'none';
+  if(btnUndo) {
+    const canUndo = S.history.length > 0;
+    btnUndo.style.display = canUndo ? '' : 'none';
+    btnUndo.disabled = !canUndo;
+    btnUndo.setAttribute('aria-disabled', canUndo ? 'false' : 'true');
+  }
   if(navScore) {
     navScore.style.opacity = c ? '1' : '0.35';
     navScore.dataset.blocked = c ? '' : '1';
