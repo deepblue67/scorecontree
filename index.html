@@ -1762,7 +1762,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260625_1457</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260625_1522</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -5340,7 +5340,13 @@ function renderEnjeu() {
     const posLabels = {nord:'NORD',est:'EST',sud:'SUD',ouest:'OUEST'};
     const anchor = p.anchor;
 
-    let out = '';
+    const partnerPos = pos === 'nord' ? 'sud' : pos === 'sud' ? 'nord' : pos === 'est' ? 'ouest' : 'est';
+    const partnerName = players[partnerPos];
+    let out = `<g id="table-player-${pos}" role="button" tabindex="0"
+      aria-label="Permuter ${escapeHtml(name)} et ${escapeHtml(partnerName)}"
+      style="cursor:pointer;touch-action:manipulation;"
+      onclick="askSwapPlayerPosition('${pos}')"
+      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();askSwapPlayerPosition('${pos}');}">`;
 
     const isIPadLand = Math.min(window.screen.width,window.screen.height)>=768 && window.innerWidth>window.innerHeight;
     const maxW = (pos==='ouest' || pos==='est') ? (isIPadLand ? 88 : 98) : 130;
@@ -5385,7 +5391,7 @@ function renderEnjeu() {
       out += `<text x="${jx}" y="${jy+5}" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="12" font-weight="800" fill="#fff">D</text>`;
     }
 
-    return out;
+    return out + '</g>';
   }
 
   // Zones équipes légère teinte (diagonales)
@@ -5508,6 +5514,52 @@ function renderEnjeu() {
   `;
 
   eid('ej-table-svg').innerHTML = svg;
+}
+
+function getPartnerPosition(pos) {
+  return pos === 'nord' ? 'sud'
+    : pos === 'sud' ? 'nord'
+    : pos === 'est' ? 'ouest'
+    : pos === 'ouest' ? 'est'
+    : null;
+}
+
+function askSwapPlayerPosition(pos) {
+  const partnerPos = getPartnerPosition(pos);
+  if(!partnerPos || !S.pos[pos] || !S.pos[partnerPos]) return;
+  const player = S.pos[pos];
+  const partner = S.pos[partnerPos];
+  const labels = {nord:'Nord', sud:'Sud', est:'Est', ouest:'Ouest'};
+  eid('confirm-msg').innerHTML =
+    'Permuter <strong>' + escapeHtml(player) + '</strong> et <strong>' + escapeHtml(partner) + '</strong> ?' +
+    '<br><span style="font-size:13px;opacity:0.75;">' +
+    escapeHtml(player) + ' passera à la place ' + labels[partnerPos] +
+    ' et ' + escapeHtml(partner) + ' à la place ' + labels[pos] + '.</span>';
+  eid('confirm-ok').onclick = () => {
+    closeConfirm();
+    swapPlayerPositions(pos);
+  };
+  openModal('confirm-modal');
+}
+
+function swapPlayerPositions(pos) {
+  const partnerPos = getPartnerPosition(pos);
+  if(!partnerPos || !S.pos[pos] || !S.pos[partnerPos]) return false;
+
+  const dealerName = S.pos[S.dealerOrder[S.dealerIdx]];
+  const player = S.pos[pos];
+  const partner = S.pos[partnerPos];
+  S.pos[pos] = partner;
+  S.pos[partnerPos] = player;
+
+  const dealerPos = S.dealerOrder.find(position => S.pos[position] === dealerName);
+  if(dealerPos) S.dealerIdx = S.dealerOrder.indexOf(dealerPos);
+
+  autoSave();
+  haptic('medium');
+  renderEnjeu();
+  showToast(player + ' et ' + partner + ' ont permuté');
+  return true;
 }
 
 // ═══════════════════════════════════════════════════════════

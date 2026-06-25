@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 25 juin 2026.
 
-Version applicative actuellement documentée : `v20260625_1457`.
+Version applicative actuellement documentée : `v20260625_1522`.
 
 ---
 
@@ -395,16 +395,16 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `tournament-regression.html` | appariements, classement, résultats tournoi | 16 |
 | `navigation-regression.html` | navigation, onglets, rotation, écran actif | 15 |
 | `screen-modal-regression.html` | écrans secondaires, modales, réglages, aide, export | 32 |
-| `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne, correction rapide après saisie | 46 |
-| `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats | 23 |
-| `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 42 |
+| `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne, correction rapide et permutation des places | 55 |
+| `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats et zones joueurs interactives | 27 |
+| `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 44 |
 | `iphone-table-actions-regression.html` | placement et état des actions TABLE dans les cinq contextes d'affichage | 22 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
 
 Total des contrôles disponibles :
 
 ```text
-283 contrôles réussis
+298 contrôles réussis
 ```
 
 ### 7.2 Ce que les tests vérifient
@@ -764,6 +764,26 @@ Le bouton `Annuler dernière donne` reste visible sur iPhone. Lorsqu'aucune donn
 
 Sur iPad portrait, iPad paysage et PC, l'organisation et la visibilité précédentes sont conservées : le bouton d'annulation reste masqué tant qu'aucune donne n'a été jouée.
 
+### 8.14 Permutation des partenaires depuis la TABLE
+
+Évolution ajoutée en version `v20260625_1522`.
+
+Un appui ou un clic sur le nom d'un joueur autour de la TABLE ouvre une confirmation proposant d'échanger sa place avec celle de son partenaire :
+
+- Nord avec Sud ;
+- Est avec Ouest.
+
+Aucun bouton ni aucune flèche permanente n'est ajouté à l'écran. Les quatre badges joueurs existants servent directement de zones interactives.
+
+La permutation :
+
+- modifie uniquement `S.pos` ;
+- ne change pas la composition ni le nom des équipes ;
+- conserve les scores, l'historique et le contrat en cours ;
+- conserve la même personne comme donneur en ajustant `S.dealerIdx` à sa nouvelle position ;
+- est enregistrée immédiatement dans la sauvegarde automatique ;
+- fonctionne au toucher, à la souris et au clavier.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -988,6 +1008,16 @@ Campagne navigateur : 225 / 225 contrôles réussis
 Total : 283 / 283 contrôles réussis
 ```
 
+Validation de la livraison `v20260625_1522` :
+
+```text
+Syntaxe index.html OK
+Syntaxe service-worker.js OK
+Test PWA/cache/hors ligne : PASS 58
+Campagne navigateur : 240 / 240 contrôles réussis
+Total : 298 / 298 contrôles réussis
+```
+
 ---
 
 ## 13. Notes pour Codex lors d'une reprise
@@ -1063,8 +1093,8 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260625_1457` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 283 contrôles réussis |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260625_1522` |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 298 contrôles réussis |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
 | Correction navigation rotation TABLE | Sécuriser le retour TABLE après passage saisie/rotation/annulation sur iPhone et iPad. | Fait | Haute | Corrigé avant `v20260611_1707` |
@@ -1090,6 +1120,7 @@ Statuts utilisés :
 | Modifier une donne | Depuis l'historique ou la feuille, rouvrir une donne, modifier les points et recalculer les scores suivants. | Fait | Haute | Livré en `v20260618_1524` |
 | Reprise partie interrompue | Afficher au démarrage une reprise plus claire de la partie autosauvegardée. | Fait | Haute | Livré en `v20260618_1524` |
 | Mode erreur de saisie | Après validation d'une donne, proposer quelques secondes `Annuler / Modifier`. | Fait | Haute | Livré en `v20260618_1626` |
+| Permuter les partenaires sur la TABLE | Appuyer sur un joueur pour échanger sa place avec son partenaire, sans changer les équipes et en conservant le donneur. | Fait | Haute | Livré en `v20260625_1522` |
 | Résumé fin de partie enrichi | Ajouter nombre de donnes, contrats réussis/chutés, plus gros contrat, meilleure série. | Fait | Haute | Livré en `v20260618_1524` |
 | Statistiques joueur avancées | Contrats pris, taux de réussite, chutes, points moyens, partenaires, victoires. | Fait | Haute | Livré en `v20260618_1524` |
 | Aide contextuelle | Petits boutons `?` sur contrat, belote, capot, tournoi. | À faire | Moyen terme | Faible risque si ciblé |
