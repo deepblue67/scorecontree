@@ -31,8 +31,11 @@
 
       app.showHelpScreen();
       check(activeScreen() === 'help', 'Aide non ouverte');
+      check((doc.getElementById('help-back-btn')?.style.animation || '').includes('pulse-btn'), 'Bouton Retour Aide non clignotant');
+      check(doc.getElementById('help-content')?.textContent.includes('Corriger une erreur de saisie'), 'Guide utilisateur non mis a jour');
       app.hideHelpScreen();
       check(activeScreen() === 'settings', 'Aide ne revient pas aux Réglages');
+      check((doc.getElementById('help-back-btn')?.style.animation || '') === '', 'Bouton Retour Aide continue de clignoter apres fermeture');
 
       app.hideSettingsScreen();
       check(activeScreen() === 'setup', 'Réglages ne reviennent pas à Configuration');
@@ -45,8 +48,10 @@
 
       app.showMarqueScreen();
       check(activeScreen() === 'marque', 'Aide à la marque non ouverte');
+      check((doc.getElementById('marque-back-btn')?.style.animation || '').includes('pulse-btn'), 'Bouton Retour Aide marque non clignotant');
       app.hideMarqueScreen();
       check(activeScreen() === 'settings', 'Marque ne revient pas aux Réglages');
+      check((doc.getElementById('marque-back-btn')?.style.animation || '') === '', 'Bouton Retour Aide marque continue de clignoter apres fermeture');
       app.hideSettingsScreen();
       check(activeScreen() === 'game', 'Réglages ne reviennent pas à la Partie');
 

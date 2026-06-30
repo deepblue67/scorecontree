@@ -90,6 +90,22 @@
       check(doc.getElementById('stats-players-content').textContent.includes('<img src=x onerror=alert(1)>'), 'Nom joueur absent des stats');
       check(doc.getElementById('stats-players-content').textContent.includes('Partenaire'), 'Stat partenaire absente');
 
+      app.eval(`
+        S.pos = {nord:'Alice',sud:'Bruno',est:'Chloé',ouest:'David'};
+        S.t1 = {name:'Alice & Bruno',players:['Alice','Bruno']};
+        S.t2 = {name:'Chloé & David',players:['Chloé','David']};
+        S.score = {t1:120,t2:40};
+        S.history = [];
+        S.contract = null;
+        S.dealerIdx = 0;
+      `);
+      app.renderEnjeu();
+      const playerGroups = doc.querySelectorAll('#ej-table-svg [id^="table-player-"]');
+      check(playerGroups.length === 4, 'Zones interactives joueurs absentes de la TABLE');
+      check(Array.from(playerGroups).every(group => group.getAttribute('role') === 'button'), 'Rôle bouton absent des joueurs TABLE');
+      check(Array.from(playerGroups).every(group => group.getAttribute('tabindex') === '0'), 'Navigation clavier absente des joueurs TABLE');
+      check(doc.getElementById('table-player-nord').getAttribute('aria-label').includes('Alice') && doc.getElementById('table-player-nord').getAttribute('aria-label').includes('Bruno'), 'Libellé permutation Nord Sud incorrect');
+
       app.localStorage.removeItem('belote_history');
       result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
       result.dataset.status = failures.length ? 'fail' : 'pass';

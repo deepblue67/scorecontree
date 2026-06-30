@@ -1763,7 +1763,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   <!-- ════════ SCREEN: AIDE À LA MARQUE ════════ -->
   <div id="screen-marque" class="screen" style="background:var(--bg);">
     <div class="header" style="display:flex;align-items:center;gap:10px;padding:12px 16px;">
-      <button onclick="hideMarqueScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
+      <button id="marque-back-btn" onclick="hideMarqueScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">📜 Aide à la marque</h1>
       <div style="width:80px;"></div>
     </div>
@@ -1788,7 +1788,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260625_1624</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260630_1615</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -1934,7 +1934,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   <!-- ════════ SCREEN: AIDE ════════ -->
   <div id="screen-help" class="screen" style="background:var(--bg);">
     <div class="header" style="position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px;padding:12px 16px;">
-      <button onclick="hideHelpScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
+      <button id="help-back-btn" onclick="hideHelpScreen()" style="background:rgba(255,255,255,0.15);border:none;border-radius:99px;padding:7px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;">← Retour</button>
       <h1 style="flex:1;text-align:center;font-size:17px;margin:0;">Guide d'utilisation</h1>
       <div style="width:70px;"></div>
     </div>
@@ -7102,6 +7102,8 @@ function loadTheme() {
 function showHelpScreen() {
   renderHelpContent();
   openSecondaryScreen('help', 'settings');
+  const backBtn = eid('help-back-btn');
+  if(backBtn) backBtn.style.animation = 'pulse-btn 2s ease infinite';
   // Remonter en haut — scroller le conteneur scrollable
   setTimeout(() => {
     const hc = eid('help-content');
@@ -7113,6 +7115,8 @@ function showHelpScreen() {
 
 function hideHelpScreen() {
   closeSecondaryScreen('help', 'settings');
+  const backBtn = eid('help-back-btn');
+  if(backBtn) backBtn.style.animation = '';
 }
 
 function renderHelpContent() {
@@ -7185,6 +7189,25 @@ function renderHelpContent() {
     <rect x="30" y="132" width="260" height="22" rx="11" fill="#2e6b28" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
     <text x="160" y="143" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Commencer la partie ▶</text>
     <text x="160" y="152" text-anchor="middle" font-size="8" fill="#111">La partie se joue en 2001 points</text>
+  </svg>`;
+
+  const svgTable = `<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+    <rect width="320" height="170" fill="#1a3318"/>
+    <ellipse cx="160" cy="74" rx="86" ry="48" fill="#236020" stroke="#c8960a" stroke-width="2"/>
+    <rect x="112" y="12" width="96" height="24" rx="10" fill="#123512"/>
+    <text x="160" y="28" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Marie</text>
+    <rect x="112" y="112" width="96" height="24" rx="10" fill="#123512"/>
+    <text x="160" y="128" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Paul</text>
+    <rect x="18" y="62" width="88" height="24" rx="10" fill="#0d3978"/>
+    <text x="62" y="78" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Luc</text>
+    <rect x="214" y="62" width="88" height="24" rx="10" fill="#0d3978"/>
+    <text x="258" y="78" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Anna</text>
+    <text x="160" y="64" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">Appuyez sur un joueur</text>
+    <text x="160" y="79" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.85)">pour permuter avec son partenaire</text>
+    <rect x="14" y="142" width="140" height="18" rx="9" fill="#c8960a"/>
+    <text x="84" y="155" text-anchor="middle" font-size="9" font-weight="800" fill="#111">Annuler derniere donne</text>
+    <rect x="166" y="142" width="140" height="18" rx="9" fill="#2e6b28"/>
+    <text x="236" y="155" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">Saisir score</text>
   </svg>`;
 
   const svgContrat = `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
@@ -7287,6 +7310,33 @@ function renderHelpContent() {
     <text x="160" y="160" text-anchor="middle" font-size="7" font-weight="800" fill="#111">🏁 Terminer la partie</text>
   </svg>`;
 
+  const svgCorrection = `<svg viewBox="0 0 320 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+    <rect width="320" height="165" fill="#2e6b28"/>
+    <rect x="18" y="14" width="284" height="62" rx="12" fill="#f5f2ea"/>
+    <text x="32" y="34" font-size="10" font-weight="900" fill="#888">DERNIERE DONNE</text>
+    <text x="32" y="50" font-size="12" font-weight="900" fill="#1a1a1a">Manche 2 · 100 ♥ · Contre x2</text>
+    <text x="32" y="65" font-size="10" fill="#555">Preneur : Anna &amp; Luc · Resultat : chute</text>
+    <rect x="18" y="88" width="136" height="54" rx="12" fill="#f5f2ea"/>
+    <text x="86" y="108" text-anchor="middle" font-size="10" font-weight="900" fill="#1a1a1a">Modifier une donne</text>
+    <text x="86" y="123" text-anchor="middle" font-size="9" fill="#555">✏️ depuis Parties</text>
+    <text x="86" y="136" text-anchor="middle" font-size="9" fill="#555">les scores suivants sont recalcules</text>
+    <rect x="166" y="88" width="136" height="54" rx="12" fill="#f5f2ea"/>
+    <text x="234" y="108" text-anchor="middle" font-size="10" font-weight="900" fill="#1a1a1a">Annuler</text>
+    <text x="234" y="123" text-anchor="middle" font-size="9" fill="#555">resume avant confirmation</text>
+    <text x="234" y="136" text-anchor="middle" font-size="9" fill="#555">puis restauration du score</text>
+  </svg>`;
+
+  const svgSync = `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+    <rect width="320" height="150" fill="#1a3318"/>
+    <rect x="16" y="14" width="288" height="48" rx="12" fill="#f5f2ea"/>
+    <text x="32" y="34" font-size="11" font-weight="900" fill="#1a1a1a">Application hors ligne</text>
+    <text x="32" y="50" font-size="10" fill="#555">Une mise a jour est proposee automatiquement</text>
+    <rect x="16" y="76" width="288" height="54" rx="12" fill="#f5f2ea"/>
+    <text x="32" y="96" font-size="11" font-weight="900" fill="#1a1a1a">Exporter / importer</text>
+    <text x="32" y="112" font-size="10" fill="#555">Code texte, fichier JSON ou GitHub Gist</text>
+    <text x="32" y="126" font-size="10" fill="#555">Sauvegarde creee avant import</text>
+  </svg>`;
+
   const svgHistorique = `<svg viewBox="0 0 320 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
     <rect width="320" height="165" fill="#2e6b28"/>
     <!-- Sous-onglets -->
@@ -7346,8 +7396,9 @@ function renderHelpContent() {
       step(1, 'Appuyez sur <strong>⚙️</strong> en haut à gauche pour ouvrir les Réglages.'),
       step(2, '<strong>Joueurs</strong> — ajoutez vos prénoms (mémorisés entre les parties). Dépliez/repliez la liste avec le bouton accordéon.'),
       step(3, '<strong>Mode de fin de partie</strong> — choisissez <em>Points</em> (ex: 2001) ou <em>Manches</em> (ex: 10). Modifiable à tout moment avant de lancer.'),
-      step(4, '<strong>Thème du tapis</strong> — Vert, Bleu ou Rouge.'),
-      tip('La synchronisation permet de transférer vos données par code texte, fichier JSON ou GitHub Gist.'),
+      step(4, '<strong>Version et mises à jour</strong> — la version est affichée en haut des Réglages. Si une nouvelle version existe, l\'application propose <strong>Mettre à jour</strong>.'),
+      step(5, '<strong>Thème du tapis</strong> — Vert, Bleu ou Rouge.'),
+      tip('La synchronisation permet de transférer vos données par code texte, fichier JSON ou GitHub Gist. Avant un import, une sauvegarde locale de sécurité est créée.'),
     ].join(''), svgReglages) +
 
     // ── 2. Configuration ──
@@ -7358,8 +7409,18 @@ function renderHelpContent() {
       note('Avant de lancer, vous pouvez consulter <strong>Parties</strong> et <strong>Stats</strong> depuis la barre du bas.'),
     ].join(''), svgConfig) +
 
-    // ── 3. Contrat ──
-    section('✏️', '3. Saisir le contrat', [
+    // ── 3. Table ──
+    section('🃏', '3. Page Table — Pendant la partie', [
+      step(1, 'La table affiche les joueurs à leur place, le score des deux équipes, la manche en cours et le donneur.'),
+      step(2, '<strong>Contrat</strong> permet de préparer la donne. <strong>Saisir score</strong> devient utile une fois le contrat confirmé.'),
+      step(3, '<strong>Annuler dernière donne</strong> reste visible : il est grisé si aucune donne ne peut être annulée.'),
+      step(4, '<strong>Terminer la partie</strong> permet d\'arrêter manuellement la partie, même si l\'objectif n\'est pas atteint.'),
+      step(5, 'Appuyez sur un joueur pour proposer une permutation avec son partenaire : les équipes ne changent pas, seules les places autour de la table changent.'),
+      note('Sur iPhone, les actions sont rangées pour rester lisibles en portrait comme en paysage.'),
+    ].join(''), svgTable) +
+
+    // ── 4. Contrat ──
+    section('✏️', '4. Saisir le contrat', [
       step(1, 'Appuyez sur <strong>Contrat</strong> dans la barre du bas.'),
       step(2, 'Sélectionnez l\'équipe preneuse, puis la hauteur (80 → Capot) et la couleur atout.'),
       step(3, 'Activez <strong>Contre ×2</strong> ou <strong>Surcontre ×3</strong> si nécessaire.'),
@@ -7367,34 +7428,42 @@ function renderHelpContent() {
       tip('La carte au centre de la table affiche le contrat. Appuyez dessus pour l\'agrandir avec tous les détails.'),
     ].join(''), svgContrat) +
 
-    // ── 4. Résultat ──
-    section('📊', '4. Saisir le score (Résultat)', [
+    // ── 5. Résultat ──
+    section('📊', '5. Saisir le score (Résultat)', [
       step(1, 'Appuyez sur <strong>Résultat</strong> (grisé sans contrat).'),
       step(2, 'Entrez les points d\'une équipe — l\'autre se calcule automatiquement.'),
       step(3, 'Si un score se termine par 6, il est arrondi à la dizaine supérieure. Utilisez le <strong>toggle 160/170</strong> pour ajuster le total.'),
       step(4, 'Cochez <strong>Belote</strong> si annoncée (+20 pts).'),
-      step(5, 'Appuyez sur <strong>Calculer &amp; Prévisualiser</strong> puis <strong>Valider</strong>.'),
-      tip('Les scores rapides (80, 100, 120…) permettent une saisie en un tap.'),
+      step(5, 'Appuyez sur <strong>Calculer &amp; Prévisualiser</strong> puis <strong>Valider</strong>. La donne est enregistrée directement.'),
+      tip('Les scores rapides (80, 100, 120…) permettent une saisie en un tap. En cas d\'erreur, utilisez ensuite Modifier ou Annuler depuis les écrans prévus.'),
     ].join(''), svgResultat) +
 
-    // ── 5. Parties ──
-    section('📋', '5. Onglet Parties', [
+    // ── 6. Parties ──
+    section('📋', '6. Onglet Parties', [
       step(1, '<strong>En cours</strong> (défaut) — feuille de score de la partie avec totaux. Modifiez ✏️ une manche directement depuis cet onglet.'),
       step(2, '<strong>Historique</strong> — liste des manches de la partie en cours. Supprimez 🗑 une manche si besoin.'),
       step(3, 'Depuis "En cours" : partagez la feuille via <strong>📤 Partage texte</strong> ou <strong>📸 Partage image</strong>.'),
-      note('Cet onglet est accessible même avant de lancer une partie pour consulter l\'historique des parties précédentes.'),
+      note('Quand une donne est modifiée, l\'application recalcule les scores suivants pour garder une feuille cohérente.'),
     ].join(''), svgParties) +
 
-    // ── 6. Historique parties précédentes ──
-    section('📅', '6. Parties précédentes', [
+    // ── 7. Corriger une erreur ──
+    section('🛠️', '7. Corriger une erreur de saisie', [
+      step(1, '<strong>Modifier une donne</strong> — depuis la feuille ou l\'historique, ouvrez la donne, ajustez les points, puis validez.'),
+      step(2, '<strong>Annuler dernière donne</strong> — depuis la Table, une confirmation affiche la manche, le contrat, le preneur, le résultat et les scores qui seront restaurés.'),
+      step(3, 'Le petit message automatique après validation a été retiré : la correction se fait maintenant par ces commandes plus stables.'),
+      tip('Sur iPhone portrait, la fenêtre de modification a été resserrée pour que les chiffres des deux équipes restent lisibles.'),
+    ].join(''), svgCorrection) +
+
+    // ── 8. Historique parties précédentes ──
+    section('📅', '8. Parties précédentes', [
       step(1, 'Dans l\'onglet <strong>Historique</strong>, les parties passées sont regroupées par date.'),
       step(2, 'Appuyez sur une date pour <strong>déplier</strong> la liste des parties de ce jour.'),
       step(3, 'Appuyez sur une partie pour voir le <strong>détail manche par manche</strong>.'),
       step(4, 'Appuyez sur <strong>✕</strong> pour supprimer une partie de l\'historique.'),
     ].join(''), svgHistorique) +
 
-    // ── 7. Terminer la partie ──
-    section('🏁', '7. Terminer la partie', [
+    // ── 9. Terminer la partie ──
+    section('🏁', '9. Terminer la partie', [
       step(1, 'Appuyez sur <strong>🏁 Terminer la partie</strong> (page Table ou onglet Score) pour arrêter la partie à tout moment, même sans atteindre l\'objectif.'),
       step(2, 'La pop-up affiche le <strong>gagnant et le perdant</strong> avec leurs scores.'),
       step(3, '<strong>Confirmer 🎉</strong> — enregistre et repart avec les mêmes équipes.'),
@@ -7402,6 +7471,15 @@ function renderHelpContent() {
       step(5, '<strong>Continuer la partie</strong> — ferme la pop-up sans rien sauvegarder.'),
       note('La partie se termine aussi automatiquement quand une équipe atteint l\'objectif (points ou manches).'),
     ].join(''), svgTerminer) +
+
+    // ── 10. Données et hors ligne ──
+    section('💾', '10. Données, sauvegarde et hors ligne', [
+      step(1, 'L\'application fonctionne hors ligne grâce au service worker : une fois installée, elle reste disponible sans réseau.'),
+      step(2, 'Les données sont stockées localement sur l\'appareil : joueurs, partie en cours, historique, tournois et thème.'),
+      step(3, 'Pour changer d\'appareil, utilisez <strong>Exporter mes données</strong> puis <strong>Importer des données</strong>.'),
+      step(4, 'Avant un import, une sauvegarde locale est créée pour permettre une restauration si le contenu importé n\'est pas le bon.'),
+      note('Le QR Code a été supprimé car les historiques volumineux dépassaient facilement sa capacité.'),
+    ].join(''), svgSync) +
 
     // ── Footer ──
     '<div style="background:rgba(200,150,10,0.12);border:1px solid rgba(200,150,10,0.3);border-radius:14px;padding:16px;margin-bottom:14px;text-align:center;">' +
@@ -7422,12 +7500,16 @@ function showMarqueScreen() {
     if(tabMarque) el.innerHTML = tabMarque.innerHTML;
   }
   openSecondaryScreen('marque', 'settings');
+  const backBtn = eid('marque-back-btn');
+  if(backBtn) backBtn.style.animation = 'pulse-btn 2s ease infinite';
   const sc = eid('screen-marque');
   if(sc) sc.scrollTop = 0;
 }
 
 function hideMarqueScreen() {
   closeSecondaryScreen('marque', 'settings');
+  const backBtn = eid('marque-back-btn');
+  if(backBtn) backBtn.style.animation = '';
 }
 
 

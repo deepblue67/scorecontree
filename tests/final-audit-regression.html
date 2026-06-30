@@ -26,20 +26,27 @@
 
     try {
       check(duplicateIds().length === 0, 'IDs du DOM initial dupliqués : ' + duplicateIds().join(', '));
+      check(/^v\d{8}_\d{4}$/.test(doc.getElementById('settings-app-version')?.textContent.trim() || ''), 'Version dédiée absente des Réglages');
+      check(!/v\d{8}_\d{4}/.test(doc.querySelector('#screen-settings .header')?.textContent || ''), 'Version encore présente dans le bandeau Réglages');
+      check(!!doc.getElementById('btn-undo-last-round'), 'Bouton annulation TABLE absent');
+      check(!!doc.getElementById('btn-end-game-table'), 'Bouton fin de partie TABLE absent');
+      app.updatePulseButtons();
+      check(doc.getElementById('btn-undo-last-round').disabled, 'Bouton annulation actif sans historique');
 
       [
         'showScreen','showTab','showSettingsScreen','hideSettingsScreen',
         'openModal','closeModal','autoSave','resumeGame',
         'renderHistory','renderFeuille','renderStats',
-        'askUndoLastRound','undoLastRound','recalculateGameFromHistory',
+        'askUndoLastRound','undoLastRound','recalculateGameFromHistory','buildUndoLastRoundSummaryHtml',
         'openEdit','saveEdit','buildGameSummaryHtml',
-        'showScoreCorrectionPrompt','dismissScoreCorrectionPrompt',
-        'quickEditLastRound','quickUndoLastRound'
+        'askSwapPlayerPosition','swapPlayerPositions'
       ].forEach(name => check(typeof app[name] === 'function', 'Fonction publique absente : ' + name));
 
       [
         'togglePlayerList','getWinningScore','getWinningManches',
-        'debugShowHistory','openSettings','showMancheSummary'
+        'debugShowHistory','openSettings','showMancheSummary',
+        'showScoreCorrectionPrompt','dismissScoreCorrectionPrompt',
+        'quickEditLastRound','quickUndoLastRound'
       ].forEach(name => check(typeof app[name] === 'undefined', 'Ancien symbole encore présent : ' + name));
 
       app.eval(`
@@ -69,6 +76,7 @@
 
       app.showTab('enjeu');
       check(doc.getElementById('btn-undo-last-round').style.display !== 'none', 'Bouton annulation derniere donne absent avec historique');
+      check(!doc.getElementById('btn-undo-last-round').disabled, 'Bouton annulation désactivé avec historique');
 
       app.showSettingsScreen();
       app.showHelpScreen();

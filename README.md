@@ -7,9 +7,9 @@ Ce document sert à deux choses :
 
 Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou technique de l'application.
 
-Dernière mise à jour du README : 25 juin 2026.
+Dernière mise à jour du README : 30 juin 2026.
 
-Version applicative actuellement documentée : `v20260625_1624`.
+Version applicative actuellement documentée : `v20260630_1615`.
 
 ---
 
@@ -40,6 +40,8 @@ Elle permet de :
 - afficher un résumé enrichi en fin de partie ;
 - afficher des statistiques joueur plus détaillées.
 - exporter les données par code texte, partage natif ou fichier JSON, sans option QR Code.
+- afficher une aide utilisateur mise à jour avec des visuels explicatifs intégrés ;
+- guider le retour depuis les écrans Aide et Aide à la marque avec un bouton `Retour` clignotant.
 
 L'application est aujourd'hui volontairement livrée sous forme de deux fichiers principaux :
 
@@ -394,7 +396,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `storage-regression.html` | localStorage, import/export, formats invalides, sauvegarde pré-import | 15 |
 | `tournament-regression.html` | appariements, classement, résultats tournoi | 16 |
 | `navigation-regression.html` | navigation, onglets, rotation, écran actif | 15 |
-| `screen-modal-regression.html` | écrans secondaires, modales, réglages, aide, export | 32 |
+| `screen-modal-regression.html` | écrans secondaires, modales, réglages, aide, export et boutons Retour clignotants | 37 |
 | `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne et permutation des places | 54 |
 | `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats et zones joueurs interactives | 27 |
 | `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 45 |
@@ -404,7 +406,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 Total des contrôles disponibles :
 
 ```text
-306 contrôles réussis
+311 contrôles réussis
 ```
 
 ### 7.2 Ce que les tests vérifient
@@ -820,6 +822,30 @@ La correction est limitée au media query iPhone portrait :
 
 L'organisation reste en deux colonnes. iPhone paysage, iPad portrait, iPad paysage et PC conservent leurs styles précédents.
 
+### 8.16 Guide utilisateur et retours d'aide
+
+Évolution ajoutée en version `v20260630_1615`.
+
+La page `Comment utiliser l'application` a été reprise pour tenir compte des évolutions récentes :
+
+- version et mises à jour depuis l'encart Réglages ;
+- organisation de la page TABLE et actions iPhone ;
+- permutation des partenaires par appui sur un joueur ;
+- validation directe d'une donne sans ancien bandeau `Erreur de saisie ?` ;
+- modification d'une donne depuis la feuille ou l'historique ;
+- annulation de la dernière donne avec récapitulatif détaillé avant confirmation ;
+- sauvegarde avant import ;
+- suppression de l'option QR Code ;
+- fonctionnement hors ligne et stockage local.
+
+La page reste intégrée dans `index.html` et utilise des visuels SVG explicatifs, comme les captures déjà présentes dans l'aide. Trois visuels ont été ajoutés :
+
+- page TABLE et actions principales ;
+- correction ou annulation d'une donne ;
+- données, sauvegarde, import/export et hors ligne.
+
+Le bouton `Retour` de `Comment utiliser l'application` et celui de `Aide à la marque` clignotent désormais comme le bouton `Retour` des Réglages. L'animation démarre à l'ouverture de la page secondaire et s'arrête à sa fermeture.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1084,6 +1110,16 @@ Campagne navigateur : 248 / 248 contrôles réussis
 Total : 306 / 306 contrôles réussis
 ```
 
+Validation de la livraison `v20260630_1615` :
+
+```text
+Syntaxe index.html OK
+Syntaxe service-worker.js OK
+Test PWA/cache/hors ligne : PASS 58
+Campagne navigateur : 253 / 253 contrôles réussis
+Total : 311 / 311 contrôles réussis
+```
+
 ---
 
 ## 13. Notes pour Codex lors d'une reprise
@@ -1159,8 +1195,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260625_1624` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 306 contrôles réussis |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260630_1615` |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 311 contrôles réussis |
+| Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
 | Correction navigation rotation TABLE | Sécuriser le retour TABLE après passage saisie/rotation/annulation sur iPhone et iPad. | Fait | Haute | Corrigé avant `v20260611_1707` |

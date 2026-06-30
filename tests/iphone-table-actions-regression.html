@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Actions TABLE responsive ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<script>
+  const result = document.getElementById('result');
+  const failures = [];
+  let checks = 0;
+
+  const check = (condition, message) => {
+    checks += 1;
+    if(!condition) failures.push(message);
+  };
+
+  const contexts = [
+    {name:'iPhone portrait', width:390, height:844, iphone:true},
+    {name:'iPhone paysage', width:844, height:390, iphone:true},
+    {name:'iPad portrait', width:768, height:1024, iphone:false},
+    {name:'iPad paysage', width:1180, height:820, iphone:false},
+    {name:'PC', width:1440, height:900, iphone:false}
+  ];
+
+  Promise.all(contexts.map(context => new Promise(resolve => {
+    const frame = document.createElement('iframe');
+    frame.src = '../index.html';
+    frame.style.cssText = `position:absolute;left:-5000px;top:0;width:${context.width}px;height:${context.height}px;border:0;`;
+    frame.addEventListener('load', () => resolve({context, frame}));
+    document.body.appendChild(frame);
+  }))).then(entries => {
+    entries.forEach(({context, frame}) => {
+      const app = frame.contentWindow;
+      const doc = frame.contentDocument;
+      app.eval(`
+        S.t1 = {name:'Nord & Sud',players:['Nord','Sud']};
+        S.t2 = {name:'Est & Ouest',players:['Est','Ouest']};
+        S.pos = {nord:'Nord',sud:'Sud',est:'Est',ouest:'Ouest'};
+        S.score = {t1:0,t2:0};
+        S.history = [];
+        S.contract = null;
+        S.manche = 1;
+        showScreen('game');
+        initGameUI();
+        showTab('enjeu');
+      `);
+
+      const undo = doc.getElementById('btn-undo-last-round');
+      const end = doc.getElementById('btn-end-game-table');
+      const contract = doc.getElementById('btn-action-contrat');
+      const score = doc.getElementById('btn-action-saisie');
+      const undoStyle = app.getComputedStyle(undo);
+
+      check(!!undo && !!end, context.name + ' : boutons secondaires absents');
+      if(context.iphone) {
+        check(undoStyle.display !== 'none', context.name + ' : annulation masquée sans historique');
+        check(undo.disabled, context.name + ' : annulation active sans historique');
+        check(app.getComputedStyle(contract).gridColumnStart === '1' && app.getComputedStyle(contract).gridRowStart === '1', context.name + ' : Contrat mal placé');
+        check(app.getComputedStyle(score).gridColumnStart === '2' && app.getComputedStyle(score).gridRowStart === '1', context.name + ' : Saisir score mal placé');
+        check(undoStyle.gridColumnStart === '1' && undoStyle.gridRowStart === '2', context.name + ' : Annuler mal placé');
+        check(app.getComputedStyle(end).gridColumnStart === '2' && app.getComputedStyle(end).gridRowStart === '2', context.name + ' : Terminer mal placé');
+
+        app.eval(`S.history = [{manche:1,total1:80,total2:90}]; updatePulseButtons();`);
+        check(!undo.disabled, context.name + ' : annulation non activée avec historique');
+      } else {
+        check(undoStyle.display === 'none', context.name + ' : comportement non-iPhone modifié sans historique');
+      }
+
+      app.eval(`
+        S.history = [{
+          manche:1,contract:'110 ♥',contre:'none',preneur:'Nord & Sud',
+          chute:false,pts1:110,pts2:72,total1:110,total2:72
+        }];
+        openEdit(1);
+      `);
+      const editInput = doc.getElementById('edit-pts-t1');
+      const editButton = doc.querySelector('#edit-scores-grid .stepper button');
+      const editStyle = app.getComputedStyle(editInput);
+      if(context.name === 'iPhone portrait') {
+        check(editStyle.fontSize === '28px', 'iPhone portrait : taille des chiffres édition incorrecte');
+        check(parseFloat(editStyle.paddingLeft) <= 2 && parseFloat(editStyle.paddingRight) <= 2, 'iPhone portrait : padding masque encore les chiffres');
+        check(parseFloat(app.getComputedStyle(editButton).width) === 44, 'iPhone portrait : largeur bouton édition incorrecte');
+        check(editInput.clientWidth >= 55, 'iPhone portrait : champ score encore trop étroit');
+      } else {
+        check(editStyle.fontSize === '36px', context.name + ' : style édition modifié hors iPhone portrait');
+      }
+      app.closeEdit();
+    });
+
+    result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+    result.dataset.status = failures.length ? 'fail' : 'pass';
+  }).catch(error => {
+    result.textContent = 'ERROR ' + error.message;
+    result.dataset.status = 'error';
+  });
+</script>
+</body>
+</html>

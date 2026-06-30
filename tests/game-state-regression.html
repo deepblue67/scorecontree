@@ -114,6 +114,14 @@
         S._gameSaved = true;
         pendingScore = {pts1:10,pts2:150};
       `);
+      app.askUndoLastRound();
+      const undoSummary = doc.getElementById('confirm-msg').textContent;
+      check(doc.getElementById('confirm-modal').style.display === 'flex', 'Confirmation annulation non ouverte');
+      check(undoSummary.includes('Manche 2') && undoSummary.includes('100 trefle'), 'Contrat absent de la confirmation annulation');
+      check(undoSummary.includes('C & D') && undoSummary.includes('Chuté'), 'Preneur ou résultat absent de la confirmation annulation');
+      check(undoSummary.includes('+160 pts') && undoSummary.includes('+80 pts'), 'Points de la donne absents de la confirmation annulation');
+      check(undoSummary.includes('250 → 90') && undoSummary.includes('150 → 70'), 'Scores restaurés absents de la confirmation annulation');
+      app.closeConfirm();
       app.undoLastRound();
       current = state();
       check(current.history.length === 1, 'Annulation derniere donne ne retire pas la derniere ligne');
@@ -167,18 +175,31 @@
       app.validateScore();
       current = state();
       check(current.history.length === 1 && current.history[0].manche === 1, 'Validation score ne cree pas la donne attendue');
-      check(!!doc.getElementById('score-correction-prompt'), 'Bandeau correction absent apres validation');
-      check(doc.getElementById('score-correction-prompt').textContent.includes('Modifier'), 'Action Modifier absente du bandeau correction');
-      check(doc.getElementById('score-correction-prompt').textContent.includes('Annuler'), 'Action Annuler absente du bandeau correction');
-      app.quickEditLastRound();
-      check(!doc.getElementById('score-correction-prompt'), 'Bandeau correction non ferme par Modifier');
-      check(doc.getElementById('edit-modal').style.display === 'flex', 'Modifier depuis bandeau n ouvre pas edition');
-      app.closeEdit();
-      app.showScoreCorrectionPrompt(1);
-      app.quickUndoLastRound();
+      check(!doc.getElementById('score-correction-prompt'), 'Ancien bandeau correction encore affiché après validation');
+
+      setState(`
+        S.pos = {nord:'A',sud:'B',est:'C',ouest:'D'};
+        S.t1 = {name:'A & B',players:['A','B']};
+        S.t2 = {name:'C & D',players:['C','D']};
+        S.score = {t1:250,t2:150};
+        S.history = [{manche:1,pts1:250,pts2:150,total1:250,total2:150}];
+        S.manche = 2;
+        S.dealerIdx = 0;
+        S.contract = {value:100,suit:'♥',preneurTeam:'t1',isCapot:false,contre:'none'};
+      `);
+      app.askSwapPlayerPosition('nord');
+      check(doc.getElementById('confirm-modal').style.display === 'flex', 'Confirmation permutation non ouverte');
+      check(doc.getElementById('confirm-msg').textContent.includes('A') && doc.getElementById('confirm-msg').textContent.includes('B'), 'Joueurs absents de la confirmation permutation');
+      app.closeConfirm();
+      check(app.swapPlayerPositions('nord'), 'Permutation Nord Sud refusée');
       current = state();
-      check(current.history.length === 0 && current.score.t1 === 0 && current.manche === 1, 'Annuler depuis bandeau ne restaure pas la partie');
-      check(!doc.getElementById('score-correction-prompt'), 'Bandeau correction non ferme par Annuler');
+      check(current.pos.nord === 'B' && current.pos.sud === 'A', 'Positions Nord Sud non permutées');
+      check(current.dealerIdx === 2 && current.pos[current.dealerOrder[current.dealerIdx]] === 'A', 'Donneur non conservé après permutation');
+      check(current.t1.name === 'A & B' && current.t2.name === 'C & D', 'Équipes modifiées par la permutation');
+      check(current.score.t1 === 250 && current.history.length === 1 && current.contract.value === 100, 'Partie modifiée par la permutation');
+      check(app.swapPlayerPositions('est') && state().pos.est === 'D' && state().pos.ouest === 'C', 'Positions Est Ouest non permutées');
+      const swappedSave = JSON.parse(app.localStorage.getItem('belote_autosave'));
+      check(swappedSave.pos.nord === 'B' && swappedSave.pos.est === 'D', 'Permutation non sauvegardée');
 
       app.localStorage.setItem('belote_autosave', JSON.stringify(saved));
       app.newGame();
