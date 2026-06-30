@@ -87,6 +87,29 @@
         check(editStyle.fontSize === '36px', context.name + ' : style édition modifié hors iPhone portrait');
       }
       app.closeEdit();
+
+      app.eval(`
+        S.contract = {
+          team:'t1',
+          value:110,
+          suit:'♥',
+          suitCode:'h',
+          contre:'none',
+          preneur:S.t1.name
+        };
+        showTab('saisie');
+        updateSaisieForm();
+      `);
+      const saisie = doc.getElementById('tab-saisie');
+      const saisieStyle = app.getComputedStyle(saisie);
+      if(context.name === 'iPhone paysage') {
+        check(saisieStyle.overflowY === 'auto' || saisieStyle.overflowY === 'scroll', 'iPhone paysage : saisie score non scrollable');
+        check(saisieStyle.transform === 'none', 'iPhone paysage : transform bloque encore le scroll saisie');
+        check(parseFloat(saisieStyle.paddingBottom) >= 80, 'iPhone paysage : marge basse saisie insuffisante');
+        const before = saisie.scrollTop;
+        saisie.scrollTop = 120;
+        check(saisie.scrollTop > before, 'iPhone paysage : scrollTop saisie ne bouge pas');
+      }
     });
 
     result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;

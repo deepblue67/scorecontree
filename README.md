@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 30 juin 2026.
 
-Version applicative actuellement documentée : `v20260630_1615`.
+Version applicative actuellement documentée : `v20260630_1638`.
 
 ---
 
@@ -400,13 +400,13 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne et permutation des places | 54 |
 | `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats et zones joueurs interactives | 27 |
 | `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 45 |
-| `iphone-table-actions-regression.html` | actions TABLE et lisibilité de la modale d'édition dans les cinq contextes | 30 |
+| `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition et scroll saisie score iPhone paysage | 34 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
 
 Total des contrôles disponibles :
 
 ```text
-311 contrôles réussis
+315 contrôles réussis
 ```
 
 ### 7.2 Ce que les tests vérifient
@@ -846,6 +846,22 @@ La page reste intégrée dans `index.html` et utilise des visuels SVG explicatif
 
 Le bouton `Retour` de `Comment utiliser l'application` et celui de `Aide à la marque` clignotent désormais comme le bouton `Retour` des Réglages. L'animation démarre à l'ouverture de la page secondaire et s'arrête à sa fermeture.
 
+### 8.17 Scroll de la saisie score sur iPhone paysage
+
+Correction ajoutée en version `v20260630_1638`.
+
+Uniquement sur iPhone paysage, l'écran `Résultat / Saisir score` pouvait se retrouver figé : la partie basse de la saisie n'était pas atteignable correctement malgré le contenu plus haut que la zone disponible.
+
+La correction est limitée au media query iPhone paysage et à `#tab-saisie` :
+
+- scroll vertical forcé sur l'écran de saisie ;
+- `touch-action: pan-y` pour laisser le geste vertical piloter le contenu ;
+- suppression du `transform` sur ce panneau, car il peut gêner le scroll des éléments fixes sur iOS ;
+- marge basse interne augmentée pour éviter que la barre de navigation masque la fin du contenu ;
+- carte de saisie autorisée à laisser apparaître son contenu au lieu de le couper.
+
+iPhone portrait, iPad portrait, iPad paysage, PC et les autres onglets ne sont pas modifiés par cette correction.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1120,6 +1136,16 @@ Campagne navigateur : 253 / 253 contrôles réussis
 Total : 311 / 311 contrôles réussis
 ```
 
+Validation de la livraison `v20260630_1638` :
+
+```text
+Syntaxe index.html OK
+Syntaxe service-worker.js OK
+Test PWA/cache/hors ligne : PASS 58
+Campagne navigateur : 257 / 257 contrôles réussis
+Total : 315 / 315 contrôles réussis
+```
+
 ---
 
 ## 13. Notes pour Codex lors d'une reprise
@@ -1195,8 +1221,8 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260630_1615` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 311 contrôles réussis |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260630_1638` |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 315 contrôles réussis |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
@@ -1225,6 +1251,7 @@ Statuts utilisés :
 | Mode erreur de saisie | Après validation d'une donne, proposer quelques secondes `Annuler / Modifier`. | Retiré | Haute | Livré en `v20260618_1626`, retiré en `v20260625_1601` |
 | Permuter les partenaires sur la TABLE | Appuyer sur un joueur pour échanger sa place avec son partenaire, sans changer les équipes et en conservant le donneur. | Fait | Haute | Livré en `v20260625_1522` |
 | Modification d'une donne sur iPhone portrait | Rendre les valeurs des deux équipes entièrement lisibles dans la fenêtre d'édition. | Fait | Haute | Corrigé en `v20260625_1544` |
+| Scroll saisie score iPhone paysage | Permettre d'atteindre le bas de l'écran `Résultat / Saisir score` en iPhone paysage. | Fait | Haute | Corrigé en `v20260630_1638` |
 | Résumé fin de partie enrichi | Ajouter nombre de donnes, contrats réussis/chutés, plus gros contrat, meilleure série. | Fait | Haute | Livré en `v20260618_1524` |
 | Statistiques joueur avancées | Contrats pris, taux de réussite, chutes, points moyens, partenaires, victoires. | Fait | Haute | Livré en `v20260618_1524` |
 | Aide contextuelle | Petits boutons `?` sur contrat, belote, capot, tournoi. | À faire | Moyen terme | Faible risque si ciblé |

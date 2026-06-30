@@ -618,6 +618,17 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 
   /* Page SCORE */
   #tab-saisie, #tab-contrat, #tab-history, #tab-stats, #tab-marque { background:#2e6b28 !important; -webkit-transform:translateZ(0) !important; transform:translateZ(0) !important; -webkit-overflow-scrolling:touch !important; will-change:transform !important; }
+  #tab-saisie {
+    overflow-y:auto !important;
+    touch-action:pan-y !important;
+    overscroll-behavior-y:contain !important;
+    padding-bottom:86px !important;
+    scroll-padding-bottom:86px !important;
+    -webkit-transform:none !important;
+    transform:none !important;
+    will-change:auto !important;
+  }
+  #tab-saisie .card { overflow:visible !important; margin-bottom:10px !important; }
   #tab-saisie #contract-reminder > div { padding:5px 10px !important; flex-direction:row !important; align-items:center !important; gap:8px !important; border-radius:8px !important; }
   #tab-saisie #contract-reminder > div > div:first-child { font-size:22px !important; }
   #tab-saisie #contract-reminder > div > div:last-child > div:first-child { font-size:14px !important; }
@@ -1788,7 +1799,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260630_1615</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260630_1638</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
