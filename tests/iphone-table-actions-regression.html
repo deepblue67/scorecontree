@@ -175,6 +175,16 @@
         check(app.getComputedStyle(fineButton).fontSize === '12px', 'iPhone portrait : boutons point exact pas reduits');
         check(app.getComputedStyle(exactLabel).display === 'none', 'iPhone portrait : libelle point exact encore visible');
         check(parseFloat(app.getComputedStyle(beloteInput).width) === 18, 'iPhone portrait : case belote non reduite');
+        app.eval(`
+          S.score = {t1:230,t2:310};
+          S.contract = {team:'t1',preneurTeam:'t1',value:110,isCapot:false,suit:'♥',suitCode:'h',contre:'none',preneur:S.t1.name};
+          showMancheEnCours();
+        `);
+        const mecScoreBox = doc.getElementById('mec-st1');
+        const mecNameRect = doc.getElementById('mec-n1').getBoundingClientRect();
+        const mecScoreRect = doc.getElementById('mec-s1').getBoundingClientRect();
+        check(app.getComputedStyle(mecScoreBox).flexDirection === 'column', 'iPhone portrait : scores manche en cours pas en dessous au premier affichage');
+        check(mecScoreRect.top >= mecNameRect.bottom, 'iPhone portrait : score manche en cours encore a droite du nom');
       }
       if(context.name === 'iPhone paysage') {
         check(saisieStyle.overflowY === 'auto' || saisieStyle.overflowY === 'scroll', 'iPhone paysage : saisie score non scrollable');

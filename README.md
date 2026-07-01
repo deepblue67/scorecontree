@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 30 juin 2026.
 
-Version applicative actuellement documentée : `v20260701_1326`.
+Version applicative actuellement documentée : `v20260701_1355`.
 
 ---
 
@@ -400,13 +400,13 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne et permutation des places | 54 |
 | `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats et zones joueurs interactives | 27 |
 | `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 45 |
-| `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage et ajustements iPhone résultat/contrat | 60 |
+| `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage, ajustements iPhone résultat/contrat et écran Manche en cours | 62 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
 
 Total des contrôles disponibles :
 
 ```text
-341 contrôles disponibles
+343 contrôles disponibles
 ```
 
 ### 7.2 Ce que les tests vérifient
@@ -912,6 +912,10 @@ Correction ajoutée en version `v20260701_1326` :
 
 - les boutons preneurs de la page `Contrat` passent explicitement en colonne, uniquement dans le media query iPhone portrait, afin que les deux lignes générées soient réellement empilées dans le bouton.
 
+Correction ajoutée en version `v20260701_1355` :
+
+- sur l'écran `Manche en cours` en iPhone portrait, les boîtes de score affichent toujours le score sous le nom de l'équipe dès le premier affichage, sans dépendre d'une rotation paysage puis portrait.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1264,6 +1268,14 @@ Test ciblé iPhone TABLE/Contrat/Résultat : PASS 60
 Campagne navigateur complète non relancée : navigateur intégré bloqué sur les URL file://
 ```
 
+Validation de la livraison `v20260701_1355` :
+
+```text
+Test PWA/cache/hors ligne : PASS 58
+Test ciblé iPhone TABLE/Contrat/Résultat/Manche en cours : PASS 62
+Campagne navigateur complète non relancée : navigateur intégré bloqué sur les URL file://
+```
+
 ---
 
 ## 13. Notes pour Codex lors d'une reprise
@@ -1339,8 +1351,8 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260701_1326` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 341 contrôles disponibles ; v20260701_1326 vérifiée sur PWA + test ciblé iPhone |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260701_1355` |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 343 contrôles disponibles ; v20260701_1355 vérifiée sur PWA + test ciblé iPhone |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
