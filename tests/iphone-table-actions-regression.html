@@ -76,6 +76,7 @@
       const quickItems = Array.from(doc.querySelectorAll('#quick-btns span'));
       if(context.name === 'iPhone portrait') {
         check(app.getComputedStyle(preneurLine).display === 'block', 'iPhone portrait : equipe preneuse pas forcee sur deux lignes');
+        check(app.getComputedStyle(doc.getElementById('btn-preneur-t1')).flexDirection === 'column', 'iPhone portrait : bouton preneur pas empile en colonne');
         check(preneurLeftFirst?.textContent.trim() === 'Cynthia &' && preneurLeftSecond?.textContent.trim() === 'Eric', 'iPhone portrait : format Nom1 & / Nom2 incorrect');
         check(doc.querySelector('#btn-preneur-t2 .team-name-line-1')?.textContent.trim() === 'Christophe &', 'iPhone portrait : & non attache au premier nom long');
         const spanRect = (span, start, end) => {
