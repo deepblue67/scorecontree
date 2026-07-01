@@ -451,6 +451,29 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   .card .stepper button { width:44px; height:48px; }
   .card .stepper .sv { font-size:20px; }
 
+  /* Contrat : boutons rapides en 2 lignes de 5 boutons sur iPhone portrait */
+  #tab-contrat #quick-btns {
+    display:grid !important;
+    grid-template-columns:repeat(5, 1fr) !important;
+    gap:8px !important;
+    width:100% !important;
+    max-width:none !important;
+    flex-wrap:unset !important;
+    margin-top:10px !important;
+  }
+  #tab-contrat #quick-btns span {
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:100% !important;
+    min-height:44px !important;
+    box-sizing:border-box !important;
+    margin:0 !important;
+    padding:10px 4px !important;
+    font-size:13px !important;
+    text-align:center !important;
+  }
+
   /* Contrat : noms d'équipes sur deux lignes en iPhone portrait */
   #tab-contrat #btn-preneur-t1,
   #tab-contrat #btn-preneur-t2 {
@@ -1276,17 +1299,23 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   /* Quick-btns (90 à Capot) : pleine largeur, plus grands */
   #quick-btns {
     display: grid !important;
-    grid-template-columns: repeat(10, 1fr) !important;
+    grid-template-columns: repeat(5, 1fr) !important;
     gap: 8px !important;
     flex-wrap: unset !important;
     margin-top: 10px !important;
+    width: 100% !important;
+    max-width: none !important;
   }
-  #quick-btns span {
-    font-size: 18px !important;
-    padding: 14px 4px !important;
+  #tab-contrat #quick-btns span {
+    font-size: 16px !important;
+    padding: 12px 4px !important;
+    min-height: 44px !important;
     text-align: center !important;
     margin: 0 !important;
-    display: block !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
     box-sizing: border-box !important;
   }
 
@@ -1848,7 +1877,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260701_1051</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260701_1114</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -5326,7 +5355,10 @@ function formatTeamName(name) {
 }
 
 function formatTeamNameTwoLineHtml(name) {
-  const isIphonePortrait = window.innerWidth <= 599 && window.innerHeight >= window.innerWidth;
+  const frame = window.frameElement;
+  const viewportWidth = frame ? frame.getBoundingClientRect().width : window.innerWidth;
+  const viewportHeight = frame ? frame.getBoundingClientRect().height : window.innerHeight;
+  const isIphonePortrait = viewportWidth <= 599 && viewportHeight >= viewportWidth;
   if(!isIphonePortrait) return escapeHtml(name);
   if(name && name.includes(' & ')) {
     const parts = name.split(' & ');
