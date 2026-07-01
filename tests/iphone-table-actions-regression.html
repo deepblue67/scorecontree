@@ -78,6 +78,18 @@
         check(app.getComputedStyle(preneurLine).display === 'block', 'iPhone portrait : equipe preneuse pas forcee sur deux lignes');
         check(preneurLeftFirst?.textContent.trim() === 'Cynthia &' && preneurLeftSecond?.textContent.trim() === 'Eric', 'iPhone portrait : format Nom1 & / Nom2 incorrect');
         check(doc.querySelector('#btn-preneur-t2 .team-name-line-1')?.textContent.trim() === 'Christophe &', 'iPhone portrait : & non attache au premier nom long');
+        const spanRect = (span, start, end) => {
+          const node = span.firstChild;
+          const range = doc.createRange();
+          range.setStart(node, start);
+          range.setEnd(node, end);
+          return range.getBoundingClientRect();
+        };
+        const firstSpanAmpStart = preneurLeftFirst.textContent.indexOf('&');
+        check(
+          Math.round(spanRect(preneurLeftFirst, 0, 'Cynthia'.length).top) === Math.round(spanRect(preneurLeftFirst, firstSpanAmpStart, firstSpanAmpStart + 1).top),
+          'iPhone portrait : & coupe dans le span Cynthia'
+        );
         const textRect = (button, start, end) => {
           const node = Array.from(button.childNodes).find(child => child.nodeType === 3);
           const range = doc.createRange();
