@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 30 juin 2026.
 
-Version applicative actuellement documentée : `v20260630_1638`.
+Version applicative actuellement documentée : `v20260701_1051`.
 
 ---
 
@@ -400,13 +400,13 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne et permutation des places | 54 |
 | `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats et zones joueurs interactives | 27 |
 | `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 45 |
-| `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition et scroll saisie score iPhone paysage | 34 |
+| `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage et ajustements iPhone résultat/contrat | 50 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
 
 Total des contrôles disponibles :
 
 ```text
-315 contrôles réussis
+331 contrôles réussis
 ```
 
 ### 7.2 Ce que les tests vérifient
@@ -862,6 +862,29 @@ La correction est limitée au media query iPhone paysage et à `#tab-saisie` :
 
 iPhone portrait, iPad portrait, iPad paysage, PC et les autres onglets ne sont pas modifiés par cette correction.
 
+### 8.18 Ajustements visuels Contrat/Résultat sur iPhone
+
+Évolution ajoutée en version `v20260701_1051`.
+
+Les ajustements sont volontairement limités aux media queries citées dans la demande.
+
+Sur iPhone portrait uniquement :
+
+- page `Contrat` : les noms d'équipes des boutons `Équipe preneuse` sont affichés sur deux lignes quand le nom contient ` & ` ;
+- ligne 1 : premier joueur + `&` ;
+- ligne 2 : deuxième joueur ;
+- page `Résultat` : les boutons `-1` et `+1` sont réduits ;
+- le libellé `point exact` est masqué ;
+- la case `Belote` est légèrement réduite ;
+- pop-up `Modifier la manche` : les noms d'équipes passent aussi sur deux lignes afin d'aligner les deux steppers de score.
+
+Sur iPhone paysage uniquement :
+
+- page `Résultat` : les boutons `-1` et `+1` sont réduits ;
+- les boutons rapides de score (`80`, `100`, `120`, `140`, `Capot`) sont agrandis pour être plus lisibles.
+
+La logique de score, de contrat, de belote et de modification de manche n'est pas changée.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1146,6 +1169,16 @@ Campagne navigateur : 257 / 257 contrôles réussis
 Total : 315 / 315 contrôles réussis
 ```
 
+Validation de la livraison `v20260701_1051` :
+
+```text
+Syntaxe index.html OK
+Syntaxe service-worker.js OK
+Test PWA/cache/hors ligne : PASS 58
+Campagne navigateur : 273 / 273 contrôles réussis
+Total : 331 / 331 contrôles réussis
+```
+
 ---
 
 ## 13. Notes pour Codex lors d'une reprise
@@ -1221,8 +1254,8 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260630_1638` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 315 contrôles réussis |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260701_1051` |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 331 contrôles réussis |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
@@ -1252,6 +1285,7 @@ Statuts utilisés :
 | Permuter les partenaires sur la TABLE | Appuyer sur un joueur pour échanger sa place avec son partenaire, sans changer les équipes et en conservant le donneur. | Fait | Haute | Livré en `v20260625_1522` |
 | Modification d'une donne sur iPhone portrait | Rendre les valeurs des deux équipes entièrement lisibles dans la fenêtre d'édition. | Fait | Haute | Corrigé en `v20260625_1544` |
 | Scroll saisie score iPhone paysage | Permettre d'atteindre le bas de l'écran `Résultat / Saisir score` en iPhone paysage. | Fait | Haute | Corrigé en `v20260630_1638` |
+| Ajustements Contrat/Résultat iPhone | Forcer certains noms sur deux lignes en portrait, alléger les boutons `-1/+1`, réduire Belote en portrait et agrandir les boutons rapides en paysage. | Fait | Haute | Livré en `v20260701_1051` |
 | Résumé fin de partie enrichi | Ajouter nombre de donnes, contrats réussis/chutés, plus gros contrat, meilleure série. | Fait | Haute | Livré en `v20260618_1524` |
 | Statistiques joueur avancées | Contrats pris, taux de réussite, chutes, points moyens, partenaires, victoires. | Fait | Haute | Livré en `v20260618_1524` |
 | Aide contextuelle | Petits boutons `?` sur contrat, belote, capot, tournoi. | À faire | Moyen terme | Faible risque si ciblé |

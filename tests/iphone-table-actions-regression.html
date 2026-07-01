@@ -35,9 +35,9 @@
       const app = frame.contentWindow;
       const doc = frame.contentDocument;
       app.eval(`
-        S.t1 = {name:'Nord & Sud',players:['Nord','Sud']};
-        S.t2 = {name:'Est & Ouest',players:['Est','Ouest']};
-        S.pos = {nord:'Nord',sud:'Sud',est:'Est',ouest:'Ouest'};
+        S.t1 = {name:'Cynthia & Eric',players:['Cynthia','Eric']};
+        S.t2 = {name:'Christophe & Daniel',players:['Christophe','Daniel']};
+        S.pos = {nord:'Cynthia',sud:'Eric',est:'Christophe',ouest:'Daniel'};
         S.score = {t1:0,t2:0};
         S.history = [];
         S.contract = null;
@@ -68,6 +68,14 @@
         check(undoStyle.display === 'none', context.name + ' : comportement non-iPhone modifié sans historique');
       }
 
+      app.showTab('contrat');
+      const preneurLine = doc.querySelector('#btn-preneur-t2 .team-name-line');
+      if(context.name === 'iPhone portrait') {
+        check(app.getComputedStyle(preneurLine).display === 'block', 'iPhone portrait : equipe preneuse pas forcee sur deux lignes');
+      } else {
+        check(!preneurLine, context.name + ' : equipe preneuse decoupee hors cible');
+      }
+
       app.eval(`
         S.history = [{
           manche:1,contract:'110 ♥',contre:'none',preneur:'Nord & Sud',
@@ -83,8 +91,12 @@
         check(parseFloat(editStyle.paddingLeft) <= 2 && parseFloat(editStyle.paddingRight) <= 2, 'iPhone portrait : padding masque encore les chiffres');
         check(parseFloat(app.getComputedStyle(editButton).width) === 44, 'iPhone portrait : largeur bouton édition incorrecte');
         check(editInput.clientWidth >= 55, 'iPhone portrait : champ score encore trop étroit');
+        check(app.getComputedStyle(doc.querySelector('#edit-lbl-t2 .team-name-line')).display === 'block', 'iPhone portrait : noms edition pas sur deux lignes');
+        const editSteppers = doc.querySelectorAll('#edit-scores-grid .stepper');
+        check(Math.abs(editSteppers[0].getBoundingClientRect().top - editSteppers[1].getBoundingClientRect().top) <= 1, 'iPhone portrait : steppers edition non alignes');
       } else {
         check(editStyle.fontSize === '36px', context.name + ' : style édition modifié hors iPhone portrait');
+        check(!doc.querySelector('#edit-lbl-t2 .team-name-line'), context.name + ' : noms edition decoupes hors iPhone portrait');
       }
       app.closeEdit();
 
@@ -102,10 +114,21 @@
       `);
       const saisie = doc.getElementById('tab-saisie');
       const saisieStyle = app.getComputedStyle(saisie);
+      const fineButton = doc.querySelector('#tab-saisie button[onclick*="stepScoreFine"]');
+      const exactLabel = fineButton?.nextElementSibling;
+      const quickButton = doc.querySelector('#tab-saisie span[onclick*="setQuickScore"]');
+      const beloteInput = doc.getElementById('chk-bel-t1');
+      if(context.name === 'iPhone portrait') {
+        check(app.getComputedStyle(fineButton).fontSize === '12px', 'iPhone portrait : boutons point exact pas reduits');
+        check(app.getComputedStyle(exactLabel).display === 'none', 'iPhone portrait : libelle point exact encore visible');
+        check(parseFloat(app.getComputedStyle(beloteInput).width) === 18, 'iPhone portrait : case belote non reduite');
+      }
       if(context.name === 'iPhone paysage') {
         check(saisieStyle.overflowY === 'auto' || saisieStyle.overflowY === 'scroll', 'iPhone paysage : saisie score non scrollable');
         check(saisieStyle.transform === 'none', 'iPhone paysage : transform bloque encore le scroll saisie');
         check(parseFloat(saisieStyle.paddingBottom) >= 80, 'iPhone paysage : marge basse saisie insuffisante');
+        check(app.getComputedStyle(fineButton).fontSize === '13px', 'iPhone paysage : boutons point exact pas reduits');
+        check(app.getComputedStyle(quickButton).fontSize === '13px', 'iPhone paysage : boutons rapides score pas agrandis');
         const before = saisie.scrollTop;
         saisie.scrollTop = 120;
         check(saisie.scrollTop > before, 'iPhone paysage : scrollTop saisie ne bouge pas');

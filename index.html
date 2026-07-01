@@ -451,11 +451,54 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   .card .stepper button { width:44px; height:48px; }
   .card .stepper .sv { font-size:20px; }
 
+  /* Contrat : noms d'équipes sur deux lignes en iPhone portrait */
+  #tab-contrat #btn-preneur-t1,
+  #tab-contrat #btn-preneur-t2 {
+    line-height:1.25 !important;
+    white-space:normal !important;
+  }
+  #tab-contrat #btn-preneur-t1 .team-name-line,
+  #tab-contrat #btn-preneur-t2 .team-name-line {
+    display:block !important;
+  }
+
+  /* Résultat : alléger les contrôles au point près en iPhone portrait */
+  #tab-saisie button[onclick*="stepScoreFine"] {
+    font-size:12px !important;
+    padding:4px 11px !important;
+    min-width:44px !important;
+    min-height:38px !important;
+  }
+  #tab-saisie button[onclick*="stepScoreFine"] + span {
+    display:none !important;
+  }
+  #lbl-bel-t1-box, #lbl-bel-t2-box {
+    padding:5px 8px !important;
+    font-size:11px !important;
+    gap:5px !important;
+    min-height:38px !important;
+  }
+  #lbl-bel-t1-box input, #lbl-bel-t2-box input {
+    width:18px !important;
+    height:18px !important;
+    min-width:18px !important;
+    min-height:18px !important;
+  }
+
   /* Modale modification score : préserver la place des valeurs sur iPhone portrait */
   #edit-modal { padding:16px !important; }
   #edit-modal > div { padding:24px 16px !important; }
   #edit-modal-title { margin-bottom:18px !important; }
   #edit-scores-grid { gap:10px !important; margin-bottom:20px !important; }
+  #edit-lbl-t1, #edit-lbl-t2 {
+    min-height:34px !important;
+    line-height:1.25 !important;
+    margin-bottom:8px !important;
+    white-space:normal !important;
+  }
+  #edit-lbl-t1 .team-name-line, #edit-lbl-t2 .team-name-line {
+    display:block !important;
+  }
   #edit-scores-grid .stepper button {
     width:44px !important;
     min-width:44px !important;
@@ -643,7 +686,13 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   #stp-t1, #stp-t2 { min-height:0 !important; height:32px !important; }
   #stp-t1 button, #stp-t2 button { height:32px !important; width:30px !important; font-size:16px !important; min-height:0 !important; padding:0 !important; }
   #inp-pts-t1, #inp-pts-t2 { font-size:15px !important; min-height:0 !important; height:32px !important; }
-  #tab-saisie span[onclick*="setQuickScore"], #tab-saisie span[onclick*="setCapot"] { font-size:11px !important; padding:3px 7px !important; min-height:0 !important; }
+  #tab-saisie button[onclick*="stepScoreFine"] {
+    font-size:13px !important;
+    padding:4px 13px !important;
+    min-width:48px !important;
+    min-height:40px !important;
+  }
+  #tab-saisie span[onclick*="setQuickScore"], #tab-saisie span[onclick*="setCapot"] { font-size:13px !important; padding:5px 10px !important; min-height:0 !important; font-weight:800 !important; }
   #lbl-bel-t1-box, #lbl-bel-t2-box { padding:5px 10px !important; font-size:11px !important; min-height:0 !important; background:rgba(255,255,255,0.15) !important; border-color:rgba(255,255,255,0.4) !important; }
   #lbl-bel-t1-box input, #lbl-bel-t2-box input { width:14px !important; height:14px !important; min-height:0 !important; min-width:0 !important; accent-color:var(--green) !important; }
   #saisie-actions { display:flex !important; flex-direction:row !important; gap:6px !important; align-items:stretch !important; }
@@ -1799,7 +1848,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260630_1638</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260701_1051</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -2352,8 +2401,8 @@ function updatePulseButtons() {
 }
 
 function initGameUI() {
-  document.getElementById('btn-preneur-t1').textContent = S.t1.name;
-  document.getElementById('btn-preneur-t2').textContent = S.t2.name;
+  document.getElementById('btn-preneur-t1').innerHTML = formatTeamNameTwoLineHtml(S.t1.name);
+  document.getElementById('btn-preneur-t2').innerHTML = formatTeamNameTwoLineHtml(S.t2.name);
   const qb = document.getElementById('quick-btns');
   qb.innerHTML = [90,100,110,120,130,140,150,160,170].map(v=>`<span onclick="setContractVal(${v})" style="cursor:pointer;font-size:12px;padding:3px 8px;border-radius:99px;border:1px solid #bbb8b0;background:#e8e4dc;color:#1a1a1a;margin:2px;display:inline-block;font-weight:600;">${v}</span>`).join('')
     + `<span onclick="setContractVal(250)" style="cursor:pointer;font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid #1a5295;background:#e8f0fb;color:#1a5295;margin:2px;display:inline-block;font-weight:700;">Capot</span>`;
@@ -2673,8 +2722,8 @@ function updateSaisieForm() {
       const b=eid(id);
       if(b){b.style.background='#e8f0fb';b.style.color='#1a5295';b.style.borderColor='#1a5295';}
     });
-    if(eid('lbl-pts-t1')) eid('lbl-pts-t1').textContent=S.t1?S.t1.name:'';
-    if(eid('lbl-pts-t2')) eid('lbl-pts-t2').textContent=S.t2?S.t2.name:'';
+    if(eid('lbl-pts-t1')) eid('lbl-pts-t1').innerHTML = S.t1 ? formatTeamNameTwoLineHtml(S.t1.name) : '';
+    if(eid('lbl-pts-t2')) eid('lbl-pts-t2').innerHTML = S.t2 ? formatTeamNameTwoLineHtml(S.t2.name) : '';
     refreshBeloteBoxes();
     refreshCapotBoxes();
     renderContractReminder();
@@ -4905,8 +4954,8 @@ function openEdit(manche) {
   if(!h) return;
   editingManche = manche;
   eid('edit-modal-title').textContent = `Manche ${manche} — ${h.contract}`;
-  eid('edit-lbl-t1').textContent = S.t1.name;
-  eid('edit-lbl-t2').textContent = S.t2.name;
+  eid('edit-lbl-t1').innerHTML = formatTeamNameTwoLineHtml(S.t1.name);
+  eid('edit-lbl-t2').innerHTML = formatTeamNameTwoLineHtml(S.t2.name);
   eid('edit-pts-t1').value = h.pts1;
   eid('edit-pts-t2').value = h.pts2;
   openModal('edit-modal');
@@ -5274,6 +5323,17 @@ function formatTeamName(name) {
     return escapeHtml(parts[0]) + ' &amp;<br>' + escapeHtml(parts[1]);
   }
   return escapeHtml(name);
+}
+
+function formatTeamNameTwoLineHtml(name) {
+  const isIphonePortrait = window.innerWidth <= 599 && window.innerHeight >= window.innerWidth;
+  if(!isIphonePortrait) return escapeHtml(name);
+  if(name && name.includes(' & ')) {
+    const parts = name.split(' & ');
+    return '<span class="team-name-line team-name-line-1" style="display:inline;">' + escapeHtml(parts[0]) + ' &amp; </span>' +
+      '<span class="team-name-line team-name-line-2" style="display:inline;">' + escapeHtml(parts.slice(1).join(' & ')) + '</span>';
+  }
+  return '<span class="team-name-line team-name-line-1" style="display:inline;">' + escapeHtml(name) + '</span>';
 }
 
 function renderEnjeu() {
