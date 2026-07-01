@@ -77,6 +77,7 @@
       if(context.name === 'iPhone portrait') {
         check(app.getComputedStyle(preneurLine).display === 'block', 'iPhone portrait : equipe preneuse pas forcee sur deux lignes');
         check(preneurLeftFirst?.textContent.trim() === 'Cynthia &' && preneurLeftSecond?.textContent.trim() === 'Eric', 'iPhone portrait : format Nom1 & / Nom2 incorrect');
+        check(doc.querySelector('#btn-preneur-t2 .team-name-line-1')?.textContent.trim() === 'Christophe &', 'iPhone portrait : & non attache au premier nom long');
         check(quickItems.length === 10, 'iPhone portrait : nombre de boutons contrat inattendu');
         const firstLineTop = Math.round(quickItems[0].getBoundingClientRect().top);
         const secondLineTop = Math.round(quickItems[5].getBoundingClientRect().top);

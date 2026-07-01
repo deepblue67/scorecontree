@@ -480,8 +480,8 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     line-height:1.25 !important;
     white-space:normal !important;
   }
-  #tab-contrat #btn-preneur-t1 .team-name-line,
-  #tab-contrat #btn-preneur-t2 .team-name-line {
+  body.iphone-portrait-layout #tab-contrat #btn-preneur-t1 .team-name-line,
+  body.iphone-portrait-layout #tab-contrat #btn-preneur-t2 .team-name-line {
     display:block !important;
   }
 
@@ -519,7 +519,8 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     margin-bottom:8px !important;
     white-space:normal !important;
   }
-  #edit-lbl-t1 .team-name-line, #edit-lbl-t2 .team-name-line {
+  body.iphone-portrait-layout #edit-lbl-t1 .team-name-line,
+  body.iphone-portrait-layout #edit-lbl-t2 .team-name-line {
     display:block !important;
   }
   #edit-scores-grid .stepper button {
@@ -1877,7 +1878,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260701_1114</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260701_1133</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -5356,16 +5357,18 @@ function formatTeamName(name) {
 
 function formatTeamNameTwoLineHtml(name) {
   const frame = window.frameElement;
-  const viewportWidth = frame ? frame.getBoundingClientRect().width : window.innerWidth;
-  const viewportHeight = frame ? frame.getBoundingClientRect().height : window.innerHeight;
-  const isIphonePortrait = viewportWidth <= 599 && viewportHeight >= viewportWidth;
+  const frameWidth = frame ? parseFloat(frame.style.width) || 0 : 0;
+  const frameHeight = frame ? parseFloat(frame.style.height) || 0 : 0;
+  const isIphonePortrait = frame
+    ? frameWidth > 0 && frameWidth <= 599 && frameHeight >= frameWidth
+    : window.matchMedia('(max-width: 599px) and (orientation: portrait)').matches;
   if(!isIphonePortrait) return escapeHtml(name);
   if(name && name.includes(' & ')) {
     const parts = name.split(' & ');
-    return '<span class="team-name-line team-name-line-1" style="display:inline;">' + escapeHtml(parts[0]) + ' &amp; </span>' +
-      '<span class="team-name-line team-name-line-2" style="display:inline;">' + escapeHtml(parts.slice(1).join(' & ')) + '</span>';
+    return '<span class="team-name-line team-name-line-1" style="display:block;">' + escapeHtml(parts[0]) + ' &amp;</span>' +
+      '<span class="team-name-line team-name-line-2" style="display:block;">' + escapeHtml(parts.slice(1).join(' & ')) + '</span>';
   }
-  return '<span class="team-name-line team-name-line-1" style="display:inline;">' + escapeHtml(name) + '</span>';
+  return '<span class="team-name-line team-name-line-1" style="display:block;">' + escapeHtml(name) + '</span>';
 }
 
 function renderEnjeu() {
@@ -6594,6 +6597,14 @@ function fixSetupTableSize() {
 }
 let _lastOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
 
+function updateResponsiveBodyFlags() {
+  const frame = window.frameElement;
+  const rect = frame ? frame.getBoundingClientRect() : null;
+  const width = rect && rect.width ? rect.width : window.innerWidth;
+  const height = rect && rect.height ? rect.height : window.innerHeight;
+  document.body.classList.toggle('iphone-portrait-layout', width <= 599 && height >= width);
+}
+
 function renderActiveGameTabAfterViewportChange() {
   if(currentGameTab === 'feuille') renderFeuille();
   else if(currentGameTab === 'history') { renderHistory(); renderPastHistory(); }
@@ -6606,6 +6617,7 @@ function renderActiveGameTabAfterViewportChange() {
 }
 
 function handleViewportChange() {
+  updateResponsiveBodyFlags();
   fixSetupTableSize();
   setTimeout(fixEastWestPC, 100);
   setTimeout(fixEastWestPC, 400);
@@ -6626,12 +6638,14 @@ function handleViewportChange() {
 }
 
 window.addEventListener('load', () => {
+  updateResponsiveBodyFlags();
   fixSetupTableSize();
   setTimeout(fixEastWestPC, 100);
   setTimeout(fixEastWestPC, 400);
   setTimeout(fixEastWestPC, 800);
 });
 window.addEventListener('resize', handleViewportChange);
+updateResponsiveBodyFlags();
 requestAnimationFrame(() => requestAnimationFrame(() => { fixSetupTableSize(); setTimeout(fixEastWestPC, 100); }));
 loadTheme();
 
