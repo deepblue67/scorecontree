@@ -78,6 +78,23 @@
         check(app.getComputedStyle(preneurLine).display === 'block', 'iPhone portrait : equipe preneuse pas forcee sur deux lignes');
         check(preneurLeftFirst?.textContent.trim() === 'Cynthia &' && preneurLeftSecond?.textContent.trim() === 'Eric', 'iPhone portrait : format Nom1 & / Nom2 incorrect');
         check(doc.querySelector('#btn-preneur-t2 .team-name-line-1')?.textContent.trim() === 'Christophe &', 'iPhone portrait : & non attache au premier nom long');
+        const textRect = (button, start, end) => {
+          const node = Array.from(button.childNodes).find(child => child.nodeType === 3);
+          const range = doc.createRange();
+          range.setStart(node, start);
+          range.setEnd(node, end);
+          return range.getBoundingClientRect();
+        };
+        const leftPlain = doc.getElementById('btn-preneur-t1');
+        const rightPlain = doc.getElementById('btn-preneur-t2');
+        leftPlain.textContent = 'Cynthia & Eric';
+        rightPlain.textContent = 'Christophe & Daniel';
+        const leftAmpEnd = leftPlain.textContent.indexOf('&') + 1;
+        const leftSecondStart = leftPlain.textContent.indexOf('Eric');
+        const rightAmpEnd = rightPlain.textContent.indexOf('&') + 1;
+        const rightSecondStart = rightPlain.textContent.indexOf('Daniel');
+        check(Math.round(textRect(leftPlain, 0, leftAmpEnd).top) < Math.round(textRect(leftPlain, leftSecondStart, leftPlain.textContent.length).top), 'iPhone portrait : texte brut Cynthia pas force en deux lignes');
+        check(Math.round(textRect(rightPlain, 0, rightAmpEnd).top) < Math.round(textRect(rightPlain, rightSecondStart, rightPlain.textContent.length).top), 'iPhone portrait : texte brut Christophe pas force en deux lignes');
         check(quickItems.length === 10, 'iPhone portrait : nombre de boutons contrat inattendu');
         const firstLineTop = Math.round(quickItems[0].getBoundingClientRect().top);
         const secondLineTop = Math.round(quickItems[5].getBoundingClientRect().top);
@@ -85,6 +102,8 @@
         check(quickItems.slice(5).every(item => Math.round(item.getBoundingClientRect().top) === secondLineTop) && secondLineTop > firstLineTop, 'iPhone portrait : seconde ligne contrat pas a 5 boutons');
         const firstQuickWidth = Math.round(quickItems[0].getBoundingClientRect().width);
         check(quickItems.every(item => Math.abs(Math.round(item.getBoundingClientRect().width) - firstQuickWidth) <= 2), 'iPhone portrait : boutons contrat pas de meme largeur');
+        app.initGameUI();
+        app.showTab('contrat');
       } else {
         check(!preneurLine, context.name + ' : equipe preneuse decoupee hors cible');
       }
