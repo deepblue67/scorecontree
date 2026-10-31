@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261031_2335`.
+Version applicative actuellement documentée : `v20261031_2350`.
 
 ---
 
@@ -1028,6 +1028,20 @@ Version `v20261031_2335`, sur tous les appareils, **uniquement en saisie rapide*
 - Le bandeau reste affiché sur l'écran de configuration et partout en saisie classique.
 - Mécanique : `activateAppScreen()` pose la classe `on-game-screen` sur `body` ; `updateFastHeader(tab)` est appelée par `showTab()`.
 - Le masquage automatique du bandeau quand on ne touche pas l'écran a été écarté : il ajoute un appui pour le faire réapparaître et risque des appuis involontaires sur la table.
+
+### 8.29 iPad paysage : en-tête sous la barre d'état iOS
+
+Version `v20261031_2350`, constaté sur iPad : la roue des Réglages et les icônes Parties / Stats passaient sous l'heure, le wifi et la batterie.
+
+Cause : l'application occupe tout l'écran (`viewport-fit=cover` + `black-translucent`), et seul le bloc iPad paysage A ne réservait pas la zone `safe-area-inset-top`. iPhone portrait (`#app`) et iPad portrait (`.header`) la réservaient déjà ; iPhone paysage et PC n'ont pas de barre d'état.
+
+Correction, dans le bloc iPad paysage A uniquement (les deux modes de saisie) :
+
+- `.header` : hauteur `60px + env(safe-area-inset-top)`, `padding-top:env(safe-area-inset-top) !important` (les en-têtes ont un padding inline de 12px) ;
+- onglets fixes : `top: calc(60px + env(safe-area-inset-top))` ;
+- boutons du mode rapide (`#fast-hdr-right`, `#fast-hdr-back`) centrés sous la barre : `top: calc(50% + env(safe-area-inset-top) / 2)`.
+
+Vérification faite en simulant une barre de 24 px (le navigateur de test n'a pas de zone sûre) : TABLE, Contrat, Parties, configuration, Réglages, Tournoi et Manche en cours.
 
 ---
 

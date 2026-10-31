@@ -397,9 +397,9 @@ body.fast-input #tab-saisie > :not(#fast-saisie) { display:none !important; }
 /* Saisie rapide : pas de bandeau du bas sur l'écran de jeu (Parties / Stats en haut à droite) */
 .fast-hdr { display:none; }
 body.fast-input .fast-hdr.is-shown { display:flex; }
-#game-header .fast-hdr-right { position:absolute; right:14px; top:50%; transform:translateY(-50%); gap:8px; }
+#game-header .fast-hdr-right { position:absolute; right:14px; top:calc(50% + env(safe-area-inset-top, 0px) / 2); transform:translateY(-50%); gap:8px; }
 #game-header .fast-hdr-icon { min-height:0; background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.5); border-radius:50%; width:44px; height:44px; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; touch-action:manipulation; padding:0; }
-#game-header .fast-hdr-back { position:absolute; left:14px; top:50%; transform:translateY(-50%); align-items:center; min-height:40px; padding:0 16px; border-radius:99px; background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.5); color:#fff; font-size:15px; font-weight:800; font-family:inherit; cursor:pointer; touch-action:manipulation; }
+#game-header .fast-hdr-back { position:absolute; left:14px; top:calc(50% + env(safe-area-inset-top, 0px) / 2); transform:translateY(-50%); align-items:center; min-height:40px; padding:0 16px; border-radius:99px; background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.5); color:#fff; font-size:15px; font-weight:800; font-family:inherit; cursor:pointer; touch-action:manipulation; }
 body.fast-input.on-game-screen #bottom-nav { display:none !important; }
 body.fast-input.on-game-screen #screen-game .body { bottom:0 !important; padding-bottom:calc(16px + env(safe-area-inset-bottom, 0px)) !important; scroll-padding-bottom:16px !important; }
 /* iPad paysage uniquement (même requête que les blocs iPad paysage A/B) :
@@ -1149,8 +1149,10 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   body { font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif; color:var(--text-light); min-height:100dvh; overflow-x:hidden; }
   #app { max-width:100%; width:100%; display:flex; flex-direction:column; min-height:100dvh; padding-top:0; }
 
-  /* Header 60px */
-  .header { height:60px; min-height:60px; max-height:60px; padding:0 16px; align-items:center; display:flex; flex-shrink:0; box-sizing:border-box; overflow:hidden; }
+  /* Header 60px + barre d'état iOS (heure, wifi, batterie) en application plein écran */
+  .header { height:calc(60px + env(safe-area-inset-top, 0px)); min-height:calc(60px + env(safe-area-inset-top, 0px)); max-height:calc(60px + env(safe-area-inset-top, 0px)); padding:env(safe-area-inset-top, 0px) 16px 0; align-items:center; display:flex; flex-shrink:0; box-sizing:border-box; overflow:hidden; }
+  /* Les en-têtes ont un padding inline (12px) : on force la réserve de la barre d'état */
+  .header { padding-top:env(safe-area-inset-top, 0px) !important; padding-bottom:0 !important; }
   .header h1 { font-size:20px; }
   .header .sub { font-size:12px; }
 
@@ -1187,7 +1189,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 
   /* Tabs overlay fixed */
   #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties {
-    position:fixed !important; top:60px !important; left:0 !important; right:0 !important; bottom:68px !important;
+    position:fixed !important; top:calc(60px + env(safe-area-inset-top, 0px)) !important; left:0 !important; right:0 !important; bottom:68px !important;
     z-index:200 !important; overflow-y:auto !important; overflow-x:hidden !important;
     overscroll-behavior:none !important; -webkit-overflow-scrolling:touch !important;
     padding:20px 40px !important; background:#2e6b28 !important; flex-direction:column !important; touch-action:pan-y !important;
@@ -2199,7 +2201,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261031_2335</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261031_2350</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
