@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests améliorations 31/10/2026 ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  // Couvre : édition d'une donne via l'écran Résultat, suppression d'une donne (feuille rafraîchie),
+  // « Tout le monde passe » sur la TABLE, annulation après passe, couleurs de la feuille,
+  // écran de victoire avec choix directs, archive sans doublon, règle capot + belote, saisie clavier.
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+    const check = (condition, message) => { checks += 1; if(!condition) failures.push(message); };
+    const state = () => JSON.parse(app.eval('JSON.stringify(S)'));
+    const el = id => doc.getElementById(id);
+    const shown = id => el(id) && el(id).style.display !== 'none';
+
+    const newGame = () => app.eval(`
+      localStorage.removeItem('belote_history');
+      resetGameProgress();
+      S.pos = {nord:'A',sud:'B',est:'C',ouest:'D'};
+      S.t1 = {name:'A & B',players:['A','B']};
+      S.t2 = {name:'C & D',players:['C','D']};
+      S.gameMode = 'points'; S.winningPts = 2001; S.dealerIdx = 0;
+      showScreen('game'); initGameUI(); showTab('enjeu');
+    `);
+    const setContract = (team, value, suit, key, contre) => app.eval(`
+      showTab('contrat'); selectPreneur('${team}'); selectSuit('${suit}','${key}','${key==='h'||key==='d'?'red':'dark'}');
+      selectContre('${contre||'none'}'); setContractVal(${value}); confirmContract();
+    `);
+    const playRound = (pts1, opts = {}) => app.eval(`
+      showTab('saisie'); updateSaisieForm();
+      ${opts.capot ? `setCapot('${opts.capot}');` : `document.getElementById('inp-pts-t1').value=${pts1}; document.getElementById('inp-pts-t2').value=${160-pts1};`}
+      ${opts.bel1 ? "document.getElementById('chk-bel-t1').checked=true;" : ''}
+      ${opts.bel2 ? "document.getElementById('chk-bel-t2').checked=true;" : ''}
+      calcAndPreview(); validateScore();
+    `);
+
+    try {
+      // ── Tout le monde passe sur la TABLE ──
+      newGame();
+      check(shown('btn-action-passe') && !shown('btn-action-saisie'), 'TABLE sans contrat : « Tout le monde passe » doit remplacer « Saisir score »');
+      check(!el('btn-passe-generale'), 'Le bouton passe ne doit plus être sur la page Contrat');
+      app.passeGenerale(); el('confirm-ok').click();
+      let st = state();
+      check(st.manche === 2 && st.dealerIdx === 1 && st.history.length === 0, 'Passe générale : manche/donneur incorrects');
+      setContract('t1', 100, '♥', 'h');
+      check(!shown('btn-action-passe') && shown('btn-action-saisie'), 'TABLE avec contrat : « Saisir score » doit être visible');
+
+      // ── Donne enregistrée avec la saisie brute ──
+      playRound(110, {bel1:true});
+      st = state();
+      check(st.history.length === 1 && st.history[0].pts1 === 230 && st.history[0].pts2 === 50, 'Donne 100♥ + belote mal calculée');
+      check(st.history[0].raw && st.history[0].raw.pts1Raw === 110 && st.history[0].raw.bel1 === true, 'Saisie brute non conservée');
+      check(st.history[0].c && st.history[0].c.preneurTeam === 't1' && st.history[0].c.value === 100, 'Contrat détaillé non conservé');
+      check(st.history[0].before && st.history[0].before.dealerIdx === 1, 'État avant donne non conservé');
+
+      // ── Annuler après une passe : bon donneur restauré ──
+      app.passeGenerale(); el('confirm-ok').click();
+      check(state().dealerIdx === 3, 'Passe après donne : donneur incorrect');
+      app.undoLastRound();
+      st = state();
+      check(st.history.length === 0 && st.dealerIdx === 1 && st.manche === 2, 'Annuler après passe : donneur/manche non restaurés');
+
+      // ── Édition via l'écran Résultat ──
+      newGame();
+      setContract('t1', 100, '♥', 'h'); playRound(110, {bel1:true});      // 230 / 50
+      setContract('t2', 90, '♠', 's'); playRound(100);                    // chute : 250 / 0
+      setContract('t1', 80, '♣', 'c');                                    // contrat en cours
+      app.showTab('parties'); app.showSubTab('feuille');
+      app.openEdit(1);
+      check(app.getActiveGameTab() === 'saisie', 'Édition : l’écran Résultat ne s’ouvre pas');
+      check(el('inp-pts-t1').value === '110' && el('inp-pts-t2').value === '50' && el('chk-bel-t1').checked, 'Édition : saisie non pré-remplie');
+      check(!!el('edit-round-banner'), 'Édition : bandeau de modification absent');
+      check(state().contract.suit === '♥', 'Édition : contrat de la donne non chargé');
+      el('inp-pts-t1').value = '120'; app.onScoreTyped('t1');
+      check(el('inp-pts-t2').value === '40', 'Saisie clavier : complément automatique absent');
+      app.calcAndPreview(); app.validateScore();
+      st = state();
+      check(st.history[0].pts1 === 240 && st.history[0].pts2 === 40, 'Édition : donne non recalculée');
+      check(st.history[1].total1 === 490 && st.score.t1 === 490 && st.score.t2 === 40, 'Édition : cumuls non recalculés');
+      check(st.contract && st.contract.suit === '♣' && st.manche === 3, 'Édition : contrat en cours / manche non restaurés');
+      check(app.eval('editRoundCtx') === null, 'Édition : contexte non libéré');
+      const saved = JSON.parse(app.localStorage.getItem('belote_autosave'));
+      check(saved.contract && saved.contract.suit === '♣', 'Édition : autosave avec mauvais contrat');
+
+      // Annuler une édition / quitter par la navigation
+      app.openEdit(2); app.cancelSaisie();
+      check(state().contract.suit === '♣' && app.getActiveGameTab() === 'parties', 'Annuler la modification : retour incorrect');
+      app.openEdit(2); app.showTab('enjeu');
+      check(state().contract.suit === '♣' && app.eval('editRoundCtx') === null, 'Navigation pendant édition : contrat non restauré');
+
+      // Donne ancienne sans saisie brute : écran vide + bandeau
+      app.eval(`delete S.history[1].raw;`);
+      app.openEdit(2);
+      check(el('inp-pts-t1').value === '' && el('edit-round-banner').textContent.includes('Ressaisissez'), 'Donne ancienne : pas d’invitation à ressaisir');
+      app.cancelSaisie();
+      // Ligne sans contrat : petite fenêtre conservée
+      app.eval(`S.history.push({manche:9,contract:'—',pts1:10,pts2:0,total1:0,total2:0}); recalculateGameFromHistory();`);
+      app.openEdit(9);
+      check(el('edit-modal').style.display !== 'none', 'Ligne de correction : fenêtre de points absente');
+      app.closeEdit();
+      app.eval(`S.history.pop(); recalculateGameFromHistory();`);
+
+      // ── Couleurs de la feuille ──
+      app.showTab('parties'); app.showSubTab('feuille');
+      const sheet = el('feuille-content').innerHTML;
+      check(/color:#cc1f1f;">♥/.test(sheet), 'Feuille : ♥ non coloré en rouge');
+      check(sheet.includes(app.eval('TEAM_COLORS.t1')) && sheet.includes(app.eval('TEAM_COLORS.t2')), 'Feuille : couleurs d’équipe absentes');
+      check(!sheet.includes('Total manche'), 'Feuille : libellé « Total manche » encore présent');
+
+      // ── Suppression d'une donne : la feuille affichée est redessinée ──
+      const before = el('feuille-content').querySelectorAll('tbody tr').length;
+      app.deleteManche(1); el('confirm-ok').click();
+      check(el('feuille-content').querySelectorAll('tbody tr').length === before - 1, 'Suppression : feuille non rafraîchie');
+      check(state().score.t1 === 250 && state().score.t2 === 0, 'Suppression : totaux non recalculés');
+
+      // ── Règle capot + belote ──
+      newGame();
+      app.eval(`S.score = {t1:0,t2:1990}; S.history=[{manche:0,contract:'—',pts1:0,pts2:1990,total1:0,total2:1990}];`);
+      setContract('t1', 100, '♥', 'h'); playRound(0, {capot:'t1', bel2:true});
+      check(app.getActiveScreenName() !== 'winner' && state().score.t2 === 2010, 'Capot + belote : la partie ne doit pas se terminer');
+
+      // ── Victoire : choix directs + archive sans doublon ──
+      newGame();
+      app.eval(`S.score = {t1:1950,t2:100}; S.history=[{manche:0,contract:'—',pts1:1950,pts2:100,total1:1950,total2:100}];`);
+      setContract('t1', 100, '♥', 'h'); playRound(120);
+      check(app.getActiveScreenName() === 'winner', 'Victoire : écran non affiché');
+      check(!!el('w-btn-replay') && !!el('w-btn-teams') && !!el('w-btn-sheet'), 'Victoire : boutons de choix absents');
+      check(app.getComputedStyle(doc.querySelector('.winner-trophy')).animationName === 'none', 'Victoire : trophée encore animé');
+      let archive = JSON.parse(app.localStorage.getItem('belote_history'));
+      check(archive.length === 1 && archive[0].score1 === 2170, 'Victoire : partie non archivée');
+      app.goToScoreSheet();
+      app.openEdit(1); el('inp-pts-t1').value = '130'; app.onScoreTyped('t1'); app.calcAndPreview(); app.validateScore();
+      archive = JSON.parse(app.localStorage.getItem('belote_history'));
+      check(archive.length === 1 && archive[0].score1 === 2180, 'Modification après victoire : archive non mise à jour ou dupliquée');
+      app.confirmEndGame('same');
+      archive = JSON.parse(app.localStorage.getItem('belote_history'));
+      check(archive.length === 1, 'Fin après modification : doublon dans l’historique');
+      check(app.getActiveScreenName() === 'setup', 'Nouvelle partie mêmes équipes : retour configuration attendu');
+
+      app.localStorage.removeItem('belote_history');
+      app.localStorage.removeItem('belote_autosave');
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message + ' ' + (error.stack||'').split('\n')[1];
+      result.dataset.status = 'error';
+    }
+  });
+</script>
+</body>
+</html>

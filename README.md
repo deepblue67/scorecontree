@@ -7,9 +7,9 @@ Ce document sert à deux choses :
 
 Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou technique de l'application.
 
-Dernière mise à jour du README : 30 juin 2026.
+Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20260701_1355`.
+Version applicative actuellement documentée : `v20261031_2135`.
 
 ---
 
@@ -79,6 +79,7 @@ ScoreBelote/
     rendering-regression.html
     final-audit-regression.html
     iphone-table-actions-regression.html
+    ameliorations-20261031-regression.html
 ```
 
 Ancien emplacement des fichiers fournis au début de la conversation :
@@ -255,7 +256,6 @@ Canvas & partage
 Utils
 Layout fixes
 Fin de partie
-Reconnaissance vocale
 Thème & aide
 Sync export/import/Gist
 Réglages
@@ -402,6 +402,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 45 |
 | `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage, ajustements iPhone résultat/contrat et écran Manche en cours | 62 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
+| `ameliorations-20261031-regression.html` | édition via écran Résultat, suppression de donne, passe sur la TABLE, annulation après passe, couleurs feuille, victoire, archive sans doublon, règle capot + belote, saisie clavier | 37 |
 
 Total des contrôles disponibles :
 
@@ -667,7 +668,7 @@ Le test `tests/offline-pwa-regression.js` vérifie maintenant :
 Les fonctions connectées restent volontairement dépendantes du réseau :
 
 - synchronisation GitHub Gist ;
-- appel IA pour l'analyse vocale avancée.
+- (l'appel IA de reconnaissance vocale a été supprimé en v20261031_2135).
 
 Une validation réelle sur PWA installée iPhone/iPad reste utile quand le service worker, le cache ou l'installation sont modifiés.
 
@@ -915,6 +916,76 @@ Correction ajoutée en version `v20260701_1326` :
 Correction ajoutée en version `v20260701_1355` :
 
 - sur l'écran `Manche en cours` en iPhone portrait, les boîtes de score affichent toujours le score sous le nom de l'équipe dès le premier affichage, sans dépendre d'une rotation paysage puis portrait.
+
+### 8.19 Reprise du projet le 31 octobre 2026 (Claude)
+
+Version `v20261031_2135`, réalisée par Claude à partir de la version GitHub `v20260701_1355` (dossier local `From Github 20261031`).
+
+Liste de demandes traitée (retours de jeu) :
+
+- édition d'une donne : remettre l'écran de saisie de score ;
+- suppression d'une donne : rafraîchir la liste ;
+- couleur sur la feuille de score ;
+- « Tout le monde passe » : revoir le positionnement ;
+- cinématique de fin plus simple.
+
+Point resté ouvert : « afficher directement la table à la saisie du contrat » (à préciser : après `Confirmer le contrat`, l'application revient déjà directement sur la TABLE).
+
+### 8.20 Édition d'une donne avec l'écran Résultat
+
+Le crayon ✏️ (feuille ou historique) ne rouvre plus la petite fenêtre de points finaux : il rouvre l'écran `Résultat` complet, pré-rempli, avec un bandeau `Modification de la manche N`.
+
+- chaque donne validée conserve désormais sa saisie brute (`h.raw` : points des cartes, belote, capot, total 160/170) et son contrat détaillé (`h.c`) ;
+- le contrat de la donne est rechargé temporairement dans `S.contract` ; le contrat en cours est sauvegardé dans `editRoundCtx` puis restauré ;
+- `Calculer & Prévisualiser` puis `Enregistrer la modification` recalcule la donne selon le contrat, puis tous les cumuls ;
+- `Annuler la modification`, ou toute navigation hors de l'écran Résultat, restaure le contrat en cours sans rien modifier ;
+- `autoSave()` n'enregistre jamais le contrat temporaire de l'édition ;
+- donnes enregistrées avant cette version (sans `h.raw`) : l'écran s'ouvre vide avec l'invitation `Ressaisissez les points des cartes` ;
+- lignes de correction sans contrat : l'ancienne petite fenêtre (`openEditPointsModal`) est conservée.
+
+Fonctions : `openEdit`, `contractFromRound`, `contractSnapshot`, `applyEditedRound`, `cancelEditRound`, `cancelSaisie`, `restoreEditRoundContext`, `refreshAfterRoundChange`.
+
+### 8.21 Suppression d'une donne : feuille rafraîchie
+
+Cause : `deleteManche()` ne redessinait que l'historique ; la feuille `En cours` (sous-onglet par défaut) restait affichée avec la donne supprimée et les anciens totaux.
+
+Correction : toutes les modifications de donnes passent par `refreshAfterRoundChange()` (recalcul, sauvegarde, feuille, historique, table, stats, sous-onglet actif). `renderFeuille()` et `renderHistory()` ignorent désormais un conteneur absent au lieu de planter.
+
+Historique des parties précédentes : les jours et parties dépliés restent dépliés après une suppression (`openPastDays`, `openPastGames`), et un message `Partie supprimée` confirme l'action.
+
+### 8.22 Couleurs sur la feuille de score
+
+- symboles de couleur colorés : ♥ ♦ en rouge, ♠ ♣ en noir (`colorSuitsHtml`) ;
+- une couleur par équipe, comme le graphique des stats (`TEAM_COLORS` : Nord/Sud vert `#1a6b3c`, Est/Ouest bleu `#1a5295`) pour les noms, en-têtes de colonnes, preneur, points et totaux ;
+- points à 0 en gris clair ; le badge `Chute` reste rouge ;
+- libellé `Total manche` remplacé par `Total` ;
+- appliqué à la feuille en cours, à l'historique de la partie et au détail des parties archivées.
+
+### 8.23 « Tout le monde passe » sur la TABLE
+
+Le bouton a quitté la page Contrat. Sur la TABLE, sans contrat, la case `Saisir score` (inutilisable sans contrat) affiche `🤷 Tout le monde passe` ; dès qu'un contrat est confirmé, elle redevient `Saisir score`. Même emplacement sur les 5 contextes (règles `#btn-action-saisie, #btn-action-passe` dans les blocs iPhone portrait et paysage).
+
+### 8.24 Fin de partie simplifiée
+
+L'écran de victoire propose directement :
+
+- `🔁 Nouvelle partie — mêmes équipes` (`confirmEndGame('same')`) ;
+- `👥 Changer les équipes` (`confirmEndGame('change')`) ;
+- `📋 Voir la feuille de score`.
+
+Le trophée ne rebondit plus. Plus besoin de passer par la feuille puis `Terminer la partie`.
+
+Archive sans doublon : `savePastGame()` mémorise l'identifiant de la partie archivée (`S._savedGameId`). Si une donne est modifiée, supprimée ou annulée après la victoire, la même entrée est mise à jour au lieu d'en créer une seconde.
+
+### 8.25 Corrections du tour complet
+
+- **Règle Aide à la marque** : « si une équipe est capot et dépasse 2001 points grâce à la belote, la partie n'est pas terminée » est désormais appliquée ;
+- **Annuler dernière donne après une passe générale** : le donneur et la manche sont restaurés depuis l'état mémorisé avant la donne (`h.before`, retrouvé par le nom du donneur même après une permutation de places) ; avant, le donneur restauré était décalé d'un cran ;
+- **Saisie au clavier** des points : l'autre équipe est complétée automatiquement (160/170, ou 162/172 au point près), comme avec les boutons ;
+- **Reconnaissance vocale supprimée** (~340 lignes) : aucun bouton ne l'affichait et l'appel à l'API Anthropic, sans clé, ne pouvait pas fonctionner ;
+- fonction interne homonyme `addPlayer` des statistiques renommée `ensurePlayerStats` ;
+- noms d'équipes échappés dans l'historique des parties archivées ;
+- guide utilisateur mis à jour (TABLE, saisie, correction, fin de partie).
 
 ---
 
@@ -1276,6 +1347,18 @@ Test ciblé iPhone TABLE/Contrat/Résultat/Manche en cours : PASS 62
 Campagne navigateur complète non relancée : navigateur intégré bloqué sur les URL file://
 ```
 
+Validation de la livraison `v20261031_2135` (Claude, Chromium Playwright, 5 contextes) :
+
+```text
+Syntaxe index.html OK
+Syntaxe service-worker.js OK
+Test PWA/cache/hors ligne : PASS 58
+Nouveau test ameliorations-20261031-regression.html : PASS 37
+Autres tests navigateur : 223 / 223, plus 10 cas de score
+iphone-table-actions-regression.html : 1 contrôle en échec, déjà en échec sur v20260701_1355 dans cet environnement
+  (mesure du retour à la ligne « Cynthia & / Eric » dépendante des polices installées ; à vérifier sur iPhone)
+```
+
 ---
 
 ## 13. Notes pour Codex lors d'une reprise
@@ -1323,6 +1406,7 @@ Points d'attention :
 - vérification hors ligne automatisée présente ;
 - backup avant import présent avec restauration depuis l'écran d'import ;
 - bandeau de correction rapide post-saisie retiré ; modification et annulation restent accessibles par les commandes habituelles ;
+- édition d'une donne par l'écran Résultat complet, couleurs sur la feuille, « Tout le monde passe » sur la TABLE, fin de partie en un écran (v20261031_2135) ;
 - découpage en fichiers non recommandé à court terme ;
 - priorité aux évolutions ciblées et testées.
 
@@ -1351,7 +1435,8 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20260701_1355` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261031_2135` |
+| Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
 | Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 343 contrôles disponibles ; v20260701_1355 vérifiée sur PWA + test ciblé iPhone |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
@@ -1376,7 +1461,13 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | Annuler dernière donne | Depuis la TABLE, afficher le détail de la dernière donne puis restaurer score/manche/donneur après confirmation. | Fait | Haute | Enrichi en `v20260625_1624` |
-| Modifier une donne | Depuis l'historique ou la feuille, rouvrir une donne, modifier les points et recalculer les scores suivants. | Fait | Haute | Livré en `v20260618_1524` |
+| Modifier une donne | Depuis l'historique ou la feuille, rouvrir une donne, modifier les points et recalculer les scores suivants. | Fait | Haute | Livré en `v20260618_1524`, écran Résultat complet en `v20261031_2135` |
+| Suppression d'une donne | La feuille affichée et les totaux sont rafraîchis immédiatement. | Fait | Haute | Corrigé en `v20261031_2135` |
+| Couleurs feuille de score | Symboles ♥♦ rouges, une couleur par équipe. | Fait | Haute | Livré en `v20261031_2135` |
+| Tout le monde passe sur la TABLE | Bouton à la place de `Saisir score` tant qu'il n'y a pas de contrat. | Fait | Haute | Livré en `v20261031_2135` |
+| Fin de partie simplifiée | Écran de victoire avec choix directs, trophée fixe, archive sans doublon. | Fait | Haute | Livré en `v20261031_2135` |
+| Règle capot + belote à 2001 | Une équipe mise capot qui dépasse l'objectif grâce à la belote ne gagne pas. | Fait | Haute | Livré en `v20261031_2135` |
+| Table à la saisie du contrat | « Afficher directement la table à la saisie du contrat ». | À préciser | Haute | Besoin d'une description du comportement attendu |
 | Reprise partie interrompue | Afficher au démarrage une reprise plus claire de la partie autosauvegardée. | Fait | Haute | Livré en `v20260618_1524` |
 | Mode erreur de saisie | Après validation d'une donne, proposer quelques secondes `Annuler / Modifier`. | Retiré | Haute | Livré en `v20260618_1626`, retiré en `v20260625_1601` |
 | Permuter les partenaires sur la TABLE | Appuyer sur un joueur pour échanger sa place avec son partenaire, sans changer les équipes et en conservant le donneur. | Fait | Haute | Livré en `v20260625_1522` |

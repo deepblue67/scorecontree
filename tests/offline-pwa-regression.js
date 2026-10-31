@@ -68,7 +68,7 @@ forbiddenAssetPatterns.forEach(pattern => {
 
 check(!/qrcode(?:\.min)?\.js|new\s+QRCode|cdnjs/i.test(indexHtml), 'Dependance QR Code externe encore presente');
 check(/https:\/\/api\.github\.com\/gists/.test(indexHtml), 'Point reseau GitHub Gist attendu absent');
-check(/https:\/\/api\.anthropic\.com\/v1\/messages/.test(indexHtml), 'Point reseau IA attendu absent');
+check(!/api\.anthropic\.com/.test(indexHtml), 'Ancien appel IA (reconnaissance vocale supprimee) encore present');
 
 const swClientScript = matchOne(
   indexHtml,

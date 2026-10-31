@@ -58,7 +58,6 @@
 ║  Utils (showToast, haptic...)       ~5718                                    ║
 ║  Layout fixes (fixEastWestPC...)    ~5778                                    ║
 ║  Fin de partie                      ~5922                                    ║
-║  Reconnaissance vocale              ~6078                                    ║
 ║  Thème & Aide                       ~6469                                    ║
 ║  Sync Export/Import/Gist            ~6881                                    ║
 ║  Réglages                           ~7066                                    ║
@@ -163,10 +162,6 @@
   0%,100% { box-shadow:0 0 0 0 rgba(255,255,255,0.8),0 0 0 0 rgba(255,220,0,0.6); opacity:1; }
   50%     { box-shadow:0 0 0 10px rgba(255,255,255,0),0 0 0 14px rgba(255,220,0,0); opacity:0.7; }
 }
-@keyframes microPulse {
-  0%,100% { box-shadow:0 0 0 0 rgba(255,80,80,0.7); background:rgba(200,30,30,0.5); }
-  50%     { box-shadow:0 0 0 12px rgba(255,80,80,0); background:rgba(220,50,50,0.7); }
-}
 @keyframes btnBounce {
   0%  { transform:scale(1); } 35% { transform:scale(0.91); }
   65% { transform:scale(1.07); } 85% { transform:scale(0.97); } 100% { transform:scale(1); }
@@ -175,7 +170,6 @@
 /* Classes utilitaires partagées (pas de layout device-specific) */
 .select-pulse { animation:pulse-select 1.2s ease infinite !important; border:2px solid #7ddd82 !important; }
 .btn-pulse    { animation:pulse-btn 2.5s ease infinite; outline:2px solid rgba(255,255,180,0.6); outline-offset:2px; }
-.micro-active { animation:microPulse 1.2s ease infinite !important; border-color:rgba(255,100,100,0.8) !important; }
 .btn-bounce   { animation:btnBounce 0.38s ease forwards; }
 #contract-card-group { animation:svgCardPulse 2.5s ease infinite; cursor:pointer; }
 #mec-card-wrap { cursor:pointer; border-radius:20px; animation:card-pulse 3.5s ease-in-out infinite; -webkit-tap-highlight-color:transparent; }
@@ -247,6 +241,8 @@ select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.or
 .suit-btn .suit-name { display:none; }
 .score-board { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 #ej-action-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:6px 8px 0; max-width:420px; margin:0 auto; width:100%; }
+.btn-passe { background:#6b6b6b; color:#fff; border:2px solid rgba(255,255,255,0.25); }
+.btn-passe:active { background:#5a5a5a; }
 #ej-table-wrap { width:100%; max-width:600px; margin:0 auto; padding:0 8px; }
 #ej-table-wrap svg { width:100%; height:auto; max-height:52vh; display:block; border-radius:16px; }
 #ej-score-wrap { border-radius:var(--radius); background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.12); width:100%; }
@@ -297,7 +293,9 @@ select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.or
 .mec-team-score { font-weight:800; color:#fff; line-height:1; }
 .mec-need { color:rgba(255,255,255,0.5); }
 .winner-screen { background:radial-gradient(ellipse at top,#1e6b22 0%,#0d3a10 100%); flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; color:#fff; }
-.winner-trophy { animation:bounce 1s ease infinite alternate; }
+.winner-trophy { line-height:1; }
+.winner-actions { display:flex; flex-direction:column; gap:8px; width:100%; max-width:460px; margin-top:4px; }
+.winner-actions .btn { width:100%; }
 .winner-title { font-weight:800; letter-spacing:-0.5px; }
 .winner-sub { opacity:0.8; }
 .winner-scores { display:flex; gap:16px; margin:8px 0; }
@@ -577,7 +575,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   .winner-score-item .ws-val { font-size:28px; }
   #ej-action-grid { margin-top:20px !important; grid-template-columns:1fr 1fr !important; }
   #btn-action-contrat { grid-column:1 !important; grid-row:1 !important; }
-  #btn-action-saisie { grid-column:2 !important; grid-row:1 !important; }
+  #btn-action-saisie, #btn-action-passe { grid-column:2 !important; grid-row:1 !important; }
   #btn-undo-last-round { display:block !important; grid-column:1 !important; grid-row:2 !important; }
   #btn-end-game-table { grid-column:2 !important; grid-row:2 !important; }
   #btn-undo-last-round:disabled { opacity:0.38 !important; filter:grayscale(1); cursor:not-allowed !important; box-shadow:none !important; }
@@ -668,7 +666,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   #ej-action-grid { grid-column:2 !important; grid-row:2 !important; display:grid !important; grid-template-columns:1fr 1fr !important; gap:4px !important; padding:0 !important; max-width:none !important; margin:0 !important; width:100% !important; margin-top:16px !important; }
   #ej-action-grid .btn { font-size:10px !important; padding:7px 3px !important; }
   #btn-action-contrat { grid-column:1 !important; grid-row:1 !important; }
-  #btn-action-saisie { grid-column:2 !important; grid-row:1 !important; }
+  #btn-action-saisie, #btn-action-passe { grid-column:2 !important; grid-row:1 !important; }
   #btn-undo-last-round { display:block !important; grid-column:1 !important; grid-row:2 !important; }
   #btn-end-game-table { grid-column:2 !important; grid-row:2 !important; }
   #btn-undo-last-round:disabled { opacity:0.38 !important; filter:grayscale(1); cursor:not-allowed !important; box-shadow:none !important; }
@@ -798,7 +796,8 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   .winner-score-item { padding:8px 16px; }
   .winner-score-item .ws-name { font-size:11px; }
   .winner-score-item .ws-val { font-size:20px; }
-  #screen-winner .btn-gold { padding:10px 20px !important; font-size:13px !important; width:auto !important; }
+  .winner-actions { flex-direction:row; max-width:none; gap:6px; }
+  .winner-actions .btn { padding:9px 8px !important; font-size:12px !important; flex:1; }
 }
 
 
@@ -1560,6 +1559,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
         <div id="ej-action-grid">
           <button id="btn-action-contrat" class="btn btn-outline" onclick="showTab('contrat')" style="font-size:13px;padding:10px 6px;">✏️ Contrat</button>
           <button id="btn-action-saisie" class="btn btn-green" onclick="showTab('saisie');updateSaisieForm();" style="font-size:13px;padding:10px 6px;">📊 Saisir score</button>
+          <button id="btn-action-passe" class="btn btn-passe" onclick="haptic('medium');bounce(this);passeGenerale();" style="font-size:13px;padding:10px 6px;">🤷 Tout le monde passe</button>
           <button id="btn-undo-last-round" class="btn btn-outline" onclick="askUndoLastRound()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;color:#111;border-color:#111;background:rgba(255,255,255,0.12);display:none;">↩ Annuler dernière donne</button>
           <button id="btn-end-game-table" class="btn btn-outline" onclick="askEndGame()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;color:#111;border-color:#111;background:rgba(255,255,255,0.12);">🏁 Terminer la partie</button>
           <button id="btn-tournoi-shortcut" class="btn btn-gold" onclick="showTournoi()" style="font-size:12px;padding:10px 6px;grid-column:1/-1;display:none;">🏆 Saisir scores du tournoi</button>
@@ -1574,14 +1574,6 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 
       <div class="card">
         <div class="card-title">Contrat</div>
-
-        <!-- Bouton Passe générale -->
-        <div style="display:flex;justify-content:center;margin-bottom:16px;">
-          <button id="btn-passe-generale" class="btn" onclick="haptic('medium');bounce(this);passeGenerale();"
-            style="background:#6b6b6b;color:#fff;border:2px solid rgba(255,255,255,0.25);font-size:15px;padding:12px 28px;border-radius:99px;font-weight:700;letter-spacing:-0.2px;box-shadow:0 2px 8px rgba(0,0,0,0.25);">
-            🤷 Tout le monde passe
-          </button>
-        </div>
 
         <div class="field" style="margin-bottom:14px;">
           <label>Équipe preneuse</label>
@@ -1663,7 +1655,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 
             <div class="stepper" id="stp-t1">
               <button onclick="stepScore('t1',-10)" type="button">−</button>
-              <input class="sv" type="number" id="inp-pts-t1" inputmode="numeric" min="0" max="500" step="10" placeholder="0">
+              <input class="sv" type="number" id="inp-pts-t1" inputmode="numeric" min="0" max="500" step="10" placeholder="0" oninput="onScoreTyped('t1')">
               <button onclick="stepScore('t1',10)" type="button">+</button>
             </div>
 
@@ -1696,7 +1688,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 
             <div class="stepper" id="stp-t2">
               <button onclick="stepScore('t2',-10)" type="button">−</button>
-              <input class="sv" type="number" id="inp-pts-t2" inputmode="numeric" min="0" max="500" step="10" placeholder="0">
+              <input class="sv" type="number" id="inp-pts-t2" inputmode="numeric" min="0" max="500" step="10" placeholder="0" oninput="onScoreTyped('t2')">
               <button onclick="stepScore('t2',10)" type="button">+</button>
             </div>
 
@@ -1743,7 +1735,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
             ✓ Valider la manche
           </button>
         </div>
-        <button id="saisie-annuler-btn" class="btn btn-outline btn-full" onclick="showTab('enjeu')" style="font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Annuler</button>
+        <button id="saisie-annuler-btn" class="btn btn-outline btn-full" onclick="cancelSaisie()" style="font-size:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Annuler</button>
       </div>
     </div>
 
@@ -1895,7 +1887,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20260701_1355</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261031_2135</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -2064,9 +2056,11 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
         </div>
       </div>
       <div id="w-summary" style="width:100%;max-width:460px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.16);border-radius:16px;padding:12px 14px;font-size:13px;line-height:1.55;text-align:left;"></div>
-      <button class="btn btn-gold btn-full" onclick="goToScoreSheet()" style="font-size:16px;padding:16px;margin-top:8px;">
-        📋 Visualiser la feuille des scores
-      </button>
+      <div class="winner-actions">
+        <button id="w-btn-replay" class="btn btn-gold btn-full" onclick="haptic('medium');confirmEndGame('same');" style="font-size:16px;padding:15px;">🔁 Nouvelle partie — mêmes équipes</button>
+        <button id="w-btn-teams" class="btn btn-outline btn-full" onclick="haptic('medium');confirmEndGame('change');" style="font-size:15px;padding:13px;color:#fff;border-color:rgba(255,255,255,0.45);">👥 Changer les équipes</button>
+        <button id="w-btn-sheet" class="btn btn-outline btn-full" onclick="goToScoreSheet()" style="font-size:14px;padding:11px;color:rgba(255,255,255,0.85);border-color:rgba(255,255,255,0.3);">📋 Voir la feuille de score</button>
+      </div>
     </div>
   </div>
 
@@ -2231,6 +2225,11 @@ function createInitialAppState() {
 
 let S = createInitialAppState();
 let pendingScore = null;
+// Couleurs de la feuille de score : une couleur par équipe (comme le graphique des stats)
+const TEAM_COLORS = { t1:'#1a6b3c', t2:'#1a5295' };
+const ZERO_PTS_COLOR = '#b3ada3';
+// Contexte d'édition d'une donne déjà validée (écran Résultat réutilisé) — voir openEdit()
+let editRoundCtx = null;
 
 function resetGameProgress() {
   S.score = {t1:0, t2:0};
@@ -2239,6 +2238,7 @@ function resetGameProgress() {
   S.contract = null;
   S.form = createEmptyContractForm();
   S._gameSaved = false;
+  S._savedGameId = null;
   pendingScore = null;
 }
 
@@ -2434,6 +2434,13 @@ function updatePulseButtons() {
     btnSaisie.classList.toggle('btn-pulse', !!c);
     btnSaisie.style.opacity = c ? '1' : '0.35';
     btnSaisie.disabled = !c;
+    // Sans contrat, la case « Saisir score » laisse la place à « Tout le monde passe »
+    btnSaisie.style.display = c ? '' : 'none';
+  }
+  const btnPasse = eid('btn-action-passe');
+  if(btnPasse) {
+    btnPasse.style.display = c ? 'none' : '';
+    btnPasse.disabled = !!c;
   }
   if(btnUndo) {
     const canUndo = S.history.length > 0;
@@ -2490,6 +2497,7 @@ function syncGameOverlayLock(isOverlay) {
 }
 
 function showTab(tab) {
+  if(editRoundCtx && tab !== 'saisie') restoreEditRoundContext();
   const onSetup = eid('screen-setup') && eid('screen-setup').classList.contains('active');
   const gameStarted = !!(S.t1 && S.t1.name);
 
@@ -2796,7 +2804,7 @@ function renderContractReminder() {
         <div style="font-size:26px;font-weight:900;color:#fff;line-height:1.1;">${c.isCapot?'Capot':c.value}${contreTxt}</div>
         <div style="font-size:20px;font-weight:700;color:#7ddd82;margin-top:6px;">🏆 ${escapeHtml(pTeam)}</div>
       </div>
-    </div>`;
+    </div>${editRoundCtx ? `<div id="edit-round-banner" style="background:#fff4d6;border:1.5px solid #c8960a;color:#6b4e00;border-radius:10px;padding:8px 12px;font-size:13px;font-weight:700;margin:-6px 0 12px;text-align:center;">✏️ Modification de la manche ${Number(editRoundCtx.manche)}${editRoundCtx.legacy ? '<br><span style="font-weight:600;font-size:12px;">Ressaisissez les points des cartes de cette donne</span>' : ''}</div>` : ''}`;
   } else {
     el.innerHTML = '<div style="background:rgba(255,68,68,0.2);border:2px solid rgba(255,68,68,0.6);border-radius:12px;padding:14px 18px;font-size:14px;font-weight:700;color:#ff6666;margin-bottom:14px;">⚠️ Aucun contrat saisi pour cette manche</div>';
   }
@@ -2931,6 +2939,22 @@ function stepScore(team, delta) {
   eid('score-calc-result').style.display='none';
   eid('confirm-score-btn').style.display='none';
   const _cb=eid('calc-preview-btn');if(_cb)_cb.style.display='flex';
+}
+
+// Saisie au clavier : l'autre équipe est complétée comme avec les boutons (160/170, ou 162/172 au point près)
+function onScoreTyped(team) {
+  const cap1 = eid('chk-cap-t1').checked, cap2 = eid('chk-cap-t2').checked;
+  const inp = eid('inp-pts-' + team);
+  const inpOther = eid('inp-pts-' + (team === 't1' ? 't2' : 't1'));
+  const val = parseInt(inp.value, 10);
+  if(!cap1 && !cap2 && !isNaN(val) && val >= 0) {
+    const base = getScoreTotal();
+    const ref = (val % 10 === 0) ? base : base + 2;
+    if(val <= ref) inpOther.value = ref - val;
+  }
+  eid('score-calc-result').style.display='none';
+  eid('confirm-score-btn').style.display='none';
+  const _cb = eid('calc-preview-btn'); if(_cb) _cb.style.display='flex';
 }
 
 function stepScoreFine(team, delta) {
@@ -3076,17 +3100,23 @@ function calculateBeloteScore({ contract, pts1Raw, pts2Raw, bel1, bel2, cap1, ca
     detail: buildDetail(c, chute, plisPre, plisAdv, hasBelPre, hasBelAdv, mult, pPts, aPts)};
 }
 
-function calcAndPreview() {
-  haptic('light');
-  pendingScore = calculateBeloteScore({
-    contract: S.contract,
+function readSaisieRawInput() {
+  return {
     pts1Raw: parseInt(eid('inp-pts-t1').value)||0,
     pts2Raw: parseInt(eid('inp-pts-t2').value)||0,
     bel1: eid('chk-bel-t1').checked,
     bel2: eid('chk-bel-t2').checked,
     cap1: eid('chk-cap-t1').checked,
     cap2: eid('chk-cap-t2').checked
-  });
+  };
+}
+
+function calcAndPreview() {
+  haptic('light');
+  const raw = readSaisieRawInput();
+  pendingScore = calculateBeloteScore({ contract: S.contract, ...raw });
+  // Saisie brute conservée pour pouvoir rouvrir la donne dans l'écran Résultat
+  pendingScore.raw = { ...raw, total: getScoreTotal() };
   showScoreResult(pendingScore);
 }
 
@@ -3191,7 +3221,7 @@ function showScoreResult(ps) {
         </button>
         <div id="score-detail-body" style="display:none;margin-bottom:12px;font-size:12px;color:rgba(255,255,255,0.55);line-height:1.8;border-top:1px solid rgba(255,255,255,0.1);padding-top:8px;">${detailLines}</div>
         <div style="display:flex;gap:10px;">
-          <button class="btn btn-gold" onclick="haptic('success');bounce(this);validateScore();" style="flex:1;font-size:15px;padding:14px;font-weight:700;">✓ Valider la manche</button>
+          <button class="btn btn-gold" onclick="haptic('success');bounce(this);validateScore();" style="flex:1;font-size:15px;padding:14px;font-weight:700;">${editRoundCtx ? '✓ Enregistrer' : '✓ Valider la manche'}</button>
           <button class="btn btn-outline" onclick="closeScoreModal();" style="flex:1;font-size:14px;padding:14px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Annuler</button>
         </div>
       </div>`;
@@ -3226,6 +3256,7 @@ function validateScore() {
   // Fermer la modale portrait si elle existe
   const modal = document.getElementById('score-result-modal');
   if(modal) modal.remove();
+  if(editRoundCtx) { applyEditedRound(); return; }
   S.score.t1 += pendingScore.pts1;
   S.score.t2 += pendingScore.pts2;
   const h = {
@@ -3239,6 +3270,10 @@ function validateScore() {
     total1: S.score.t1,
     total2: S.score.t2
   };
+  if(S.contract) h.c = contractSnapshot(S.contract);
+  if(pendingScore.raw) h.raw = pendingScore.raw;
+  // État avant la donne : permet à « Annuler dernière donne » de restaurer le bon donneur, même après une passe générale
+  h.before = { manche: S.manche, dealerIdx: S.dealerIdx, dealer: S.pos[S.dealerOrder[S.dealerIdx]] };
   S.history.push(h);
   // On n'incrémente la manche et on ne change le donneur que s'il y avait un vrai contrat
   if(S.contract) {
@@ -3252,8 +3287,11 @@ function validateScore() {
   // Check winner
   const winPts = S.gameMode==='manches' ? null : (S.winningPts||2001);
   const winMan = S.gameMode==='manches' ? (S.winningManches||10) : null;
-  const w1 = winPts ? S.score.t1>=winPts : (S.manche-1)>=winMan;
-  const w2 = winPts ? S.score.t2>=winPts : (S.manche-1)>=winMan;
+  // Aide à la marque : une équipe mise capot qui dépasse l'objectif grâce à la belote ne gagne pas sur cette donne
+  const raw = h.raw || {};
+  const capotedTeam = (raw.cap1 && !raw.cap2) ? 't2' : (raw.cap2 && !raw.cap1) ? 't1' : null;
+  const w1 = winPts ? (S.score.t1>=winPts && capotedTeam!=='t1') : (S.manche-1)>=winMan;
+  const w2 = winPts ? (S.score.t2>=winPts && capotedTeam!=='t2') : (S.manche-1)>=winMan;
   if(w1||w2) {
     savePastGame();
     S._gameSaved = true;
@@ -3366,15 +3404,35 @@ function renderEmptyState(message, options = {}) {
 }
 
 function renderTeamMatchupTitle(team1, team2, trailingBreak = false) {
-  return escapeHtml(team1) +
+  return `<span style="color:${TEAM_COLORS.t1};">${escapeHtml(team1)}</span>` +
     '<br><span style="font-size:11px;color:#888;font-weight:600;">VS</span><br>' +
-    escapeHtml(team2) +
+    `<span style="color:${TEAM_COLORS.t2};">${escapeHtml(team2)}</span>` +
     (trailingBreak ? '<br>&nbsp;' : '');
 }
 
 function renderRoundResultBadge(chute, sizes) {
   const isFailure = chute === true;
   return `<span style="background:${isFailure ? '#cc2222' : '#2a7d2e'};color:#fff;font-size:${sizes.fsBadge};font-weight:700;padding:${sizes.fsBadgePad};border-radius:4px;">${isFailure ? 'Chute' : 'Fait'}</span>`;
+}
+
+
+// Colore les symboles de couleur (♥ ♦ en rouge, ♠ ♣ en noir) dans un texte déjà échappé
+function colorSuitsHtml(html) {
+  return String(html).replace(/[♥♦]/g, m => `<span style="color:#cc1f1f;">${m}</span>`)
+                     .replace(/[♠♣]/g, m => `<span style="color:#111;">${m}</span>`);
+}
+
+function roundTakerTeam(round, t1Name) {
+  if(round && round.c && round.c.preneurTeam) return round.c.preneurTeam;
+  return round && round.preneur === t1Name ? 't1' : 't2';
+}
+
+function roundPointsColor(points, team) {
+  return (Number(points) || 0) > 0 ? TEAM_COLORS[team] : ZERO_PTS_COLOR;
+}
+
+function renderTeamHeader(html, team) {
+  return `<span style="color:${TEAM_COLORS[team]};">${html}</span>`;
 }
 
 function neutralizeTableMarkup(value) {
@@ -3388,8 +3446,9 @@ function renderTeamInitials(name) {
 function renderCurrentRoundRow(round, sizes, withActions = false) {
   const hasContract = round.contract && round.contract !== '—';
   const contract = hasContract
-    ? escapeHtml(neutralizeTableMarkup(round.contract))
+    ? colorSuitsHtml(escapeHtml(neutralizeTableMarkup(round.contract)))
     : '<em style="color:#b07800;font-size:11px;">Corr.</em>';
+  const takerTeam = roundTakerTeam(round, S.t1 && S.t1.name);
   const taker = hasContract
     ? escapeHtml(neutralizeTableMarkup(initiales(round.preneur)))
     : '';
@@ -3410,10 +3469,10 @@ function renderCurrentRoundRow(round, sizes, withActions = false) {
   return `<tr style="border-bottom:1px solid rgba(0,0,0,0.06);">
     <td style="padding:${padding};font-size:${numSize};color:var(--text2);font-weight:600;white-space:nowrap;">${String(round.manche).padStart(2,'0')}</td>
     <td style="padding:${padding};font-size:${contractSize};font-weight:700;white-space:nowrap;">${contract} ${counter}</td>
-    <td style="padding:${padding};font-size:${takerSize};color:#1a5295;font-weight:700;text-align:center;">${taker}</td>
+    <td style="padding:${padding};font-size:${takerSize};color:${TEAM_COLORS[takerTeam]};font-weight:700;text-align:center;">${taker}</td>
     <td style="padding:${padding};text-align:center;">${result}</td>
-    <td style="padding:${padding};font-size:${scoreSize};font-weight:800;text-align:right;color:${round.pts1>0?'#1a6b3c':'#cc2222'};">${Number(round.pts1) || 0}</td>
-    <td style="padding:${padding};font-size:${scoreSize};font-weight:800;text-align:right;color:${round.pts2>0?'#1a6b3c':'#cc2222'};">${Number(round.pts2) || 0}</td>
+    <td style="padding:${padding};font-size:${scoreSize};font-weight:800;text-align:right;color:${roundPointsColor(round.pts1,'t1')};">${Number(round.pts1) || 0}</td>
+    <td style="padding:${padding};font-size:${scoreSize};font-weight:800;text-align:right;color:${roundPointsColor(round.pts2,'t2')};">${Number(round.pts2) || 0}</td>
     ${actions}
   </tr>`;
 }
@@ -3422,6 +3481,7 @@ function renderHistory() {
   const sizes = getTableSizes();
   const { fsTdPad, fsTotal, fsTotalLabel } = sizes;
   const el = eid('history-content');
+  if(!el) return;
   if(!S.history.length) {
     el.innerHTML = renderEmptyState('Aucune manche jouée dans cette partie', {icon:'📋', padding:'20px 16px', fontSize:'14px'});
     return;
@@ -3430,8 +3490,8 @@ function renderHistory() {
   // Mettre à jour le titre
   const titleEl = eid('history-title');
   if(titleEl) titleEl.innerHTML = renderTeamMatchupTitle(S.t1.name, S.t2.name);
-  const i1 = renderTeamInitials(S.t1.name);
-  const i2 = renderTeamInitials(S.t2.name);
+  const i1 = renderTeamHeader(renderTeamInitials(S.t1.name), 't1');
+  const i2 = renderTeamHeader(renderTeamInitials(S.t2.name), 't2');
   const tot1 = S.history[S.history.length-1].total1;
   const tot2 = S.history[S.history.length-1].total2;
 
@@ -3453,9 +3513,9 @@ function renderHistory() {
       <tbody>${rows}</tbody>
       <tfoot>
         <tr style="border-top:2px solid rgba(0,0,0,0.12);background:rgba(0,0,0,0.03);">
-          <td colspan="4" style="padding:${fsTdPad};font-size:${fsTotalLabel};font-weight:800;color:var(--text);">Total manche</td>
-          <td style="padding:${fsTdPad};font-size:${fsTotal};font-weight:900;text-align:right;color:#1a3a8c;">${tot1}</td>
-          <td style="padding:${fsTdPad};font-size:${fsTotal};font-weight:900;text-align:right;color:#1a3a8c;">${tot2}</td>
+          <td colspan="4" style="padding:${fsTdPad};font-size:${fsTotalLabel};font-weight:800;color:var(--text);">Total</td>
+          <td style="padding:${fsTdPad};font-size:${fsTotal};font-weight:900;text-align:right;color:${TEAM_COLORS.t1};">${tot1}</td>
+          <td style="padding:${fsTdPad};font-size:${fsTotal};font-weight:900;text-align:right;color:${TEAM_COLORS.t2};">${tot2}</td>
           <td colspan="2"></td>
         </tr>
       </tfoot>
@@ -3518,10 +3578,18 @@ function askUndoLastRound() {
 
 function undoLastRound() {
   if(!S.history.length) return;
-  S.history.pop();
+  const last = S.history.pop();
   recalculateGameFromHistory();
-  S.manche = Math.max(1, S.manche - 1);
-  S.dealerIdx = (S.dealerIdx + S.dealerOrder.length - 1) % S.dealerOrder.length;
+  if(last && last.before && Number.isInteger(last.before.dealerIdx)) {
+    S.manche = Math.max(1, Number(last.before.manche) || 1);
+    // Retrouver le donneur par son nom (les places ont pu être permutées depuis)
+    const pos = Object.keys(S.pos).find(k => S.pos[k] === last.before.dealer);
+    const byName = pos ? S.dealerOrder.indexOf(pos) : -1;
+    S.dealerIdx = byName >= 0 ? byName : ((last.before.dealerIdx % 4) + 4) % 4;
+  } else {
+    S.manche = Math.max(1, S.manche - 1);
+    S.dealerIdx = (S.dealerIdx + S.dealerOrder.length - 1) % S.dealerOrder.length;
+  }
   S.contract = null;
   S.form = createEmptyContractForm();
   pendingScore = null;
@@ -3545,9 +3613,7 @@ function deleteManche(mancheNum) {
     if(idx === -1) return;
     // Recalculer les totaux cumulés pour les manches restantes
     S.history.splice(idx, 1);
-    recalculateGameFromHistory();
-    autoSave();
-    renderHistory();
+    refreshAfterRoundChange('Manche supprimée');
   };
   openModal('confirm-modal');
 }
@@ -3562,7 +3628,8 @@ function autoSave() {
     pos: S.pos, t1: S.t1, t2: S.t2,
     score: S.score, history: S.history,
     manche: S.manche, dealerIdx: S.dealerIdx,
-    contract: S.contract, form: S.form,
+    contract: editRoundCtx ? editRoundCtx.savedContract : S.contract,
+    form: editRoundCtx ? editRoundCtx.savedForm : S.form,
     gameMode: S.gameMode,
     winningPts: S.winningPts,
     winningManches: S.winningManches,
@@ -3632,18 +3699,23 @@ function savePastGame() {
     const now = new Date();
     const dateStr = now.toLocaleDateString('fr-FR', {weekday:'short', day:'2-digit', month:'2-digit', year:'numeric'});
     const timeStr = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-    past.unshift({
-      id: Date.now(),
-      date: dateStr,
-      time: timeStr,
+    const results = {
       t1: S.t1.name,
       t2: S.t2.name,
       score1: S.score.t1,
       score2: S.score.t2,
       winner: S.score.t1 >= S.score.t2 ? S.t1.name : S.t2.name,
       manches: S.history.length,
-      history: [...S.history]
-    });
+      history: S.history.map(h => ({...h}))
+    };
+    // Partie déjà archivée (ex. donne modifiée après la victoire) : mise à jour sans doublon
+    const existing = S._savedGameId ? past.find(p => p.id === S._savedGameId) : null;
+    if(existing) {
+      Object.assign(existing, results);
+    } else {
+      S._savedGameId = Date.now();
+      past.unshift({ id: S._savedGameId, date: dateStr, time: timeStr, ...results });
+    }
     // Garder max 50 parties
     storageWriteJSON('belote_history', past.slice(0, 50));
   } catch(e) {}
@@ -3659,6 +3731,10 @@ function togglePastHistory() {
   if(arrow) arrow.style.transform = pastHistoryOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
 }
 
+// Jours / parties dépliés dans l'historique : conservés quand la liste est redessinée (ex. après suppression)
+const openPastDays = new Set();
+const openPastGames = new Set();
+
 function toggleDay(date) {
   const sanitized = date.replace(/[^a-zA-Z0-9]/g, '_');
   const wrap = eid('day-wrap-' + sanitized);
@@ -3667,6 +3743,7 @@ function toggleDay(date) {
   const isOpen = wrap.style.display !== 'none';
   wrap.style.display = isOpen ? 'none' : 'block';
   if(arrow) arrow.style.transform = isOpen ? 'rotate(-90deg)' : 'rotate(0deg)';
+  if(isOpen) openPastDays.delete(date); else openPastDays.add(date);
 }
 
 function buildPastTable(p) {
@@ -3686,11 +3763,11 @@ function buildPastTable(p) {
     const badgeColor = h.chute ? '#cc2222' : '#2a7d2e';
     const badgeLabel = h.chute ? 'Chute' : 'Fait';
     const badge = '<span style="background:'+badgeColor+';color:#fff;font-size:'+sz.fsBadge+';font-weight:700;padding:'+sz.fsBadgePad+';border-radius:4px;">'+badgeLabel+'</span>';
-    const c1 = h.pts1 > 0 ? '#1a6b3c' : '#cc2222';
-    const c2 = h.pts2 > 0 ? '#1a6b3c' : '#cc2222';
+    const c1 = roundPointsColor(h.pts1, 't1');
+    const c2 = roundPointsColor(h.pts2, 't2');
     return '<tr style="border-bottom:1px solid #e0ddd6;color:#2a1f14;">'
       + '<td style="padding:'+sz.fsTdPad+';color:#888;font-size:'+sz.fsHeader+';">'+String(h.manche).padStart(2,'0')+'</td>'
-      + '<td style="padding:'+sz.fsTdPad+';font-size:'+sz.fsScore+';font-weight:700;color:#1a1a1a;">'+contrat+'</td>'
+      + '<td style="padding:'+sz.fsTdPad+';font-size:'+sz.fsScore+';font-weight:700;color:#1a1a1a;white-space:nowrap;">'+colorSuitsHtml(escapeHtml(contrat))+'</td>'
       + '<td style="padding:'+sz.fsTdPad+';text-align:center;">'+badge+'</td>'
       + '<td style="padding:'+sz.fsTdPad+';text-align:right;font-size:'+sz.fsScore+';font-weight:700;color:'+c1+';">'+h.pts1+'</td>'
       + '<td style="padding:'+sz.fsTdPad+';text-align:right;font-size:'+sz.fsScore+';font-weight:700;color:'+c2+';">'+h.pts2+'</td>'
@@ -3701,14 +3778,14 @@ function buildPastTable(p) {
     + '<th style="padding:'+sz.fsTdPad+';text-align:left;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">#</th>'
     + '<th style="padding:'+sz.fsTdPad+';text-align:left;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">Contrat</th>'
     + '<th style="padding:'+sz.fsTdPad+';text-align:center;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">Résult.</th>'
-    + '<th style="padding:'+sz.fsTdPad+';text-align:right;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">'+p.t1+'</th>'
-    + '<th style="padding:'+sz.fsTdPad+';text-align:right;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">'+p.t2+'</th>'
+    + '<th style="padding:'+sz.fsTdPad+';text-align:right;color:'+TEAM_COLORS.t1+';font-size:'+sz.fsHeader+';font-weight:700;">'+escapeHtml(p.t1)+'</th>'
+    + '<th style="padding:'+sz.fsTdPad+';text-align:right;color:'+TEAM_COLORS.t2+';font-size:'+sz.fsHeader+';font-weight:700;">'+escapeHtml(p.t2)+'</th>'
     + '</tr></thead>'
     + '<tbody>'+rows+'</tbody>'
     + '<tfoot><tr style="border-top:2px solid #e0ddd6;background:#f5f3ee;">'
     + '<td colspan="3" style="padding:'+sz.fsTdPad+';font-size:'+sz.fsTotalLabel+';font-weight:800;color:var(--text);">Total</td>'
-    + '<td style="padding:'+sz.fsTdPad+';font-size:'+sz.fsTotal+';font-weight:900;text-align:right;color:#1a3a8c;">'+tot1+'</td>'
-    + '<td style="padding:'+sz.fsTdPad+';font-size:'+sz.fsTotal+';font-weight:900;text-align:right;color:#1a3a8c;">'+tot2+'</td>'
+    + '<td style="padding:'+sz.fsTdPad+';font-size:'+sz.fsTotal+';font-weight:900;text-align:right;color:'+TEAM_COLORS.t1+';">'+tot1+'</td>'
+    + '<td style="padding:'+sz.fsTdPad+';font-size:'+sz.fsTotal+';font-weight:900;text-align:right;color:'+TEAM_COLORS.t2+';">'+tot2+'</td>'
     + '</tr></tfoot></table>';
 }
 
@@ -4904,6 +4981,7 @@ function renderPastHistory() {
   });
   el.innerHTML = Object.entries(byDate).map(([date, parties]) => {
     const sanitized = date.replace(/[^a-zA-Z0-9]/g, '_');
+    const dayOpen = openPastDays.has(date);
     return `
     <div style="margin-bottom:10px;">
       <!-- Header jour — cliquable -->
@@ -4911,28 +4989,28 @@ function renderPastHistory() {
         <span style="font-size:12px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.06em;">📅 ${date} <span style="font-weight:500;color:var(--text2);">(${parties.length} partie${parties.length>1?'s':''})</span></span>
         <div style="display:flex;align-items:center;gap:8px;">
           <button onclick="event.stopPropagation();deleteDay('${date}')" style="background:#fce8e8;border:1px solid #e8b0b0;border-radius:99px;color:#cc1f1f;font-size:11px;font-weight:700;padding:3px 10px;cursor:pointer;font-family:inherit;">🗑</button>
-          <span id="day-arrow-${sanitized}" style="font-size:16px;color:var(--text2);transition:transform 0.2s;transform:rotate(-90deg);">▼</span>
+          <span id="day-arrow-${sanitized}" style="font-size:16px;color:var(--text2);transition:transform 0.2s;transform:rotate(${dayOpen ? '0' : '-90'}deg);">▼</span>
         </div>
       </div>
       <!-- Contenu du jour — pliable -->
-      <div id="day-wrap-${sanitized}" style="margin-top:6px;display:none;">
+      <div id="day-wrap-${sanitized}" style="margin-top:6px;display:${dayOpen ? 'block' : 'none'};">
         ${parties.map(p => `
           <div style="background:#fff;border-radius:12px;margin-bottom:6px;border:1px solid #e0ddd6;box-shadow:0 1px 3px rgba(0,0,0,0.06);overflow:hidden;">
             <!-- En-tête cliquable -->
             <div onclick="toggleGameDetail(${p.id})" style="display:flex;justify-content:space-between;align-items:start;gap:8px;padding:12px 14px;cursor:pointer;">
               <div style="flex:1;">
-                <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px;">🏆 ${p.winner}</div>
-                <div style="font-size:12px;color:var(--text2);margin-bottom:2px;">${p.t1} <span style="font-weight:700;color:var(--text);">${p.score1}</span> — ${p.t2} <span style="font-weight:700;color:var(--text);">${p.score2}</span></div>
+                <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px;">🏆 ${escapeHtml(p.winner)}</div>
+                <div style="font-size:12px;color:var(--text2);margin-bottom:2px;">${escapeHtml(p.t1)} <span style="font-weight:700;color:var(--text);">${p.score1}</span> — ${escapeHtml(p.t2)} <span style="font-weight:700;color:var(--text);">${p.score2}</span></div>
                 <div style="font-size:11px;color:var(--text3);">${p.manches} manche${p.manches>1?'s':''} · ${p.time}</div>
               </div>
               <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
                 <button onclick="event.stopPropagation();showPastGameStats(${p.id})" style="background:#e8f0fb;border:1px solid #1a5295;border-radius:99px;color:#1a5295;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer;font-family:inherit;">📊 Stats</button>
-                <span id="game-arrow-${p.id}" style="font-size:13px;color:var(--text2);transition:transform .2s;">▼</span>
+                <span id="game-arrow-${p.id}" style="font-size:13px;color:var(--text2);transition:transform .2s;transform:rotate(${openPastGames.has(p.id) ? '180' : '0'}deg);">▼</span>
                 <button onclick="event.stopPropagation();deleteGame(${p.id})" style="background:#fce8e8;border:1px solid #e8b0b0;border-radius:99px;color:#cc1f1f;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer;font-family:inherit;">✕</button>
               </div>
             </div>
             <!-- Détail dépliable -->
-            <div id="game-detail-${p.id}" style="display:none;border-top:1px solid #e8e4dc;padding:10px 14px;background:#faf9f6;">
+            <div id="game-detail-${p.id}" style="display:${openPastGames.has(p.id) ? 'block' : 'none'};border-top:1px solid #e8e4dc;padding:10px 14px;background:#faf9f6;">
               ${buildPastTable(p)}
             </div>
           </div>
@@ -4949,6 +5027,7 @@ function toggleGameDetail(id) {
   const isOpen = detail.style.display !== 'none';
   detail.style.display = isOpen ? 'none' : 'block';
   if(arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+  if(isOpen) openPastGames.delete(id); else openPastGames.add(id);
 }
 
 function deleteGame(id) {
@@ -4959,8 +5038,11 @@ function deleteGame(id) {
       let past = storageReadJSON('belote_history', [], Array.isArray);
       past = past.filter(p => p.id !== id);
       storageWriteJSON('belote_history', past);
+      openPastGames.delete(id);
+      if(S._savedGameId === id) { S._savedGameId = null; S._gameSaved = false; }
       renderPastHistory();
       renderStats();
+      showToast('Partie supprimée');
     } catch(e) {}
   };
   openModal('confirm-modal');
@@ -4996,11 +5078,140 @@ function clearAllHistory() {
 
 let editingManche = null;
 
+
+const SUIT_KEYS = {'♠':['s','dark'], '♥':['h','red'], '♦':['d','red'], '♣':['c','dark']};
+
+function contractSnapshot(c) {
+  return { preneurTeam:c.preneurTeam, value:c.value, suit:c.suit, suitKey:c.suitKey, isCapot:!!c.isCapot, contre:c.contre||'none' };
+}
+
+// Reconstitue le contrat d'une donne de l'historique (données détaillées ou anciennes données texte)
+function contractFromRound(h) {
+  if(!h || !h.contract || h.contract === '—') return null;
+  if(h.c && h.c.preneurTeam) return { ...h.c };
+  const parts = String(h.contract).trim().split(/\s+/);
+  const isCapot = parts[0] === 'Capot';
+  const value = isCapot ? 250 : (parseInt(parts[0], 10) || 0);
+  const suit = parts[1] || '';
+  const preneurTeam = (S.t2 && h.preneur === S.t2.name) ? 't2' : 't1';
+  if(!value || !SUIT_KEYS[suit]) return null;
+  return { preneurTeam, value, suit, suitKey:SUIT_KEYS[suit][0], isCapot, contre:h.contre||'none' };
+}
+
 function openEdit(manche) {
   const h = S.history.find(x => x.manche === manche);
   if(!h) return;
+  const contract = contractFromRound(h);
+  // Ligne de correction sans contrat : on garde la petite fenêtre de points
+  if(!contract) { openEditPointsModal(manche); return; }
+  editRoundCtx = {
+    manche,
+    savedContract: S.contract,
+    savedForm: S.form,
+    returnSub: (typeof currentSubTab !== 'undefined' && currentSubTab) ? currentSubTab : 'feuille',
+    legacy: !h.raw
+  };
+  S.contract = { ...contract, manche:h.manche };
+  showTab('saisie');
+  updateSaisieForm();
+  if(h.raw) {
+    setScoreTotal(h.raw.total === 170 ? 170 : 160);
+    if(h.raw.cap1 || h.raw.cap2) {
+      setCapot(h.raw.cap1 ? 't1' : 't2');
+    } else {
+      eid('inp-pts-t1').value = h.raw.pts1Raw;
+      eid('inp-pts-t2').value = h.raw.pts2Raw;
+    }
+    eid('chk-bel-t1').checked = !!h.raw.bel1;
+    eid('chk-bel-t2').checked = !!h.raw.bel2;
+    refreshBeloteBoxes();
+  }
+  renderContractReminder();
+  syncEditRoundUi();
+}
+
+function syncEditRoundUi() {
+  const editing = !!editRoundCtx;
+  const validateBtn = document.querySelector('#confirm-score-btn button');
+  if(validateBtn) validateBtn.textContent = editing ? '✓ Enregistrer la modification' : '✓ Valider la manche';
+  const cancelBtn = eid('saisie-annuler-btn');
+  if(cancelBtn) cancelBtn.textContent = editing ? 'Annuler la modification' : 'Annuler';
+}
+
+function restoreEditRoundContext() {
+  const ctx = editRoundCtx;
+  if(!ctx) return null;
+  editRoundCtx = null;
+  S.contract = ctx.savedContract;
+  S.form = ctx.savedForm;
+  pendingScore = null;
+  const m = document.getElementById('score-result-modal');
+  if(m) m.remove();
+  syncEditRoundUi();
+  return ctx;
+}
+
+function returnToPartiesSub(sub) {
+  showTab('parties');
+  setTimeout(() => showSubTab(sub === 'history' ? 'history' : 'feuille'), 10);
+}
+
+function cancelEditRound() {
+  const ctx = restoreEditRoundContext();
+  if(ctx) returnToPartiesSub(ctx.returnSub);
+}
+
+function cancelSaisie() {
+  if(editRoundCtx) { cancelEditRound(); return; }
+  showTab('enjeu');
+}
+
+function applyEditedRound() {
+  const ctx = editRoundCtx;
+  const idx = S.history.findIndex(x => x.manche === ctx.manche);
+  if(idx >= 0) {
+    const h = S.history[idx];
+    h.pts1 = pendingScore.pts1;
+    h.pts2 = pendingScore.pts2;
+    h.chute = pendingScore.chute;
+    h.c = contractSnapshot(S.contract);
+    if(pendingScore.raw) h.raw = pendingScore.raw;
+  }
+  restoreEditRoundContext();
+  finishRoundEdit();
+  returnToPartiesSub(ctx.returnSub);
+}
+
+// Recalcul + sauvegarde commun à toutes les modifications de donne
+function finishRoundEdit() {
+  refreshAfterRoundChange('Manche modifiée');
+}
+
+// Recalcule les totaux, sauvegarde et redessine tout ce qui affiche les donnes
+function refreshAfterRoundChange(message) {
+  recalculateGameFromHistory();
+  if(S._gameSaved) savePastGame(); // partie déjà archivée : on met à jour la même entrée
+  autoSave();
+  renderStats();
+  renderHistory();
+  renderFeuille();
+  renderEnjeu();
+  updateScoreDisplay();
+  updatePulseButtons();
+  const partiesTab = eid('tab-parties');
+  if(partiesTab && partiesTab.style.display !== 'none' && typeof currentSubTab !== 'undefined' && currentSubTab !== 'tournois') {
+    showSubTab(currentSubTab);
+  }
+  haptic('success');
+  if(message) showToast(message);
+}
+
+// Petite fenêtre (lignes de correction sans contrat uniquement)
+function openEditPointsModal(manche) {
+  const h = S.history.find(x => x.manche === manche);
+  if(!h) return;
   editingManche = manche;
-  eid('edit-modal-title').textContent = `Manche ${manche} — ${h.contract}`;
+  eid('edit-modal-title').textContent = `Manche ${manche} — correction`;
   eid('edit-lbl-t1').innerHTML = formatTeamNameTwoLineHtml(S.t1.name);
   eid('edit-lbl-t2').innerHTML = formatTeamNameTwoLineHtml(S.t2.name);
   eid('edit-pts-t1').value = h.pts1;
@@ -5031,26 +5242,8 @@ function saveEdit() {
   S.history[idx].pts1 = newP1;
   S.history[idx].pts2 = newP2;
 
-  // Recalculer tous les totaux cumulés depuis le début
-  recalculateGameFromHistory();
-  S._gameSaved = false;
-  autoSave();
-
-  // Mettre à jour le score global
-  renderStats();
-
   closeEdit();
-  renderHistory();
-  renderEnjeu();
-  updateScoreDisplay();
-  // Toujours recréer le sous-onglet actif dans Parties
-  const partiesTab = eid('tab-parties');
-  if(partiesTab && partiesTab.style.display !== 'none') {
-    showSubTab(currentSubTab);
-  } else {
-    renderFeuille();
-  }
-  showToast('Manche modifiée');
+  finishRoundEdit();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -5256,7 +5449,7 @@ function renderStatsPlayers() {
 
   // Collecter stats par joueur
   const players = {};
-  function addPlayer(name) {
+  function ensurePlayerStats(name) {
     if(!players[name]) players[name]={name,parties:0,victoires:0,manchesPreneur:0,manchesFaites:0,manchesChutees:0,capots:0,totalPtsPreneur:0,partners:{}};
   }
 
@@ -5264,7 +5457,7 @@ function renderStatsPlayers() {
     const t1players = p.t1.split(' & ');
     const t2players = p.t2.split(' & ');
     const winner = p.score1>=p.score2 ? 't1' : 't2';
-    [...t1players,...t2players].forEach(n=>addPlayer(n));
+    [...t1players,...t2players].forEach(n=>ensurePlayerStats(n));
     t1players.forEach(n=>{ players[n].parties++; if(winner==='t1') players[n].victoires++; });
     t2players.forEach(n=>{ players[n].parties++; if(winner==='t2') players[n].victoires++; });
     [t1players, t2players].forEach(team => {
@@ -5277,7 +5470,7 @@ function renderStatsPlayers() {
       const preneurs = m.preneur.split(' & ');
       const takerPts = m.preneur === p.t1 ? m.pts1 : m.preneur === p.t2 ? m.pts2 : Math.max(Number(m.pts1)||0, Number(m.pts2)||0);
       preneurs.forEach(n=>{
-        if(!players[n]) addPlayer(n);
+        if(!players[n]) ensurePlayerStats(n);
         players[n].manchesPreneur++;
         players[n].totalPtsPreneur += Number(takerPts) || 0;
         if(m.chute===false) players[n].manchesFaites++;
@@ -5876,6 +6069,7 @@ function initiales(name) {
 
 function renderFeuille() {
   const el = eid('feuille-content');
+  if(!el) return;
   const titleEl = eid('feuille-title');
   if(titleEl) titleEl.innerHTML = renderTeamMatchupTitle(S.t1.name, S.t2.name, true);
   const sizes = getTableSizes();
@@ -5886,8 +6080,8 @@ function renderFeuille() {
     return;
   }
 
-  const i1 = renderTeamInitials(S.t1.name);
-  const i2 = renderTeamInitials(S.t2.name);
+  const i1 = renderTeamHeader(renderTeamInitials(S.t1.name), 't1');
+  const i2 = renderTeamHeader(renderTeamInitials(S.t2.name), 't2');
   const tot1 = S.history[S.history.length-1].total1;
   const tot2 = S.history[S.history.length-1].total2;
 
@@ -5910,9 +6104,9 @@ function renderFeuille() {
       <tbody>${rows}</tbody>
       <tfoot>
         <tr style="border-top:2px solid rgba(0,0,0,0.12);background:rgba(0,0,0,0.03);">
-          <td colspan="4" style="padding:${fsTdPad};font-size:${fsTotalLabel};font-weight:800;color:var(--text);">Total manche</td>
-          <td style="padding:${fsTdPad};font-size:${fsTotal};font-weight:900;text-align:right;color:#1a3a8c;">${tot1}</td>
-          <td style="padding:${fsTdPad};font-size:${fsTotal};font-weight:900;text-align:right;color:#1a3a8c;">${tot2}</td>
+          <td colspan="4" style="padding:${fsTdPad};font-size:${fsTotalLabel};font-weight:800;color:var(--text);">Total</td>
+          <td style="padding:${fsTdPad};font-size:${fsTotal};font-weight:900;text-align:right;color:${TEAM_COLORS.t1};">${tot1}</td>
+          <td style="padding:${fsTdPad};font-size:${fsTotal};font-weight:900;text-align:right;color:${TEAM_COLORS.t2};">${tot2}</td>
         </tr>
       </tfoot>
     </table>`;
@@ -6815,352 +7009,6 @@ function showSubTab(sub) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// RECONNAISSANCE VOCALE — CONTRAT
-// ═══════════════════════════════════════════════════════════
-let voiceRecognition = null;
-let voiceActive = false;
-
-function startVoiceContrat() {
-  if (voiceActive) { stopVoice(); return; }
-
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    setMicroFeedback('⚠️ Reconnaissance vocale non supportée sur ce navigateur', 'error');
-    return;
-  }
-
-  voiceRecognition = new SpeechRecognition();
-  voiceRecognition.lang = 'fr-FR';
-  voiceRecognition.continuous = false;
-  voiceRecognition.interimResults = true;
-  voiceRecognition.maxAlternatives = 3;
-
-  // Précharger les prénoms des joueurs pour améliorer la reconnaissance
-  // (via grammaire si supportée)
-  const joueurs = [S.pos.nord, S.pos.sud, S.pos.est, S.pos.ouest].filter(Boolean);
-
-  voiceRecognition.onstart = () => {
-    voiceActive = true;
-    const btn = eid('btn-micro');
-    if(btn) btn.classList.add('micro-active');
-    const icon = eid('micro-icon');
-    if(icon) icon.textContent = '🔴';
-    eid('micro-transcript').textContent = '🎙 Écoute…';
-    eid('micro-feedback').textContent = '';
-    showMicroBar(true);
-  };
-
-  voiceRecognition.onresult = (event) => {
-    let transcript = '';
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      transcript += event.results[i][0].transcript;
-    }
-    eid('micro-transcript').textContent = '« ' + transcript + ' »';
-
-    if (event.results[event.results.length - 1].isFinal) {
-      parseVoiceContrat(transcript);
-    }
-  };
-
-  voiceRecognition.onerror = (e) => {
-    stopVoice();
-    const msgs = {
-      'not-allowed': '⚠️ Microphone non autorisé — vérifiez les permissions',
-      'no-speech':   '🔇 Aucune parole détectée — réessayez',
-      'network':     '⚠️ Erreur réseau',
-      'aborted':     ''
-    };
-    if (msgs[e.error] !== undefined) setMicroFeedback(msgs[e.error] || '', 'error');
-  };
-
-  voiceRecognition.onend = () => { stopVoice(); };
-
-  voiceRecognition.start();
-}
-
-function stopVoice() {
-  voiceActive = false;
-  if (voiceRecognition) { try { voiceRecognition.stop(); } catch(e) {} }
-  const btn = eid('btn-micro');
-  if (btn) {
-    btn.classList.remove('micro-active');
-  }
-  const icon = eid('micro-icon');
-  if(icon) icon.textContent = '🎤';
-  // Masquer la barre de feedback après 4 secondes
-  setTimeout(()=>showMicroBar(false), 4000);
-}
-
-function setMicroFeedback(msg, type) {
-  const el = eid('micro-feedback');
-  if (!el) return;
-  el.textContent = msg;
-  el.style.color = type === 'error' ? 'rgba(255,100,100,0.9)' : 'rgba(100,255,120,0.95)';
-}
-
-function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
-
-function detectEquipe(t){
-  const p = {
-    nord:norm(S.pos.nord), sud:norm(S.pos.sud),
-    est:norm(S.pos.est),   ouest:norm(S.pos.ouest)
-  };
-  const k4 = pos => p[pos] ? p[pos].substring(0,4) : '';
-  const found1 = ['nord','sud'].filter(pos => k4(pos) && t.includes(k4(pos)));
-  const found2 = ['est','ouest'].filter(pos => k4(pos) && t.includes(k4(pos)));
-  // Un seul côté mentionné → facile
-  if(found1.length && !found2.length) return 't1';
-  if(found2.length && !found1.length) return 't2';
-  // Les deux côtés mentionnés → le premier cité dans la phrase désigne l'équipe preneuse
-  if(found1.length && found2.length){
-    const pos1 = Math.min(...found1.map(pos => t.indexOf(k4(pos))));
-    const pos2 = Math.min(...found2.map(pos => t.indexOf(k4(pos))));
-    return pos1 < pos2 ? 't1' : 't2';
-  }
-  // Fallback positions cardinales
-  if(t.includes('nord')||t.includes('sud')) return 't1';
-  if(t.includes('est')||t.includes('ouest')) return 't2';
-  return null;
-}
-
-function detectValeur(t){
-  const vals = [
-    ['capot',250],['generale',250],['general',250],
-    ['cent soixante dix',170],['cent soixante-dix',170],['170',170],
-    ['cent soixante',160],['160',160],
-    ['cent cinquante',150],['150',150],
-    ['cent quarante',140],['140',140],
-    ['cent trente',130],['130',130],
-    ['cent vingt',120],['120',120],
-    ['cent dix',110],['110',110],
-    ['cent',100],['100',100],
-    ['quatre vingt dix',90],['quatre-vingt-dix',90],['90',90],
-    ['quatre vingt',80],['quatre-vingt',80],['80',80],
-  ];
-  for(const [k,v] of vals){ if(t.includes(norm(k))) return v; }
-  const m=t.match(/\b(80|90|100|110|120|130|140|150|160|170)\b/);
-  return m?parseInt(m[1]):null;
-}
-
-function detectSuit(t){
-  if(t.includes('coeur')||t.includes('coeurs')) return {suit:'\u2665',key:'h',color:'red'};
-  if(t.includes('carreau')||t.includes('carreaux')) return {suit:'\u2666',key:'d',color:'red'};
-  if(t.includes('trefle')||t.includes('trefles')) return {suit:'\u2663',key:'c',color:'dark'};
-  if(t.includes('pique')||t.includes('piques')) return {suit:'\u2660',key:'s',color:'dark'};
-  return null;
-}
-
-function showMicroBar(show){
-  const bar=eid('micro-bar');
-  if(bar) bar.style.display=show?'block':'none';
-}
-
-async function parseVoiceContrat(text) {
-  setMicroFeedback('⏳ Interprétation en cours…', 'ok');
-
-  const t1name = S.t1?.name || '';
-  const t2name = S.t2?.name || '';
-
-  const prompt = `Tu es un assistant pour la Belote Contrée.
-Les deux équipes sont "${t1name}" (équipe 1) et "${t2name}" (équipe 2).
-
-L'utilisateur vient de dicter : "${text}"
-
-Retourne UNIQUEMENT un objet JSON valide, sans texte avant ni après, avec ces champs :
-{
-  "value": nombre parmi 80,90,100,110,120,130,140,150,160,170, ou 250 pour Capot,
-  "isCapot": true si Capot sinon false,
-  "suit": "♥" cœur, "♦" carreau, "♣" trèfle, "♠" pique,
-  "suitKey": "h","d","c","s",
-  "suitColor": "red" pour cœur/carreau, "dark" pour trèfle/pique,
-  "contre": "none", "contre" ou "surcontre",
-  "preneur": "t1" si l'équipe "${t1name}" prend, "t2" si "${t2name}" prend, "" si non mentionné,
-  "confidence": nombre entre 0 et 1
-}`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 200,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const raw  = (data.content?.[0]?.text || '').replace(/```json|```/g, '').trim();
-    const p    = JSON.parse(raw);
-
-    // Appliquer dans S.form
-    if (p.value)    { S.form.value = p.value; S.form.isCapot = !!p.isCapot; }
-    if (p.suit)     { S.form.suit = p.suit; S.form.suitKey = p.suitKey; S.form.suitColor = p.suitColor; }
-    if (p.contre)   { S.form.contre = p.contre; }
-    if (p.preneur)  { S.form.preneur = p.preneur; }
-
-    // Rafraîchir l'affichage
-    showTab('contrat');
-
-    // Feedback
-    const preneurName = p.preneur === 't1' ? t1name : p.preneur === 't2' ? t2name : '';
-    const label = [
-      p.isCapot ? 'Capot' : p.value,
-      p.suit,
-      p.contre !== 'none' ? p.contre : '',
-      preneurName
-    ].filter(Boolean).join(' · ');
-
-    if (p.confidence >= 0.7) {
-      setMicroFeedback('✅ ' + label, 'ok');
-      // Si tout est complet, confirmer automatiquement
-      if (p.value && p.suit && p.preneur) {
-        setTimeout(() => { confirmContract(); showMicroBar(false); }, 900);
-      }
-    } else {
-      setMicroFeedback('⚠️ ' + label + ' — vérifiez les champs', 'error');
-    }
-
-  } catch(e) {
-    setMicroFeedback('❌ Erreur — saisissez manuellement', 'error');
-    console.error('Claude voice error:', e);
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-// RECONNAISSANCE VOCALE — CONFIGURATION
-// ═══════════════════════════════════════════════════════════
-let voiceSetupRecognition = null;
-let voiceSetupActive = false;
-
-function startVoiceSetup() {
-  if (voiceSetupActive) { stopVoiceSetup(); return; }
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    setSetupFeedback('⚠️ Reconnaissance vocale non supportée', 'error'); return;
-  }
-  voiceSetupRecognition = new SpeechRecognition();
-  voiceSetupRecognition.lang = 'fr-FR';
-  voiceSetupRecognition.continuous = false;
-  voiceSetupRecognition.interimResults = true;
-  voiceSetupRecognition.maxAlternatives = 3;
-
-  voiceSetupRecognition.onstart = () => {
-    voiceSetupActive = true;
-    const btn = eid('btn-micro-setup');
-    if(btn) btn.classList.add('micro-active');
-    eid('micro-setup-icon').textContent = '🔴';
-    eid('micro-setup-transcript').textContent = '🎙 Écoute…';
-    eid('micro-setup-feedback').textContent = '';
-    eid('micro-setup-bar').style.display = 'block';
-  };
-  voiceSetupRecognition.onresult = (event) => {
-    let transcript = '';
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      transcript += event.results[i][0].transcript;
-    }
-    eid('micro-setup-transcript').textContent = '« ' + transcript + ' »';
-    if (event.results[event.results.length-1].isFinal) {
-      parseVoiceSetup(transcript);
-    }
-  };
-  voiceSetupRecognition.onerror = (e) => {
-    stopVoiceSetup();
-    const msgs = {'not-allowed':'⚠️ Microphone non autorisé','no-speech':'🔇 Aucune parole','network':'⚠️ Erreur réseau','aborted':''};
-    if(msgs[e.error]) setSetupFeedback(msgs[e.error], 'error');
-  };
-  voiceSetupRecognition.onend = () => stopVoiceSetup();
-  voiceSetupRecognition.start();
-}
-
-function stopVoiceSetup() {
-  voiceSetupActive = false;
-  if(voiceSetupRecognition){ try{ voiceSetupRecognition.stop(); }catch(e){} }
-  const btn = eid('btn-micro-setup');
-  if(btn) btn.classList.remove('micro-active');
-  const icon = eid('micro-setup-icon');
-  if(icon) icon.textContent = '🎤';
-  setTimeout(() => {
-    const bar = eid('micro-setup-bar');
-    if(bar) bar.style.display = 'none';
-  }, 3500);
-}
-
-function setSetupFeedback(msg, type) {
-  const el = eid('micro-setup-feedback');
-  if(!el) return;
-  el.textContent = msg;
-  el.style.color = type==='error' ? 'rgba(255,100,100,0.9)' : 'rgba(100,255,120,0.95)';
-}
-
-function parseVoiceSetup(text) {
-  const t = norm(text);
-
-  // ── Récupérer la liste des joueurs disponibles ──
-  const joueurs = storageReadJSON('belote_players', [], isStringArray);
-
-  // ── Détecter la position cardinale ──
-  const posMap = {
-    nord:  ['nord','north'],
-    sud:   ['sud','south'],
-    est:   ['est','east'],
-    ouest: ['ouest','west','quest']
-  };
-  let position = null;
-  for(const [pos, keys] of Object.entries(posMap)){
-    if(keys.some(k => t.includes(k))){ position = pos; break; }
-  }
-
-  // ── Détecter le joueur ──
-  // Chercher un joueur de la liste dans le texte (4 premières lettres)
-  let joueur = null;
-  for(const j of joueurs){
-    const jn = norm(j);
-    if(jn.length >= 3 && t.includes(jn.substring(0,4))){
-      joueur = j; break;
-    }
-  }
-  // Fallback : chercher n'importe quel mot de 4+ lettres qui n'est pas un mot-clé
-  if(!joueur){
-    const stopWords = new Set(['nord','sud','est','ouest','joue','jouer','joueur','place','pour','avec','au','en','le','la','les','un','une','de','du','des','ce','ca','qui','que','quoi','sont','sera','prend','prends','met','coeur','carreau','trefle','pique','montre','page','north','south','east','west']);
-    const words = t.split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
-    if(words.length) joueur = words[words.length-1]; // dernier mot significatif = le prénom
-  }
-
-  if(!position && !joueur){
-    setSetupFeedback('❌ Non reconnu — dites ex: "Christophe joue au nord"', 'error'); return;
-  }
-  if(!position){
-    setSetupFeedback('⚠️ Position non reconnue (nord/sud/est/ouest)', 'error'); return;
-  }
-  if(!joueur){
-    setSetupFeedback('⚠️ Prénom non reconnu', 'error'); return;
-  }
-
-  // ── Trouver le vrai prénom dans la liste (correspondance partielle) ──
-  let prenomFinal = joueur;
-  const jMatch = joueurs.find(j => norm(j).substring(0,4) === norm(joueur).substring(0,4));
-  if(jMatch) prenomFinal = jMatch;
-
-  // ── Appliquer dans le select ──
-  const selId = 'sel-' + position;
-  const sel = eid(selId);
-  if(sel){
-    // Vérifier que l'option existe dans le select
-    const opt = Array.from(sel.options).find(o => norm(o.value).substring(0,4) === norm(prenomFinal).substring(0,4));
-    if(opt){
-      sel.value = opt.value;
-      sel.dispatchEvent(new Event('change'));
-      setSetupFeedback('✅ ' + opt.value + ' placé au ' + position.charAt(0).toUpperCase() + position.slice(1), 'ok');
-    } else {
-      // Le joueur n'est pas dans la liste du select → l'ajouter si on connaît le vrai prénom
-      setSetupFeedback('⚠️ ' + prenomFinal + ' non trouvé dans la liste — ajoutez-le via 👥', 'error');
-    }
-    refreshTeamPreview();
-  }
-}
-
-
-// ═══════════════════════════════════════════════════════════
 // RÉGLAGES — THÈMES & JOUEURS
 // ═══════════════════════════════════════════════════════════
 function getFeltColor() {
@@ -7546,7 +7394,7 @@ function renderHelpContent() {
     // ── 3. Table ──
     section('🃏', '3. Page Table — Pendant la partie', [
       step(1, 'La table affiche les joueurs à leur place, le score des deux équipes, la manche en cours et le donneur.'),
-      step(2, '<strong>Contrat</strong> permet de préparer la donne. <strong>Saisir score</strong> devient utile une fois le contrat confirmé.'),
+      step(2, 'Sans contrat, la table propose <strong>Contrat</strong> et <strong>🤷 Tout le monde passe</strong> (aucun point, le joueur suivant distribue). Une fois le contrat confirmé, ce bouton devient <strong>Saisir score</strong>.'),
       step(3, '<strong>Annuler dernière donne</strong> reste visible : il est grisé si aucune donne ne peut être annulée.'),
       step(4, '<strong>Terminer la partie</strong> permet d\'arrêter manuellement la partie, même si l\'objectif n\'est pas atteint.'),
       step(5, 'Appuyez sur un joueur pour proposer une permutation avec son partenaire : les équipes ne changent pas, seules les places autour de la table changent.'),
@@ -7565,8 +7413,8 @@ function renderHelpContent() {
     // ── 5. Résultat ──
     section('📊', '5. Saisir le score (Résultat)', [
       step(1, 'Appuyez sur <strong>Résultat</strong> (grisé sans contrat).'),
-      step(2, 'Entrez les points d\'une équipe — l\'autre se calcule automatiquement.'),
-      step(3, 'Si un score se termine par 6, il est arrondi à la dizaine supérieure. Utilisez le <strong>toggle 160/170</strong> pour ajuster le total.'),
+      step(2, 'Entrez les points d\'une équipe (boutons ou clavier) — l\'autre se calcule automatiquement.'),
+      step(3, 'Utilisez le <strong>toggle 160/170</strong> pour ajuster le total, et <strong>−1 / +1</strong> pour compter au point près (dernière donne).'),
       step(4, 'Cochez <strong>Belote</strong> si annoncée (+20 pts).'),
       step(5, 'Appuyez sur <strong>Calculer &amp; Prévisualiser</strong> puis <strong>Valider</strong>. La donne est enregistrée directement.'),
       tip('Les scores rapides (80, 100, 120…) permettent une saisie en un tap. En cas d\'erreur, utilisez ensuite Modifier ou Annuler depuis les écrans prévus.'),
@@ -7582,10 +7430,10 @@ function renderHelpContent() {
 
     // ── 7. Corriger une erreur ──
     section('🛠️', '7. Corriger une erreur de saisie', [
-      step(1, '<strong>Modifier une donne</strong> — depuis la feuille ou l\'historique, ouvrez la donne, ajustez les points, puis validez.'),
+      step(1, '<strong>Modifier une donne</strong> — appuyez sur ✏️ dans la feuille ou l\'historique : l\'écran Résultat se rouvre avec les points saisis (cartes, belote, capot). Corrigez, prévisualisez puis <strong>Enregistrer la modification</strong> : le score est recalculé selon le contrat.'),
       step(2, '<strong>Annuler dernière donne</strong> — depuis la Table, une confirmation affiche la manche, le contrat, le preneur, le résultat et les scores qui seront restaurés.'),
-      step(3, 'Le petit message automatique après validation a été retiré : la correction se fait maintenant par ces commandes plus stables.'),
-      tip('Sur iPhone portrait, la fenêtre de modification a été resserrée pour que les chiffres des deux équipes restent lisibles.'),
+      step(3, '<strong>Supprimer une donne</strong> — 🗑 dans la feuille : la feuille et les totaux sont recalculés immédiatement.'),
+      tip('Pour les donnes enregistrées avant cette version, les points des cartes ne sont pas connus : l\'écran Résultat s\'ouvre vide, il suffit de les ressaisir.'),
     ].join(''), svgCorrection) +
 
     // ── 8. Historique parties précédentes ──
@@ -7603,7 +7451,7 @@ function renderHelpContent() {
       step(3, '<strong>Confirmer 🎉</strong> — enregistre et repart avec les mêmes équipes.'),
       step(4, '<strong>Confirmer &amp; changer d\'équipe</strong> — enregistre et retourne à la configuration.'),
       step(5, '<strong>Continuer la partie</strong> — ferme la pop-up sans rien sauvegarder.'),
-      note('La partie se termine aussi automatiquement quand une équipe atteint l\'objectif (points ou manches).'),
+      note('La partie se termine aussi automatiquement quand une équipe atteint l\'objectif : l\'écran de victoire propose directement <strong>Nouvelle partie — mêmes équipes</strong>, <strong>Changer les équipes</strong> ou <strong>Voir la feuille de score</strong>.'),
     ].join(''), svgTerminer) +
 
     // ── 10. Données et hors ligne ──
