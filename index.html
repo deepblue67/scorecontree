@@ -394,6 +394,52 @@ body.fast-input #tab-saisie > :not(#fast-saisie) { display:none !important; }
 @media (min-width: 768px) and (min-height: 700px) and (orientation: landscape) {
   .fast-panel { max-width:1180px; }
 }
+/* iPad paysage uniquement (même requête que les blocs iPad paysage A/B) :
+   les écrans rapides occupent toute la hauteur disponible */
+@media (min-width: 1025px) and (orientation: landscape) and (pointer: coarse) {
+  body.fast-input #fast-contrat, body.fast-input #fast-saisie { flex:1 1 auto; min-height:0; max-width:none; }
+  /* Contrat */
+  .fast-panel#fast-contrat { gap:16px; }
+  .fast-panel#fast-contrat .fast-info { font-size:19px; }
+  .fast-panel#fast-contrat .fast-contrat-card { flex:1 1 auto; min-height:0; padding:26px; column-gap:28px; row-gap:26px; grid-template-rows:minmax(0,1fr) minmax(0,1fr); }
+  .fast-panel#fast-contrat .fast-step { min-height:0; gap:12px; }
+  .fast-panel#fast-contrat .fast-label { font-size:16px; }
+  .fast-panel#fast-contrat .fast-step > .fast-grid-2,
+  .fast-panel#fast-contrat .fast-step > .fast-grid-3,
+  .fast-panel#fast-contrat .fast-values,
+  .fast-panel#fast-contrat .fast-suits { flex:1 1 auto; min-height:0; grid-auto-rows:minmax(0,1fr); gap:12px; }
+  .fast-panel#fast-contrat .fast-btn { height:100%; min-height:0; }
+  .fast-panel#fast-contrat .fast-team { font-size:30px; border-radius:20px; }
+  .fast-panel#fast-contrat .fast-value { font-size:34px; border-radius:18px; }
+  .fast-panel#fast-contrat .fast-pill { font-size:24px; border-radius:22px; line-height:1.15; }
+  .fast-panel#fast-contrat .fast-suit { font-size:84px; border-radius:24px; }
+  .fast-panel#fast-contrat .fast-hint { font-size:18px; }
+  .fast-panel#fast-contrat .fast-back { min-height:72px; font-size:22px; }
+  /* Résultat */
+  body.fast-input .fast-panel#fast-saisie { align-items:stretch; gap:16px; }
+  .fast-panel#fast-saisie .fast-saisie-left, .fast-panel#fast-saisie .fast-saisie-right { min-height:0; gap:14px; }
+  .fast-panel#fast-saisie .fast-reminder { padding:16px 18px; gap:14px; }
+  .fast-panel#fast-saisie .fast-rm-suit { font-size:60px; }
+  .fast-panel#fast-saisie .fast-rm-value { font-size:46px; }
+  .fast-panel#fast-saisie .fast-rm-team { font-size:26px; }
+  .fast-panel#fast-saisie .fast-pill-dark { min-height:60px; font-size:20px; }
+  .fast-panel#fast-saisie .fast-score-boxes { flex:1 1 auto; min-height:0; }
+  .fast-panel#fast-saisie .fast-score-box { padding:16px; gap:14px; }
+  .fast-panel#fast-saisie .fast-box-head { flex:1 1 auto; justify-content:center; gap:6px; }
+  .fast-panel#fast-saisie .fast-box-name { font-size:20px; }
+  .fast-panel#fast-saisie .fast-box-tag { font-size:16px; }
+  .fast-panel#fast-saisie .fast-box-pts { font-size:104px; line-height:1; }
+  .fast-panel#fast-saisie .fast-toggle { min-height:64px; font-size:21px; }
+  .fast-panel#fast-saisie .fast-result { min-height:88px; padding:12px 20px; }
+  .fast-panel#fast-saisie .fast-result-label { font-size:24px; }
+  .fast-panel#fast-saisie .fast-result-scores { font-size:34px; }
+  .fast-panel#fast-saisie .fast-total { min-height:52px; font-size:18px; padding:0 18px; }
+  .fast-panel#fast-saisie .fast-keypad { flex:1 1 auto; min-height:0; grid-auto-rows:minmax(0,1fr); gap:12px; }
+  .fast-panel#fast-saisie .fast-key { height:100%; min-height:0; font-size:48px; border-radius:22px; }
+  .fast-panel#fast-saisie .fast-key-alt { font-size:24px; }
+  .fast-panel#fast-saisie .fast-actions { gap:12px; }
+  .fast-panel#fast-saisie .fast-cancel, .fast-panel#fast-saisie .fast-validate { min-height:88px; font-size:26px; }
+}
 #ej-table-wrap { width:100%; max-width:600px; margin:0 auto; padding:0 8px; }
 #ej-table-wrap svg { width:100%; height:auto; max-height:52vh; display:block; border-radius:16px; }
 #ej-score-wrap { border-radius:var(--radius); background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.12); width:100%; }
@@ -2139,7 +2185,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261031_2305</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261031_2320</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>

@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261031_2305`.
+Version applicative actuellement documentée : `v20261031_2320`.
 
 ---
 
@@ -1011,6 +1011,12 @@ CSS : section « SAISIE RAPIDE » placée après les styles partagés. Elle est 
 Page Contrat classique en iPhone paysage : depuis le retrait du bouton « Tout le monde passe » (v20261031_2135), la grille se range en Équipe / Hauteur puis Contre / Couleur et le bouton Confirmer n'est plus coupé sous la barre du bas (point 7 de la liste).
 
 Bilan prévu : après quelques parties, garder un seul des deux modes et supprimer l'autre pour simplifier le code.
+
+### 8.27 Saisie rapide plein écran sur iPad paysage
+
+Version `v20261031_2320`, après essai réel sur iPad : en paysage, un tiers de l'écran restait vide sous les écrans rapides.
+
+Uniquement en iPad paysage (`min-width:1025px` + `orientation:landscape` + `pointer:coarse`, la même requête que les blocs iPad paysage A/B), `#fast-contrat` et `#fast-saisie` occupent toute la hauteur de l'onglet. Les grilles (équipes, hauteurs, contre, couleurs, cases d'équipe, pavé) s'étirent et les textes grossissent. Les boutons de contre deviennent des blocs arrondis, comme les couleurs. iPhone, iPad portrait et PC sont inchangés.
 
 ---
 
