@@ -145,6 +145,18 @@
       st = state();
       check(st.history.length === 1 && st.score.t1 === 180 && st.dealerIdx === 1, 'Annuler dernière donne rapide : Rétablir ne restaure pas la donne');
 
+      // ── Bandeau du bas masqué en saisie rapide, Parties / Stats en haut ──
+      app.showScreen('game'); app.showTab('enjeu');
+      check(app.getComputedStyle(el('bottom-nav')).display === 'none', 'Rapide : le bandeau du bas doit être masqué sur l’écran de jeu');
+      check(visible(el('fast-hdr-right')) && !visible(el('fast-hdr-back')), 'Rapide TABLE : icônes Parties / Stats attendues en haut');
+      app.showTab('stats');
+      check(visible(el('fast-hdr-back')) && !visible(el('fast-hdr-right')), 'Rapide Stats : bouton Retour attendu');
+      el('fast-hdr-back').click();
+      check(app.getActiveGameTab() === 'enjeu', 'Rapide : Retour doit ramener à la TABLE');
+      app.showScreen('setup');
+      check(app.getComputedStyle(el('bottom-nav')).display !== 'none', 'Rapide : le bandeau reste visible sur l’écran de configuration');
+      app.showScreen('game'); app.showTab('enjeu');
+
       // ── Garder l'écran allumé ──
       app.setWakeLockPref(true);
       check(app.localStorage.getItem('bct_wake_lock') === '1' && el('toggle-wake-lock').checked, 'Écran allumé : réglage non enregistré');
@@ -157,6 +169,7 @@
       check(!visible(el('fast-contrat')) && visible(el('contrat-confirmer-btn')), 'Retour classique : écran Contrat habituel attendu');
       app.passeGenerale();
       check(visible(el('confirm-modal')), 'Classique : la passe garde sa fenêtre de confirmation');
+      check(app.getComputedStyle(el('bottom-nav')).display !== 'none' && !visible(el('fast-hdr-right')), 'Classique : bandeau du bas attendu, sans icônes du mode rapide');
       app.closeConfirm();
 
       app.localStorage.removeItem('bct_input_mode');

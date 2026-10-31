@@ -394,6 +394,14 @@ body.fast-input #tab-saisie > :not(#fast-saisie) { display:none !important; }
 @media (min-width: 768px) and (min-height: 700px) and (orientation: landscape) {
   .fast-panel { max-width:1180px; }
 }
+/* Saisie rapide : pas de bandeau du bas sur l'écran de jeu (Parties / Stats en haut à droite) */
+.fast-hdr { display:none; }
+body.fast-input .fast-hdr.is-shown { display:flex; }
+#game-header .fast-hdr-right { position:absolute; right:14px; top:50%; transform:translateY(-50%); gap:8px; }
+#game-header .fast-hdr-icon { min-height:0; background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.5); border-radius:50%; width:44px; height:44px; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; touch-action:manipulation; padding:0; }
+#game-header .fast-hdr-back { position:absolute; left:14px; top:50%; transform:translateY(-50%); align-items:center; min-height:40px; padding:0 16px; border-radius:99px; background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.5); color:#fff; font-size:15px; font-weight:800; font-family:inherit; cursor:pointer; touch-action:manipulation; }
+body.fast-input.on-game-screen #bottom-nav { display:none !important; }
+body.fast-input.on-game-screen #screen-game .body { bottom:0 !important; padding-bottom:calc(16px + env(safe-area-inset-bottom, 0px)) !important; scroll-padding-bottom:16px !important; }
 /* iPad paysage uniquement (même requête que les blocs iPad paysage A/B) :
    les écrans rapides occupent toute la hauteur disponible */
 @media (min-width: 1025px) and (orientation: landscape) and (pointer: coarse) {
@@ -1727,6 +1735,12 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   <div id="screen-game" class="screen">
     <div class="header" id="game-header" style="padding:12px 16px;justify-content:center;position:relative;">
       <button id="game-settings-btn" onclick="showSettingsScreen()" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;" title="Réglages">⚙️</button>
+      <!-- Saisie rapide : bandeau du bas masqué, accès Parties / Stats en haut -->
+      <button type="button" id="fast-hdr-back" class="fast-hdr fast-hdr-back" onclick="showTab('enjeu')">← Retour</button>
+      <div id="fast-hdr-right" class="fast-hdr fast-hdr-right">
+        <button type="button" class="fast-hdr-icon" onclick="showTab('parties')" aria-label="Parties" title="Parties">📋</button>
+        <button type="button" class="fast-hdr-icon" onclick="showTab('stats')" aria-label="Statistiques" title="Statistiques">📈</button>
+      </div>
       <div style="text-align:center;">
         <h1 id="game-title">Belote Contrée</h1>
         <div class="sub" id="game-sub" style="display:none;"></div>
@@ -2185,7 +2199,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261031_2320</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261031_2335</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -2896,6 +2910,7 @@ function showTab(tab) {
   if(tab==='parties') {
     showSubTab('feuille');
   }
+  updateFastHeader(tab);
   if(tab==='contrat') updateContractForm();
   if(tab==='saisie') updateSaisieForm();
   if(tab==='history') { renderHistory(); renderPastHistory(); }
@@ -6832,6 +6847,7 @@ function activateAppScreen(name) {
   });
   if(name === 'tournoi') target.style.display = 'flex';
   target.classList.add('active');
+  document.body.classList.toggle('on-game-screen', name === 'game');
   return true;
 }
 
@@ -7390,6 +7406,13 @@ function setInputMode(mode) {
 }
 
 // ── Contrat rapide ──────────────────────────────────────────
+// En-tête en saisie rapide : Parties / Stats sur la TABLE, « Retour » sur Parties et Stats
+function updateFastHeader(tab) {
+  const right = eid('fast-hdr-right'), back = eid('fast-hdr-back');
+  if(right) right.classList.toggle('is-shown', tab === 'enjeu');
+  if(back) back.classList.toggle('is-shown', !['enjeu','contrat','saisie'].includes(tab));
+}
+
 function renderFastContrat() {
   if(!eid('fast-contrat')) return;
   const f = S.form;
@@ -8088,7 +8111,8 @@ function renderHelpContent() {
       step(2, '<strong>Contrat</strong> : équipe, hauteur, contre s\'il y en a un, puis la <strong>couleur</strong> : toucher la couleur valide le contrat et ramène à la table.'),
       step(3, '<strong>Résultat</strong> : tapez les points sur le pavé (preneur par défaut, ou touchez l\'autre équipe pour saisir la défense). Le résultat FAIT / CHUTE s\'affiche en direct, puis un seul appui sur <strong>Valider</strong>.'),
       step(4, 'Un contre oublié se corrige en haut de l\'écran Résultat (Sans contre / Contre / Surcontre).'),
-      step(5, '<strong>Tout le monde passe</strong> et <strong>Annuler dernière donne</strong> agissent tout de suite : un message <strong>Annuler</strong> reste affiché quelques secondes en cas d\'erreur.'),
+      step(5, 'Le bandeau du bas disparaît pendant la partie : <strong>📋 Parties</strong> et <strong>📈 Stats</strong> sont en haut à droite de la table, et <strong>← Retour</strong> ramène à la table.'),
+      step(6, '<strong>Tout le monde passe</strong> et <strong>Annuler dernière donne</strong> agissent tout de suite : un message <strong>Annuler</strong> reste affiché quelques secondes en cas d\'erreur.'),
       tip('<strong>Garder l\'écran allumé</strong> (Réglages) empêche la mise en veille pendant la partie, sur les iPhone et iPad à jour.'),
     ].join('')) +
 

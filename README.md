@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261031_2320`.
+Version applicative actuellement documentée : `v20261031_2335`.
 
 ---
 
@@ -403,7 +403,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 45 |
 | `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage, ajustements iPhone résultat/contrat et écran Manche en cours | 62 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
-| `saisie-rapide-regression.html` | mode rapide : réglage, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, écran allumé, retour au classique | 47 |
+| `saisie-rapide-regression.html` | mode rapide : réglage, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, bandeau du bas masqué, écran allumé, retour au classique | 53 |
 | `ameliorations-20261031-regression.html` | édition via écran Résultat, suppression de donne, passe sur la TABLE, annulation après passe, couleurs feuille, victoire, archive sans doublon, règle capot + belote, saisie clavier | 37 |
 
 Total des contrôles disponibles :
@@ -1017,6 +1017,17 @@ Bilan prévu : après quelques parties, garder un seul des deux modes et supprim
 Version `v20261031_2320`, après essai réel sur iPad : en paysage, un tiers de l'écran restait vide sous les écrans rapides.
 
 Uniquement en iPad paysage (`min-width:1025px` + `orientation:landscape` + `pointer:coarse`, la même requête que les blocs iPad paysage A/B), `#fast-contrat` et `#fast-saisie` occupent toute la hauteur de l'onglet. Les grilles (équipes, hauteurs, contre, couleurs, cases d'équipe, pavé) s'étirent et les textes grossissent. Les boutons de contre deviennent des blocs arrondis, comme les couleurs. iPhone, iPad portrait et PC sont inchangés.
+
+### 8.28 Saisie rapide : bandeau du bas masqué pendant la partie
+
+Version `v20261031_2335`, sur tous les appareils, **uniquement en saisie rapide**.
+
+- Sur l'écran de jeu (`#screen-game`), le bandeau du bas (`#bottom-nav`) est masqué. Pendant la partie, il faisait doublon avec les boutons Contrat / Saisir score de la TABLE et avec les retours automatiques.
+- Sur la TABLE, deux icônes en haut à droite, **📋 Parties** et **📈 Stats** (`#fast-hdr-right`), en face de la roue des Réglages. Sur Parties et Stats, un bouton **← Retour** en haut à gauche (`#fast-hdr-back`) ramène à la TABLE, ou à la configuration si aucune partie n'est lancée.
+- Les onglets récupèrent la hauteur du bandeau (`bottom:0` et marge basse avec `safe-area-inset-bottom`).
+- Le bandeau reste affiché sur l'écran de configuration et partout en saisie classique.
+- Mécanique : `activateAppScreen()` pose la classe `on-game-screen` sur `body` ; `updateFastHeader(tab)` est appelée par `showTab()`.
+- Le masquage automatique du bandeau quand on ne touche pas l'écran a été écarté : il ajoute un appui pour le faire réapparaître et risque des appuis involontaires sur la table.
 
 ---
 
