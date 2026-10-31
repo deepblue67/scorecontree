@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261031_2350`.
+Version applicative actuellement documentée : `v20261031_2355`.
 
 ---
 
@@ -1042,6 +1042,8 @@ Correction, dans le bloc iPad paysage A uniquement (les deux modes de saisie) :
 - boutons du mode rapide (`#fast-hdr-right`, `#fast-hdr-back`) centrés sous la barre : `top: calc(50% + env(safe-area-inset-top) / 2)`.
 
 Vérification faite en simulant une barre de 24 px (le navigateur de test n'a pas de zone sûre) : TABLE, Contrat, Parties, configuration, Réglages, Tournoi et Manche en cours.
+
+Complément `v20261031_2355` : même défaut constaté sur **iPad portrait**. Le bloc iPad portrait prévoyait bien `padding:max(10px, env(safe-area-inset-top))` sur `.header`, mais le padding inline de 12px des en-têtes l'annulait. Même correction que pour le paysage, dans le bloc iPad portrait : en-tête de `60px + safe-area-inset-top` avec `padding-top` forcé, et onglets fixes à `top: calc(60px + env(safe-area-inset-top))`.
 
 ---
 
