@@ -145,6 +145,19 @@
       st = state();
       check(st.history.length === 1 && st.score.t1 === 180 && st.dealerIdx === 1, 'Annuler dernière donne rapide : Rétablir ne restaure pas la donne');
 
+      // ── TABLE rapide : points gagnés, points manquants, icônes, lisibilité, retour visuel ──
+      newGame();
+      app.showTab('contrat'); app.fastPickTeam('t1'); app.fastPickValue(100); suitBtn('h').click();
+      app.showTab('saisie'); keys('82'); app.fastToggleBelote('t1'); app.fastValidate();
+      const g1 = doc.querySelector('#ej-st1 .gain-badge'), g2 = doc.querySelector('#ej-st2 .gain-badge');
+      check(g1 && g1.textContent === '+202' && g2 && g2.textContent === '+80', 'Points gagnés : badges +202 / +80 absents');
+      check(app.getComputedStyle(doc.querySelector('#ej-st1 .t-need')).display !== 'none' && el('ej-stk1').textContent.includes('1799'), 'Points manquants : « manque » non affiché');
+      check(el('btn-undo-last-round').textContent.trim() === 'Annuler la donne' && !!el('btn-undo-last-round').querySelector('svg'), 'Icônes : bouton Annuler sans icône dessinée');
+      check(!!el('game-settings-btn').querySelector('svg') && !el('game-settings-btn').textContent.includes('⚙'), 'Icônes : roue des Réglages encore en emoji');
+      check(app.getComputedStyle(el('btn-end-game-table')).color === 'rgb(255, 255, 255)', 'Lisibilité : Terminer la partie doit être en blanc');
+      el('btn-action-contrat').dispatchEvent(new app.PointerEvent('pointerdown', {bubbles:true}));
+      check(el('btn-action-contrat').classList.contains('is-flash'), 'Retour visuel : éclair absent à l’appui');
+
       // ── Bandeau du bas masqué en saisie rapide, Parties / Stats en haut ──
       app.showScreen('game'); app.showTab('enjeu');
       check(app.getComputedStyle(el('bottom-nav')).display === 'none', 'Rapide : le bandeau du bas doit être masqué sur l’écran de jeu');
@@ -170,6 +183,7 @@
       app.passeGenerale();
       check(visible(el('confirm-modal')), 'Classique : la passe garde sa fenêtre de confirmation');
       check(app.getComputedStyle(el('bottom-nav')).display !== 'none' && !visible(el('fast-hdr-right')), 'Classique : bandeau du bas attendu, sans icônes du mode rapide');
+      check(el('btn-undo-last-round').textContent.includes('Annuler dernière donne') && el('game-settings-btn').textContent.includes('⚙'), 'Classique : libellés et emojis d’origine non restaurés');
       app.closeConfirm();
 
       app.localStorage.removeItem('bct_input_mode');
