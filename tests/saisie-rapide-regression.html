@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests saisie rapide ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  // Mode « Saisie rapide » (Réglages) : contrat validé par la couleur, pavé + calcul en direct,
+  // contre rattrapable, édition de donne, actions immédiates avec Annuler, écran allumé.
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+    const check = (condition, message) => { checks += 1; if(!condition) failures.push(message); };
+    const state = () => JSON.parse(app.eval('JSON.stringify(S)'));
+    const el = id => doc.getElementById(id);
+    const visible = node => {
+      if(!node) return false;
+      for(let n = node; n && n !== doc.body; n = n.parentElement) {
+        if(app.getComputedStyle(n).display === 'none') return false;
+      }
+      return true;
+    };
+    const keys = digits => digits.split('').forEach(d => app.fastKey(d));
+    const newGame = () => app.eval(`
+      localStorage.removeItem('belote_history');
+      resetGameProgress();
+      S.pos = {nord:'A',sud:'B',est:'C',ouest:'D'};
+      S.t1 = {name:'A & B',players:['A','B']};
+      S.t2 = {name:'C & D',players:['C','D']};
+      S.gameMode = 'points'; S.winningPts = 2001; S.dealerIdx = 0;
+      showScreen('game'); initGameUI(); showTab('enjeu');
+    `);
+    const suitBtn = key => doc.querySelector('#fast-contrat .fast-suit[data-suit="' + key + '"]');
+
+    try {
+      // ── Par défaut : saisie classique ──
+      app.localStorage.removeItem('bct_input_mode');
+      app.applyInputMode(app.getInputMode());
+      check(app.getInputMode() === 'classic' && !app.isFastInput(), 'Mode par défaut : classique attendu');
+      newGame();
+      app.showTab('contrat');
+      check(!visible(el('fast-contrat')) && visible(el('contrat-confirmer-btn')), 'Classique : écran Contrat habituel attendu');
+
+      // ── Activation du mode rapide depuis les Réglages ──
+      app.setInputMode('fast');
+      check(app.localStorage.getItem('bct_input_mode') === 'fast' && app.isFastInput(), 'Réglage mode rapide non enregistré');
+      check(el('input-mode-fast').getAttribute('aria-pressed') === 'true', 'Bouton Rapide non actif');
+      app.showTab('contrat');
+      check(visible(el('fast-contrat')) && !visible(el('contrat-confirmer-btn')), 'Rapide : écran Contrat rapide attendu');
+      check(doc.querySelectorAll('#fast-values .fast-value').length === 11, 'Rapide : 11 hauteurs attendues (80 à 170 + Capot)');
+      check(!doc.querySelector('#fast-values .fast-value.is-on'), 'Rapide : aucune hauteur présélectionnée');
+      check(el('fast-contrat-info').textContent.includes('A') && el('fast-contrat-info').textContent.includes('D'), 'Rapide : donneur / 1er à jouer absents');
+
+      // La couleur ne valide pas tant qu'il manque l'équipe ou la hauteur
+      suitBtn('h').click();
+      check(state().contract === null && el('fast-contrat-hint').textContent.includes('équipe'), 'Couleur sans équipe : ne doit pas valider');
+      app.fastPickTeam('t2');
+      suitBtn('h').click();
+      check(state().contract === null && el('fast-contrat-hint').textContent.includes('hauteur'), 'Couleur sans hauteur : ne doit pas valider');
+      app.fastPickValue(110);
+      app.fastPickContre('contre');
+      suitBtn('s').click();
+      let st = state();
+      check(st.contract && st.contract.preneurTeam === 't2' && st.contract.value === 110 && st.contract.suit === '♠' && st.contract.contre === 'contre', 'Couleur : contrat non validé correctement');
+      check(app.getActiveGameTab() === 'enjeu', 'Couleur : retour à la TABLE attendu');
+
+      // Rouvrir le contrat : déjà rempli
+      app.showTab('contrat');
+      check(doc.querySelector('#fast-values .fast-value.is-on') && doc.querySelector('#fast-values .fast-value.is-on').dataset.value === '110', 'Contrat rouvert : hauteur non pré-remplie');
+      check(el('fast-team-t2').classList.contains('is-on-t2') && el('fast-contre-contre').classList.contains('is-on-gold'), 'Contrat rouvert : équipe / contre non pré-remplis');
+      app.showTab('enjeu');
+
+      // ── Résultat rapide ──
+      app.showTab('saisie');
+      check(visible(el('fast-saisie')) && !visible(el('calc-preview-btn')), 'Rapide : écran Résultat rapide attendu');
+      check(el('fast-box-t2').classList.contains('is-target'), 'Résultat : saisie sur l’équipe preneuse par défaut');
+      check(el('fast-validate').disabled, 'Résultat : Valider doit être inactif sans saisie');
+      keys('82');
+      check(el('fast-pts-t2').textContent === '82' && el('fast-pts-t1').textContent === '80', 'Pavé : complément 162 non calculé');
+      check(el('fast-result-label').textContent === 'CHUTE' && el('fast-result-scores').textContent.replace(/\s/g,'') === '380—0', 'Calcul en direct : 82 < 110 contré doit chuter (380 — 0)');
+      app.fastClear(); keys('120');
+      check(el('fast-result-label').textContent === 'FAIT' && el('fast-result').classList.contains('is-fait'), 'Calcul en direct : FAIT attendu');
+      // contre ×2 fait : preneur = 110×2+160 = 380, défense 0
+      check(el('fast-result-scores').textContent.replace(/\s/g,'') === '0—380', 'Calcul en direct contre : 0 — 380 attendu');
+      app.fastSetContre('none');
+      check(state().contract.contre === 'none', 'Contre rattrapé : non enregistré dans le contrat');
+      check(el('fast-result-scores').textContent.replace(/\s/g,'') === '40—230', 'Calcul sans contre : 40 — 230 attendu');
+      app.fastBackspace(); app.fastBackspace();
+      check(el('fast-pts-t2').textContent === '1', 'Effacer un chiffre : ne fonctionne pas');
+      app.fastToggleBelote('t1');
+      app.fastToggleBelote('t2');
+      check(!app.eval('fastSaisie.bel1') && app.eval('fastSaisie.bel2'), 'Belote : une seule équipe à la fois');
+      app.fastSetTarget('t1');
+      check(el('fast-pts-t1').textContent === '—', 'Changer d’équipe saisie : la saisie doit repartir de zéro');
+      keys('70');   // défense 70 → preneur 90 + belote 20 = 110 ≥ 110 : fait
+      check(el('fast-pts-t2').textContent === '90' && el('fast-result-label').textContent === 'FAIT', 'Saisie défense : complément / belote mal pris en compte');
+      app.fastToggleTotal();
+      check(el('fast-pts-t2').textContent === '100' && el('fast-total').textContent === 'Total 170', 'Total 170 non appliqué');
+      app.fastToggleTotal();
+      app.fastValidate();
+      st = state();
+      check(st.history.length === 1 && st.history[0].pts1 === 70 && st.history[0].pts2 === 220 && st.history[0].chute === false, 'Valider : donne mal enregistrée');
+      check(st.history[0].raw && st.history[0].raw.pts1Raw === 70 && st.history[0].raw.bel2 === true, 'Valider : saisie brute non conservée');
+      check(st.contract === null && st.manche === 2, 'Valider : contrat / manche non réinitialisés');
+
+      // Capot
+      app.showTab('contrat'); app.fastPickTeam('t1'); app.fastPickValue(250); suitBtn('d').click();
+      app.showTab('saisie');
+      app.fastToggleCapot('t1');
+      check(el('fast-pts-t1').textContent === '250' && el('fast-result-scores').textContent.replace(/\s/g,'') === '500—0', 'Capot annoncé fait : 500 — 0 attendu');
+      app.fastToggleCapot('t2');
+      check(el('fast-result-label').textContent === 'CHUTE' && el('fast-result-scores').textContent.replace(/\s/g,'') === '0—410', 'Capot chuté : 0 — 410 attendu');
+      app.fastValidate();
+
+      // ── Édition d'une donne en mode rapide ──
+      app.showTab('parties'); app.showSubTab('feuille');
+      app.openEdit(1);
+      check(app.getActiveGameTab() === 'saisie' && el('fast-edit-banner').textContent.includes('manche 1'), 'Édition rapide : bandeau absent');
+      check(el('fast-pts-t2').textContent === '90' && app.eval('fastSaisie.bel2') === true, 'Édition rapide : saisie non pré-remplie');
+      check(el('fast-validate').textContent.includes('Enregistrer'), 'Édition rapide : libellé Enregistrer absent');
+      app.fastSetTarget('t1'); keys('50');  // défense 50 → preneur 110 + belote 20 = 130 → fait : 110+110+20 = 240
+      app.fastValidate();
+      st = state();
+      check(st.history[0].pts1 === 50 && st.history[0].pts2 === 240, 'Édition rapide : donne non recalculée');
+      check(app.eval('editRoundCtx') === null && app.getActiveGameTab() === 'parties', 'Édition rapide : retour à la feuille attendu');
+
+      // ── Actions immédiates avec Annuler ──
+      newGame();
+      app.passeGenerale();
+      check(!visible(el('confirm-modal')) && state().manche === 2 && state().dealerIdx === 1, 'Passe rapide : doit être immédiate, sans fenêtre');
+      check(!!el('undo-toast'), 'Passe rapide : message Annuler absent');
+      el('undo-toast').querySelector('button').click();
+      check(state().manche === 1 && state().dealerIdx === 0, 'Passe rapide : Annuler ne restaure pas manche/donneur');
+      app.showTab('contrat'); app.fastPickTeam('t1'); app.fastPickValue(80); suitBtn('c').click();
+      app.showTab('saisie'); keys('100'); app.fastValidate();
+      app.askUndoLastRound();
+      check(!visible(el('confirm-modal')) && state().history.length === 0, 'Annuler dernière donne rapide : doit être immédiat');
+      el('undo-toast').querySelector('button').click();
+      st = state();
+      check(st.history.length === 1 && st.score.t1 === 180 && st.dealerIdx === 1, 'Annuler dernière donne rapide : Rétablir ne restaure pas la donne');
+
+      // ── Garder l'écran allumé ──
+      app.setWakeLockPref(true);
+      check(app.localStorage.getItem('bct_wake_lock') === '1' && el('toggle-wake-lock').checked, 'Écran allumé : réglage non enregistré');
+      app.setWakeLockPref(false);
+      check(app.localStorage.getItem('bct_wake_lock') === '0', 'Écran allumé : désactivation non enregistrée');
+
+      // ── Retour au mode classique : rien n'est perdu ──
+      app.setInputMode('classic');
+      app.showTab('contrat');
+      check(!visible(el('fast-contrat')) && visible(el('contrat-confirmer-btn')), 'Retour classique : écran Contrat habituel attendu');
+      app.passeGenerale();
+      check(visible(el('confirm-modal')), 'Classique : la passe garde sa fenêtre de confirmation');
+      app.closeConfirm();
+
+      app.localStorage.removeItem('bct_input_mode');
+      app.localStorage.removeItem('bct_wake_lock');
+      app.localStorage.removeItem('belote_history');
+      app.localStorage.removeItem('belote_autosave');
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message + ' ' + (error.stack||'').split('\n')[1];
+      result.dataset.status = 'error';
+    }
+  });
+</script>
+</body>
+</html>

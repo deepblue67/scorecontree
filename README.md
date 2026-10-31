@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261031_2135`.
+Version applicative actuellement documentée : `v20261031_2305`.
 
 ---
 
@@ -80,6 +80,7 @@ ScoreBelote/
     final-audit-regression.html
     iphone-table-actions-regression.html
     ameliorations-20261031-regression.html
+    saisie-rapide-regression.html
 ```
 
 Ancien emplacement des fichiers fournis au début de la conversation :
@@ -402,6 +403,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 45 |
 | `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage, ajustements iPhone résultat/contrat et écran Manche en cours | 62 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
+| `saisie-rapide-regression.html` | mode rapide : réglage, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, écran allumé, retour au classique | 47 |
 | `ameliorations-20261031-regression.html` | édition via écran Résultat, suppression de donne, passe sur la TABLE, annulation après passe, couleurs feuille, victoire, archive sans doublon, règle capot + belote, saisie clavier | 37 |
 
 Total des contrôles disponibles :
@@ -987,6 +989,29 @@ Archive sans doublon : `savePastGame()` mémorise l'identifiant de la partie arc
 - noms d'équipes échappés dans l'historique des parties archivées ;
 - guide utilisateur mis à jour (TABLE, saisie, correction, fin de partie).
 
+### 8.26 Saisie rapide (option dans les Réglages)
+
+Version `v20261031_2305`. Objectif : le moins d'appuis possible pendant la partie. Une donne normale passe de 9 appuis minimum à 6.
+
+Réglages › **Saisie pendant le jeu** :
+
+- **Mode de saisie** : `Classique` (par défaut, saisie inchangée) ou `Rapide`. Clé `localStorage` : `bct_input_mode` (`classic` / `fast`). Le mode se traduit par la classe `fast-input` sur `body`.
+- **Garder l'écran allumé** : Screen Wake Lock (`navigator.wakeLock`), indépendant du mode de saisie. Clé : `bct_wake_lock` (`1` / `0`). Le verrou est repris au retour au premier plan et au premier appui (iOS). Sans prise en charge, le réglage l'indique.
+
+Mode rapide :
+
+- **Contrat** (`#fast-contrat`) : équipe, hauteur (80 à 170 et Capot en boutons directs, aucune présélection), contre (Aucun par défaut), puis **la couleur valide le contrat** (`fastPickSuit` → `confirmContract`). Il n'y a plus de bouton Confirmer. Le bandeau du haut rappelle donneur / 1er à jouer. Pour corriger : bouton Contrat (page rouverte déjà remplie). `S.form.valueChosen` indique qu'une hauteur a été choisie.
+- **Résultat** (`#fast-saisie`) : pavé numérique intégré, saisie sur l'équipe preneuse par défaut (toucher l'autre case pour saisir la défense), complément automatique 160/170 ou 162/172, Belote / Capot en un appui, résultat FAIT / CHUTE **calculé en direct** avec `calculateBeloteScore`, un seul bouton Valider (`fastValidate` → `validateScore`). Contre rattrapable en haut de l'écran (`fastSetContre`). Les boutons rapides 80/100/120/140 ne sont pas repris (décision du 31/10/2026).
+- **Actions immédiates** : `Tout le monde passe` et `Annuler dernière donne` s'exécutent sans fenêtre de confirmation. Un message `Annuler` reste 6 s (`showUndoToast`, `snapshotGameState`, `restoreGameState`).
+- **Modification d'une donne** : ✏️ ouvre l'écran Résultat rapide pré-rempli (`loadFastSaisieFromRaw`).
+- La saisie classique est inchangée. Les deux modes enregistrent exactement les mêmes données : on peut changer de mode en cours de partie.
+
+CSS : section « SAISIE RAPIDE » placée après les styles partagés. Elle est volontairement autonome (portrait, paysage, petit paysage iPhone `max-height:500px`, grands écrans `min-width:768px` + `min-height:700px`) et ne touche aucun élément de la saisie classique. Les sélecteurs sont préfixés `.fast-panel` pour passer devant la règle globale `button, [onclick] { min-height:44px }`.
+
+Page Contrat classique en iPhone paysage : depuis le retrait du bouton « Tout le monde passe » (v20261031_2135), la grille se range en Équipe / Hauteur puis Contre / Couleur et le bouton Confirmer n'est plus coupé sous la barre du bas (point 7 de la liste).
+
+Bilan prévu : après quelques parties, garder un seul des deux modes et supprimer l'autre pour simplifier le code.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1359,6 +1384,18 @@ iphone-table-actions-regression.html : 1 contrôle en échec, déjà en échec s
   (mesure du retour à la ligne « Cynthia & / Eric » dépendante des polices installées ; à vérifier sur iPhone)
 ```
 
+Validation de la livraison `v20261031_2305` (Claude, Chromium Playwright, 5 contextes) :
+
+```text
+Syntaxe index.html OK
+Syntaxe service-worker.js OK
+Test PWA/cache/hors ligne : PASS 58
+saisie-rapide-regression.html : PASS 47
+ameliorations-20261031-regression.html : PASS 37
+Autres tests navigateur : 223 / 223, plus 10 cas de score
+iphone-table-actions-regression.html : même contrôle de police en échec que précédemment (environnement)
+```
+
 ---
 
 ## 13. Notes pour Codex lors d'une reprise
@@ -1467,6 +1504,8 @@ Statuts utilisés :
 | Tout le monde passe sur la TABLE | Bouton à la place de `Saisir score` tant qu'il n'y a pas de contrat. | Fait | Haute | Livré en `v20261031_2135` |
 | Fin de partie simplifiée | Écran de victoire avec choix directs, trophée fixe, archive sans doublon. | Fait | Haute | Livré en `v20261031_2135` |
 | Règle capot + belote à 2001 | Une équipe mise capot qui dépasse l'objectif grâce à la belote ne gagne pas. | Fait | Haute | Livré en `v20261031_2135` |
+| Saisie rapide (option) | Contrat validé par la couleur, pavé numérique, calcul en direct, actions avec Annuler. | Fait | Haute | Livré en `v20261031_2305`, à évaluer à l'usage |
+| Garder l'écran allumé | Réglage Screen Wake Lock. | Fait | Haute | Livré en `v20261031_2305` |
 | Table à la saisie du contrat | « Afficher directement la table à la saisie du contrat ». | À préciser | Haute | Besoin d'une description du comportement attendu |
 | Reprise partie interrompue | Afficher au démarrage une reprise plus claire de la partie autosauvegardée. | Fait | Haute | Livré en `v20260618_1524` |
 | Mode erreur de saisie | Après validation d'une donne, proposer quelques secondes `Annuler / Modifier`. | Retiré | Haute | Livré en `v20260618_1626`, retiré en `v20260625_1601` |
