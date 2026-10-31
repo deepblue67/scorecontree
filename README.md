@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261031_2355`.
+Version applicative actuellement documentée : `v20261101_0005`.
 
 ---
 
@@ -1044,6 +1044,13 @@ Correction, dans le bloc iPad paysage A uniquement (les deux modes de saisie) :
 Vérification faite en simulant une barre de 24 px (le navigateur de test n'a pas de zone sûre) : TABLE, Contrat, Parties, configuration, Réglages, Tournoi et Manche en cours.
 
 Complément `v20261031_2355` : même défaut constaté sur **iPad portrait**. Le bloc iPad portrait prévoyait bien `padding:max(10px, env(safe-area-inset-top))` sur `.header`, mais le padding inline de 12px des en-têtes l'annulait. Même correction que pour le paysage, dans le bloc iPad portrait : en-tête de `60px + safe-area-inset-top` avec `padding-top` forcé, et onglets fixes à `top: calc(60px + env(safe-area-inset-top))`.
+
+### 8.30 iPhone : boutons de l'en-tête
+
+Version `v20261101_0005`, constaté sur iPhone :
+
+- **iPhone portrait** (saisie rapide) : les icônes Parties / Stats tombaient sous l'en-tête, sur la table. Le décalage `safe-area-inset-top / 2` n'est valable que sur iPad, où l'en-tête porte la zone sûre ; sur iPhone portrait, c'est `#app` qui la porte. Le décalage est désormais limité aux requêtes iPad. Les icônes passent à 38px et « ← Retour » est réduit pour laisser respirer le titre.
+- **iPhone paysage** : l'en-tête fait 44px avec un padding inline de 12px, et la roue des Réglages (44px) débordait jusqu'au bord de l'écran. Dans le bloc iPhone paysage (les deux modes), la roue passe à 34px, centrée verticalement, et se décale de l'encoche (`safe-area-inset-left`). En saisie rapide, les icônes passent à 34px (`safe-area-inset-right`) et « ← Retour » est réduit.
 
 ---
 
