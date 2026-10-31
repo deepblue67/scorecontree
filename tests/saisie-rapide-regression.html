@@ -155,6 +155,19 @@
       check(el('btn-undo-last-round').textContent.trim() === 'Annuler la donne' && !!el('btn-undo-last-round').querySelector('svg'), 'Icônes : bouton Annuler sans icône dessinée');
       check(!!el('game-settings-btn').querySelector('svg') && !el('game-settings-btn').textContent.includes('⚙'), 'Icônes : roue des Réglages encore en emoji');
       check(app.getComputedStyle(el('btn-end-game-table')).color === 'rgb(255, 255, 255)', 'Lisibilité : Terminer la partie doit être en blanc');
+      check(app.eval('GAIN_BADGE_MS') === 5000, 'Points gagnés : durée de 5 secondes attendue');
+      check(visible(el('toggle-show-need')) || app.getComputedStyle(el('toggle-show-need').closest('.fast-setting')).display !== 'none', 'Réglages : options d’affichage absentes en mode rapide');
+      app.setTablePref('show-need', false);
+      check(app.localStorage.getItem('bct_show_need') === '0' && app.getComputedStyle(doc.querySelector('#ej-st1 .t-need')).display === 'none', 'Réglage points manquants : désactivation sans effet');
+      app.setTablePref('show-need', true);
+      check(app.getComputedStyle(doc.querySelector('#ej-st1 .t-need')).display !== 'none', 'Réglage points manquants : réactivation sans effet');
+      app.setTablePref('show-gain', false);
+      doc.querySelectorAll('.gain-badge').forEach(b => b.remove());
+      app.showGainBadges(10, 20);
+      check(!doc.querySelector('.gain-badge'), 'Réglage points gagnés : badges affichés alors que désactivés');
+      app.setTablePref('show-gain', true);
+      app.showGainBadges(10, 20);
+      check(!!doc.querySelector('#ej-st2 .gain-badge'), 'Réglage points gagnés : réactivation sans effet');
       el('btn-action-contrat').dispatchEvent(new app.PointerEvent('pointerdown', {bubbles:true}));
       check(el('btn-action-contrat').classList.contains('is-flash'), 'Retour visuel : éclair absent à l’appui');
 
@@ -186,8 +199,11 @@
       check(el('btn-undo-last-round').textContent.includes('Annuler dernière donne') && el('game-settings-btn').textContent.includes('⚙'), 'Classique : libellés et emojis d’origine non restaurés');
       app.closeConfirm();
 
+      check(app.getComputedStyle(el('toggle-show-need').closest('.fast-setting')).display === 'none', 'Classique : options d’affichage de la saisie rapide masquées');
       app.localStorage.removeItem('bct_input_mode');
       app.localStorage.removeItem('bct_wake_lock');
+      app.localStorage.removeItem('bct_show_need');
+      app.localStorage.removeItem('bct_show_gain');
       app.localStorage.removeItem('belote_history');
       app.localStorage.removeItem('belote_autosave');
       result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;

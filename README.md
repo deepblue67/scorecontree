@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261101_0035`.
+Version applicative actuellement documentée : `v20261101_0045`.
 
 ---
 
@@ -403,7 +403,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 45 |
 | `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage, ajustements iPhone résultat/contrat et écran Manche en cours | 62 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
-| `saisie-rapide-regression.html` | mode rapide : réglage, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, TABLE (points gagnés / manquants, icônes, lisibilité, éclair), bandeau du bas masqué, écran allumé, retour au classique | 60 |
+| `saisie-rapide-regression.html` | mode rapide : réglage, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, TABLE (points gagnés / manquants et leurs réglages, icônes, lisibilité, éclair), bandeau du bas masqué, écran allumé, retour au classique | 67 |
 | `ameliorations-20261031-regression.html` | édition via écran Résultat, suppression de donne, passe sur la TABLE, annulation après passe, couleurs feuille, victoire, archive sans doublon, règle capot + belote, saisie clavier | 37 |
 
 Total des contrôles disponibles :
@@ -1056,12 +1056,21 @@ Version `v20261101_0005`, constaté sur iPhone :
 
 Version `v20261101_0035`, d'après les maquettes validées. **Uniquement en saisie rapide.**
 
-1. **Points gagnés** : après Valider, un badge `+202` / `+80` (`.gain-badge`, `showGainBadges`) s'affiche 2 s sur chaque case de score de la TABLE. Badge doré pour Nord/Sud, blanc pour Est/Ouest, gris si 0.
+1. **Points gagnés** : après Valider, un badge `+202` / `+80` (`.gain-badge`, `showGainBadges`) s'affiche 2 s (5 s depuis la 8.32) sur chaque case de score de la TABLE. Badge doré pour Nord/Sud, blanc pour Est/Ouest, gris si 0.
 2. **Points manquants** : la ligne `.t-need` (« manque N », déjà calculée par `renderEnjeu`) est affichée en mode rapide. Elle était masquée sur tous les appareils.
 3. **Retour visuel** : un écouteur `pointerdown` ajoute `.is-flash` (fond doré, léger enfoncement, 200 ms) aux boutons des écrans rapides, de la TABLE et de l'en-tête. iOS n'exécute pas `navigator.vibrate`.
 5. **Lisibilité** : « Annuler la donne » et « Terminer la partie » passent en texte blanc sur fond translucide (au lieu de noir sur vert). Les quatre boutons de la TABLE sont en grille 2 × 2 sur tous les écrans.
 6. **Icônes dessinées** : roue des Réglages (TABLE et configuration), Parties, Stats, Contrat, Saisir score, Passe, Annuler, Terminer en SVG (`FAST_SVG`, `applyFastButtonLabels`). Les libellés d'origine sont gardés dans `data-classic-html` et restaurés en saisie classique. « Annuler dernière donne » devient « Annuler la donne ».
 7. **Espace** : en iPhone paysage, la table prend toute la hauteur et les scores (côte à côte) puis les boutons remplissent la colonne de droite. En iPad paysage, la table pleine hauteur, les cases de score s'étirent (score 104px, « manque » sous le nom) et les boutons font 84px.
+
+### 8.32 Réglages d'affichage de la TABLE (saisie rapide)
+
+Version `v20261101_0045`. Deux interrupteurs dans **Réglages › Saisie pendant le jeu**, visibles seulement en saisie rapide (`.fast-setting`), **activés par défaut** :
+
+- **Afficher les points manquants** (`bct_show_need`) : « manque … » sous chaque score. Ce réglage pose la classe `show-need` sur `body`.
+- **Afficher les points gagnés** (`bct_show_gain`) : badges « +202 / +80 » après chaque donne, désormais affichés **5 secondes** (`GAIN_BADGE_MS`, auparavant 2 s).
+
+Fonctions : `getTablePref`, `setTablePref`, `renderTablePrefs` (appelée au chargement et dans `initInputSettings`).
 
 ---
 

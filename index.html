@@ -425,8 +425,10 @@ body.fast-input #ej-score-wrap .score-team { position:relative !important; }
 .gain-badge.is-t2 { background:#fff; color:#1a5295; }
 .gain-badge.is-zero { background:rgba(255,255,255,0.8); color:#666; }
 @keyframes gainIn { from { transform:translateY(6px) scale(0.8); opacity:0; } to { transform:none; opacity:1; } }
-/* 2 · points manquants pour gagner */
-body.fast-input #tab-enjeu #ej-score-wrap .score-team .t-need { display:block !important; font-size:12px !important; font-weight:700 !important; color:rgba(255,255,255,0.78) !important; margin-top:2px !important; letter-spacing:0 !important; text-transform:none !important; }
+/* 2 · points manquants pour gagner (réglage « Afficher les points manquants ») */
+.fast-setting { display:none; }
+body.fast-input .fast-setting { display:flex; }
+body.fast-input.show-need #tab-enjeu #ej-score-wrap .score-team .t-need { display:block !important; font-size:12px !important; font-weight:700 !important; color:rgba(255,255,255,0.78) !important; margin-top:2px !important; letter-spacing:0 !important; text-transform:none !important; }
 /* 3 · retour visuel à l'appui */
 body.fast-input button.is-flash { background:#c8a84a !important; border-color:#c8a84a !important; color:#2a1f14 !important; transform:scale(0.95) !important; transition:none !important; }
 /* 5 · boutons secondaires lisibles (texte blanc) */
@@ -462,7 +464,7 @@ body.fast-input #ej-action-grid #btn-undo-last-round, body.fast-input #ej-action
   body.fast-input.on-game-screen #ej-score-wrap .score-team { flex:1 1 0 !important; display:grid !important; grid-template-columns:minmax(0,1fr) auto !important; grid-template-areas:"name score" "need score" !important; align-content:center !important; align-items:center !important; padding:18px 24px !important; }
   body.fast-input.on-game-screen #ej-score-wrap .score-team .t-name { grid-area:name !important; align-self:end !important; }
   body.fast-input.on-game-screen #ej-score-wrap .score-team .t-score { grid-area:score !important; font-size:104px !important; }
-  body.fast-input.on-game-screen #tab-enjeu #ej-score-wrap .score-team .t-need { grid-area:need !important; align-self:start !important; justify-self:start !important; text-align:left !important; font-size:18px !important; }
+  body.fast-input.show-need.on-game-screen #tab-enjeu #ej-score-wrap .score-team .t-need { grid-area:need !important; align-self:start !important; justify-self:start !important; text-align:left !important; font-size:18px !important; }
   body.fast-input.on-game-screen #ej-action-grid { gap:12px !important; }
   body.fast-input.on-game-screen #ej-action-grid .btn { font-size:18px !important; line-height:1.15 !important; min-height:84px !important; padding:0 12px !important; border-radius:22px !important; }
   .gain-badge { top:14px; right:20px; font-size:26px; padding:5px 16px; }
@@ -2270,7 +2272,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_0035</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_0045</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -2320,6 +2322,30 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <input type="checkbox" id="toggle-wake-lock" onchange="setWakeLockPref(this.checked)" style="opacity:0;width:0;height:0;" aria-label="Garder l'écran allumé">
               <span id="toggle-wake-lock-track" style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:99px;transition:.3s;"></span>
               <span id="toggle-wake-lock-thumb" style="position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;pointer-events:none;"></span>
+            </label>
+          </div>
+          <div class="fast-setting" style="height:1px;background:var(--border-light);margin:0 16px;"></div>
+          <div class="fast-setting" style="align-items:center;gap:14px;padding:14px 16px;">
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:700;color:var(--text);">Afficher les points manquants</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:2px;">Saisie rapide : « manque … » sous chaque score de la table</div>
+            </div>
+            <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;">
+              <input type="checkbox" id="toggle-show-need" onchange="setTablePref('show-need', this.checked)" style="opacity:0;width:0;height:0;" aria-label="Afficher les points manquants">
+              <span id="toggle-show-need-track" style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:99px;transition:.3s;"></span>
+              <span id="toggle-show-need-thumb" style="position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;pointer-events:none;"></span>
+            </label>
+          </div>
+          <div class="fast-setting" style="height:1px;background:var(--border-light);margin:0 16px;"></div>
+          <div class="fast-setting" style="align-items:center;gap:14px;padding:14px 16px;">
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:700;color:var(--text);">Afficher les points gagnés</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:2px;">Saisie rapide : « +202 », « +80 »… pendant 5 secondes après chaque donne</div>
+            </div>
+            <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;">
+              <input type="checkbox" id="toggle-show-gain" onchange="setTablePref('show-gain', this.checked)" style="opacity:0;width:0;height:0;" aria-label="Afficher les points gagnés">
+              <span id="toggle-show-gain-track" style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:99px;transition:.3s;"></span>
+              <span id="toggle-show-gain-thumb" style="position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;pointer-events:none;"></span>
             </label>
           </div>
         </div>
@@ -7511,8 +7537,30 @@ function applyFastButtonLabels(fast) {
   });
 }
 
-// Point 1 : points gagnés affichés 2 s à côté des scores après Valider
+// Point 1 : points gagnés affichés 5 s à côté des scores après Valider (réglage « Afficher les points gagnés »)
+// Réglages d'affichage de la TABLE (saisie rapide) — activés par défaut
+const TABLE_PREFS = { 'show-need':'bct_show_need', 'show-gain':'bct_show_gain' };
+function getTablePref(name) {
+  try { return localStorage.getItem(TABLE_PREFS[name]) !== '0'; } catch(e) { return true; }
+}
+function renderTablePrefs() {
+  Object.keys(TABLE_PREFS).forEach(name => {
+    const on = getTablePref(name);
+    const chk = eid('toggle-' + name); if(chk) chk.checked = on;
+    const track = eid('toggle-' + name + '-track'); if(track) track.style.background = on ? 'var(--green)' : '#ccc';
+    const thumb = eid('toggle-' + name + '-thumb'); if(thumb) thumb.style.transform = on ? 'translateX(20px)' : '';
+  });
+  document.body.classList.toggle('show-need', getTablePref('show-need'));
+}
+function setTablePref(name, on) {
+  try { localStorage.setItem(TABLE_PREFS[name], on ? '1' : '0'); } catch(e) {}
+  renderTablePrefs();
+  haptic('light');
+}
+
+const GAIN_BADGE_MS = 5000;
 function showGainBadges(p1, p2) {
+  if(!getTablePref('show-gain')) return;
   [['ej-st1', p1, 't1'], ['ej-st2', p2, 't2']].forEach(([id, pts, team]) => {
     const box = eid(id);
     if(!box) return;
@@ -7522,7 +7570,7 @@ function showGainBadges(p1, p2) {
     badge.className = 'gain-badge' + (team === 't2' ? ' is-t2' : '') + (n > 0 ? '' : ' is-zero');
     badge.textContent = '+' + n;
     box.appendChild(badge);
-    setTimeout(() => { badge.style.opacity = '0'; setTimeout(() => badge.remove(), 400); }, 2200);
+    setTimeout(() => { badge.style.opacity = '0'; setTimeout(() => badge.remove(), 400); }, GAIN_BADGE_MS);
   });
 }
 
@@ -7813,6 +7861,7 @@ function setWakeLockPref(on) {
 }
 function initInputSettings() {
   applyInputMode(getInputMode());
+  renderTablePrefs();
   renderWakeLockToggle();
   refreshWakeLock();
   document.addEventListener('visibilitychange', refreshWakeLock);
@@ -7821,6 +7870,7 @@ function initInputSettings() {
 }
 // Appliquer le mode de saisie dès le chargement (avant la fin de l'écran de démarrage)
 applyInputMode(getInputMode());
+renderTablePrefs();
 
 // ═══════════════════════════════════════════════════════════
 // RÉGLAGES — THÈMES & JOUEURS
@@ -8242,7 +8292,7 @@ function renderHelpContent() {
       step(4, 'Un contre oublié se corrige en haut de l\'écran Résultat (Sans contre / Contre / Surcontre).'),
       step(5, 'Le bandeau du bas disparaît pendant la partie : <strong>📋 Parties</strong> et <strong>📈 Stats</strong> sont en haut à droite de la table, et <strong>← Retour</strong> ramène à la table.'),
       step(6, '<strong>Tout le monde passe</strong> et <strong>Annuler dernière donne</strong> agissent tout de suite : un message <strong>Annuler</strong> reste affiché quelques secondes en cas d\'erreur.'),
-      step(7, 'Sur la table, après chaque donne, les points gagnés (<strong>+202</strong>, <strong>+80</strong>…) s\'affichent deux secondes à côté des scores, et <strong>manque …</strong> indique les points restants pour gagner.'),
+      step(7, 'Sur la table, après chaque donne, les points gagnés (<strong>+202</strong>, <strong>+80</strong>…) s\'affichent cinq secondes à côté des scores, et <strong>manque …</strong> indique les points restants pour gagner. Chacun se désactive dans les Réglages.'),
       tip('<strong>Garder l\'écran allumé</strong> (Réglages) empêche la mise en veille pendant la partie, sur les iPhone et iPad à jour.'),
     ].join('')) +
 
