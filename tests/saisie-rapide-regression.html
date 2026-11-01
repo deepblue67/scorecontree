@@ -39,20 +39,15 @@
     const suitBtn = key => doc.querySelector('#fast-contrat .fast-suit[data-suit="' + key + '"]');
 
     try {
-      // ── Par défaut : saisie classique ──
-      app.localStorage.removeItem('bct_input_mode');
-      app.applyInputMode(app.getInputMode());
-      check(app.getInputMode() === 'classic' && !app.isFastInput(), 'Mode par défaut : classique attendu');
+      // ── Saisie rapide : seul mode (v20261101_2045) ──
+      check(doc.body.classList.contains('fast-input'), 'La classe fast-input doit être posée en permanence');
+      check(!el('input-mode-classic') && !el('input-mode-fast') && typeof app.setInputMode === 'undefined', 'Le choix Classique / Rapide doit avoir disparu des Réglages');
+      check(!el('contrat-confirmer-btn') && !el('calc-preview-btn') && !el('inp-pts-t1') && !el('contract-val'), 'Les écrans Contrat / Résultat classiques doivent avoir disparu');
+      check(app.localStorage.getItem('bct_input_mode') === null, 'L’ancien réglage bct_input_mode doit être nettoyé');
+      check(visible(el('toggle-show-need').closest('.fast-setting')) || app.getComputedStyle(el('toggle-show-need').closest('.fast-setting')).display !== 'none', 'Options d’affichage de la table : toujours disponibles');
       newGame();
       app.showTab('contrat');
-      check(!visible(el('fast-contrat')) && visible(el('contrat-confirmer-btn')), 'Classique : écran Contrat habituel attendu');
-
-      // ── Activation du mode rapide depuis les Réglages ──
-      app.setInputMode('fast');
-      check(app.localStorage.getItem('bct_input_mode') === 'fast' && app.isFastInput(), 'Réglage mode rapide non enregistré');
-      check(el('input-mode-fast').getAttribute('aria-pressed') === 'true', 'Bouton Rapide non actif');
-      app.showTab('contrat');
-      check(visible(el('fast-contrat')) && !visible(el('contrat-confirmer-btn')), 'Rapide : écran Contrat rapide attendu');
+      check(visible(el('fast-contrat')), 'Écran Contrat (pavé de choix) attendu');
       check(doc.querySelectorAll('#fast-values .fast-value').length === 11, 'Rapide : 11 hauteurs attendues (80 à 170 + Capot)');
       check(!doc.querySelector('#fast-values .fast-value.is-on'), 'Rapide : aucune hauteur présélectionnée');
       check(el('fast-contrat-info').textContent.includes('A') && el('fast-contrat-info').textContent.includes('D'), 'Rapide : donneur / 1er à jouer absents');
@@ -194,17 +189,6 @@
       app.setWakeLockPref(false);
       check(app.localStorage.getItem('bct_wake_lock') === '0', 'Écran allumé : désactivation non enregistrée');
 
-      // ── Retour au mode classique : rien n'est perdu ──
-      app.setInputMode('classic');
-      app.showTab('contrat');
-      check(!visible(el('fast-contrat')) && visible(el('contrat-confirmer-btn')), 'Retour classique : écran Contrat habituel attendu');
-      app.passeGenerale();
-      check(visible(el('confirm-modal')), 'Classique : la passe garde sa fenêtre de confirmation');
-      check(app.getComputedStyle(el('bottom-nav')).display !== 'none' && !visible(el('fast-hdr-right')), 'Classique : bandeau du bas attendu, sans icônes du mode rapide');
-      check(el('btn-undo-last-round').textContent.includes('Annuler dernière donne') && el('game-settings-btn').textContent.includes('⚙'), 'Classique : libellés et emojis d’origine non restaurés');
-      app.closeConfirm();
-
-      check(app.getComputedStyle(el('toggle-show-need').closest('.fast-setting')).display === 'none', 'Classique : options d’affichage de la saisie rapide masquées');
       app.localStorage.removeItem('bct_input_mode');
       app.localStorage.removeItem('bct_wake_lock');
       app.localStorage.removeItem('bct_show_need');

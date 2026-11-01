@@ -114,14 +114,13 @@
         S._gameSaved = true;
         pendingScore = {pts1:10,pts2:150};
       `);
+      // Annulation immédiate avec message « Annuler » (plus de fenêtre de confirmation)
       app.askUndoLastRound();
-      const undoSummary = doc.getElementById('confirm-msg').textContent;
-      check(doc.getElementById('confirm-modal').style.display === 'flex', 'Confirmation annulation non ouverte');
-      check(undoSummary.includes('Manche 2') && undoSummary.includes('100 trefle'), 'Contrat absent de la confirmation annulation');
-      check(undoSummary.includes('C & D') && undoSummary.includes('Chuté'), 'Preneur ou résultat absent de la confirmation annulation');
-      check(undoSummary.includes('+160 pts') && undoSummary.includes('+80 pts'), 'Points de la donne absents de la confirmation annulation');
-      check(undoSummary.includes('250 → 90') && undoSummary.includes('150 → 70'), 'Scores restaurés absents de la confirmation annulation');
-      app.closeConfirm();
+      const undoToast = doc.getElementById('undo-toast');
+      check(!!undoToast && /Donne 2 retirée/.test(undoToast.textContent), 'Message « Annuler » absent après « Annuler la donne »');
+      check(state().history.length === 1, 'Annuler la donne : la dernière ligne doit être retirée tout de suite');
+      undoToast.querySelector('button').click();
+      check(state().history.length === 2 && state().score.t1 === 250, 'Bouton « Annuler » du message : la donne n’est pas restaurée');
       app.undoLastRound();
       current = state();
       check(current.history.length === 1, 'Annulation derniere donne ne retire pas la derniere ligne');

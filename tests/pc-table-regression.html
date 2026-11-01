@@ -10,7 +10,7 @@
 <iframe id="app" src="../index.html" style="position:absolute;left:-9999px;top:0;width:1440px;height:900px;border:0;"></iframe>
 <script>
   // Couvre : icône de l'onglet (favicon) ; PC uniquement : table et colonne de droite centrées ensemble, cases d'équipes
-  // sans fond commun entre elles, nom de l'équipe au-dessus du score, dans les deux modes.
+  // sans fond commun entre elles, nom de l'équipe au-dessus du score.
   document.getElementById('app').addEventListener('load', function() {
     const result = document.getElementById('result');
     const app = this.contentWindow;
@@ -40,8 +40,7 @@
         S.gameMode = 'points'; S.winningPts = 2001; S.dealerIdx = 0;
         showScreen('game'); initGameUI(); showTab('enjeu');
       `);
-      for(const mode of ['fast', 'classic']) {
-        app.setInputMode(mode);
+      for(const mode of ['rapide']) {
         app.showTab('enjeu');
         const tbl = el('ej-table-wrap').querySelector('svg') || el('ej-table-wrap');
         const col = el('ej-right-col') || el('ej-score-wrap');
@@ -61,7 +60,6 @@
           check(parseFloat(app.getComputedStyle(name).fontSize) >= 15, mode + ' : nom d’équipe trop petit');
         });
       }
-      app.setInputMode('classic');
       app.localStorage.removeItem('belote_autosave');
       result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
       result.dataset.status = failures.length ? 'fail' : 'pass';

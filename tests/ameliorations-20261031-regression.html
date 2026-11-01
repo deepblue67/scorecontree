@@ -8,6 +8,7 @@
 <div id="result">Tests en attente</div>
 <iframe id="app" src="../index.html" style="display:none;"></iframe>
 <script>
+  // (v20261101_2045 : saisie rapide seule — les saisies passent par le pavé)
   // Couvre : édition d'une donne via l'écran Résultat, suppression d'une donne (feuille rafraîchie),
   // « Tout le monde passe » sur la TABLE, annulation après passe, couleurs de la feuille,
   // écran de victoire avec choix directs, archive sans doublon, règle capot + belote, saisie clavier.
@@ -37,10 +38,10 @@
     `);
     const playRound = (pts1, opts = {}) => app.eval(`
       showTab('saisie'); updateSaisieForm();
-      ${opts.capot ? `setCapot('${opts.capot}');` : `document.getElementById('inp-pts-t1').value=${pts1}; document.getElementById('inp-pts-t2').value=${160-pts1};`}
-      ${opts.bel1 ? "document.getElementById('chk-bel-t1').checked=true;" : ''}
-      ${opts.bel2 ? "document.getElementById('chk-bel-t2').checked=true;" : ''}
-      calcAndPreview(); validateScore();
+      ${opts.capot ? `fastToggleCapot('${opts.capot}');` : `fastSetTarget('t1'); fastSaisie.digits='${pts1}';`}
+      ${opts.bel1 ? "fastToggleBelote('t1');" : ''}
+      ${opts.bel2 ? "fastToggleBelote('t2');" : ''}
+      fastValidate();
     `);
 
     try {
@@ -48,7 +49,8 @@
       newGame();
       check(shown('btn-action-passe') && !shown('btn-action-saisie'), 'TABLE sans contrat : « Tout le monde passe » doit remplacer « Saisir score »');
       check(!el('btn-passe-generale'), 'Le bouton passe ne doit plus être sur la page Contrat');
-      app.passeGenerale(); el('confirm-ok').click();
+      app.passeGenerale();
+      check(!!el('undo-toast'), 'Passe : message « Annuler » absent');
       let st = state();
       check(st.manche === 2 && st.dealerIdx === 1 && st.history.length === 0, 'Passe générale : manche/donneur incorrects');
       setContract('t1', 100, '♥', 'h');
@@ -63,7 +65,7 @@
       check(st.history[0].before && st.history[0].before.dealerIdx === 1, 'État avant donne non conservé');
 
       // ── Annuler après une passe : bon donneur restauré ──
-      app.passeGenerale(); el('confirm-ok').click();
+      app.passeGenerale();
       check(state().dealerIdx === 3, 'Passe après donne : donneur incorrect');
       app.undoLastRound();
       st = state();
@@ -77,12 +79,12 @@
       app.showTab('parties'); app.showSubTab('feuille');
       app.openEdit(1);
       check(app.getActiveGameTab() === 'saisie', 'Édition : l’écran Résultat ne s’ouvre pas');
-      check(el('inp-pts-t1').value === '110' && el('inp-pts-t2').value === '50' && el('chk-bel-t1').checked, 'Édition : saisie non pré-remplie');
-      check(!!el('edit-round-banner'), 'Édition : bandeau de modification absent');
+      check(app.eval('fastSaisie.digits') === '110' && app.eval('fastSaisie.bel1') === true && el('fast-pts-t2').textContent.trim() === '50', 'Édition : saisie non pré-remplie');
+      check(!!el('fast-edit-banner').querySelector('.fast-edit-banner'), 'Édition : bandeau de modification absent');
       check(state().contract.suit === '♥', 'Édition : contrat de la donne non chargé');
-      el('inp-pts-t1').value = '120'; app.onScoreTyped('t1');
-      check(el('inp-pts-t2').value === '40', 'Saisie clavier : complément automatique absent');
-      app.calcAndPreview(); app.validateScore();
+      app.fastClear(); app.fastKey('1'); app.fastKey('2'); app.fastKey('0');
+      check(el('fast-pts-t2').textContent.trim() === '40', 'Pavé : complément automatique absent');
+      app.fastValidate();
       st = state();
       check(st.history[0].pts1 === 240 && st.history[0].pts2 === 40, 'Édition : donne non recalculée');
       check(st.history[1].total1 === 490 && st.score.t1 === 490 && st.score.t2 === 40, 'Édition : cumuls non recalculés');
@@ -100,7 +102,7 @@
       // Donne ancienne sans saisie brute : écran vide + bandeau
       app.eval(`delete S.history[1].raw;`);
       app.openEdit(2);
-      check(el('inp-pts-t1').value === '' && el('edit-round-banner').textContent.includes('Ressaisissez'), 'Donne ancienne : pas d’invitation à ressaisir');
+      check(app.eval('fastSaisie.digits') === '' && el('fast-edit-banner').textContent.includes('Ressaisissez'), 'Donne ancienne : pas d’invitation à ressaisir');
       app.cancelSaisie();
       // Ligne sans contrat : petite fenêtre conservée
       app.eval(`S.history.push({manche:9,contract:'—',pts1:10,pts2:0,total1:0,total2:0}); recalculateGameFromHistory();`);
@@ -138,7 +140,7 @@
       let archive = JSON.parse(app.localStorage.getItem('belote_history'));
       check(archive.length === 1 && archive[0].score1 === 2170, 'Victoire : partie non archivée');
       app.goToScoreSheet();
-      app.openEdit(1); el('inp-pts-t1').value = '130'; app.onScoreTyped('t1'); app.calcAndPreview(); app.validateScore();
+      app.openEdit(1); app.fastClear(); app.fastKey('1'); app.fastKey('3'); app.fastKey('0'); app.fastValidate();
       archive = JSON.parse(app.localStorage.getItem('belote_history'));
       check(archive.length === 1 && archive[0].score1 === 2180, 'Modification après victoire : archive non mise à jour ou dupliquée');
       app.confirmEndGame('same');

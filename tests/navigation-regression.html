@@ -45,7 +45,7 @@
       if(doc.body.classList.contains('ipad-overlay-active')) failures.push('Overlay non retiré en portrait');
       if(app.getActiveGameTab() !== 'saisie') failures.push('Onglet perdu pendant la rotation');
 
-      doc.getElementById('saisie-annuler-btn').click();
+      doc.getElementById('fast-cancel').click();
       if(app.getActiveGameTab() !== 'enjeu') failures.push('Retour Table non mémorisé');
       if(doc.getElementById('tab-enjeu').style.display === 'none') failures.push('Table encore masquée');
       if(doc.body.classList.contains('ipad-overlay-active')) failures.push('Verrou tactile restant sur Table');

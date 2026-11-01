@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261101_1845`.
+Version applicative actuellement documentée : `v20261101_2045`.
 
 ---
 
@@ -400,20 +400,20 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `tournament-regression.html` | appariements, classement, résultats tournoi | 16 |
 | `navigation-regression.html` | navigation, onglets, rotation, écran actif | 15 |
 | `screen-modal-regression.html` | écrans secondaires, modales, réglages, aide, export et boutons Retour clignotants | 37 |
-| `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne et permutation des places | 54 |
+| `game-state-regression.html` | état de partie, autosave, normalisation, annulation immédiate avec « Annuler » / modification donne et permutation des places | 52 |
 | `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats et zones joueurs interactives | 27 |
 | `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 45 |
-| `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage, ajustements iPhone résultat/contrat et écran Manche en cours ; coupure « Prénom & / Prénom » vérifiée indépendamment des polices (largeur forcée) | 63 |
+| `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage, ajustements iPhone résultat/contrat et écran Manche en cours ; coupure « Prénom & / Prénom » vérifiée indépendamment des polices (largeur forcée) | 46 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
-| `saisie-rapide-regression.html` | mode rapide : réglage, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, TABLE (points gagnés / manquants et leurs réglages, icônes, lisibilité, éclair), contrat → Manche en cours, bandeau du bas masqué (jeu, Réglages, Manche en cours), écran allumé, retour au classique | 69 |
-| `ameliorations-20261031-regression.html` | édition via écran Résultat, suppression de donne, passe sur la TABLE, annulation après passe, couleurs feuille, victoire, archive sans doublon, règle capot + belote, saisie clavier | 37 |
-| `ameliorations-20261101-regression.html` | bouton « Saisir le score » de Manche en cours (classique et rapide), points maximum d'une donne, alerte « dernière donne » (points, manches, contre, masquée en correction), tableaux agrandis en iPad portrait (cadre 834 × 1194), illustrations et textes de l'aide | 30 |
-| `pc-table-regression.html` | icône de l'onglet (favicon PNG) ; TABLE sur PC (cadre 1440 × 900, souris), deux modes : table et colonne de droite centrées ensemble, colonne éloignée du bord, pas de fond commun entre les cases d'équipes, nom au-dessus du score et centré | 21 |
+| `saisie-rapide-regression.html` | saisie (seul mode) : écrans classiques et choix du mode absents, ancien réglage nettoyé, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, TABLE (points gagnés / manquants et leurs réglages, icônes, lisibilité, éclair), contrat → Manche en cours, bandeau du bas masqué (jeu, Réglages, Manche en cours), écran allumé, retour au classique | 65 |
+| `ameliorations-20261031-regression.html` | édition via écran Résultat, suppression de donne, passe sur la TABLE, annulation après passe, couleurs feuille, victoire, archive sans doublon, règle capot + belote, saisie clavier | 38 |
+| `ameliorations-20261101-regression.html` | bouton « Saisir le score » de Manche en cours, points maximum d'une donne, alerte « dernière donne » (points, manches, contre, masquée en correction), tableaux agrandis en iPad portrait (cadre 834 × 1194), illustrations et textes de l'aide | 28 |
+| `pc-table-regression.html` | icône de l'onglet (favicon PNG) ; TABLE sur PC (cadre 1440 × 900, souris) : table et colonne de droite centrées ensemble, colonne éloignée du bord, pas de fond commun entre les cases d'équipes, nom au-dessus du score et centré | 11 |
 
 Total des contrôles disponibles :
 
 ```text
-443 contrôles navigateur (14 pages de test)
+409 contrôles navigateur (14 pages de test)
 + 10 cas de score (scoring-regression.js)
 + 58 contrôles PWA (offline-pwa-regression.js)
 ```
@@ -1001,7 +1001,7 @@ Version `v20261031_2305`. Objectif : le moins d'appuis possible pendant la parti
 
 Réglages › **Saisie pendant le jeu** :
 
-- **Mode de saisie** : `Classique` (par défaut, saisie inchangée) ou `Rapide`. Clé `localStorage` : `bct_input_mode` (`classic` / `fast`). Le mode se traduit par la classe `fast-input` sur `body`.
+- **Mode de saisie** : `Classique` (par défaut, saisie inchangée) ou `Rapide`. Clé `localStorage` : `bct_input_mode` (`classic` / `fast`). Le mode se traduit par la classe `fast-input` sur `body`. *(Supprimé en `v20261101_2045` : la saisie rapide est le seul mode, voir 8.39.)*
 - **Garder l'écran allumé** : Screen Wake Lock (`navigator.wakeLock`), indépendant du mode de saisie. Clé : `bct_wake_lock` (`1` / `0`). Le verrou est repris au retour au premier plan et au premier appui (iOS). Sans prise en charge, le réglage l'indique.
 
 Mode rapide :
@@ -1134,6 +1134,19 @@ Version `v20261101_1845` :
 
 - **Points gagnés** (saisie rapide) : `GAIN_BADGE_MS` passe de 5000 à 10000 ; libellé des Réglages et aide mis à jour (« 10 secondes »).
 - **Icône de l'onglet du navigateur (favicon)** : il n'y avait aucun `<link rel="icon">`, Chrome sur PC affichait une icône générique. Ajout de deux PNG intégrés (32 × 32 et 64 × 64) générés à partir de l'icône de l'écran d'accueil (la JPEG « Belote » de `apple-touch-icon`). Les icônes de l'écran d'accueil iPhone/iPad ne changent pas.
+
+### 8.39 Suppression de la saisie classique
+
+Version `v20261101_2045`. La saisie rapide devient **le seul mode**. Aucun changement visuel sur les écrans de jeu : la géométrie et les styles de tous les écrans (table, contrat, Manche en cours, résultat, édition, feuille, historique, stats, fin de partie, aide à la marque, configuration) ont été comparés avant/après sur les 5 formats : identiques. Seuls les Réglages (ligne du choix retirée) et l'aide changent.
+
+- **Mode** : la classe `fast-input` est posée en dur sur `<body>` (les sélecteurs `body.fast-input …` sont conservés tels quels). `getInputMode`, `setInputMode`, `applyInputMode`, `isFastInput` supprimées ; `applyFastButtonLabels(fast)` devient `applyButtonIcons()`. L'ancienne clé `bct_input_mode` est effacée au démarrage. Les options « Garder l'écran allumé », « points manquants » et « points gagnés » restent dans Réglages › Saisie pendant le jeu.
+- **HTML retiré** : formulaire Contrat classique (boutons preneur, stepper `#contract-val`, `#quick-btns`, couleurs `.suit-btn`, contres `#chip-contre-*`, Confirmer / Retour) et formulaire Résultat classique (`#contract-reminder`, 160/170, steppers, −1/+1, boutons rapides, Belote, Calculer & Prévisualiser, Valider, Annuler).
+- **JS** : le contrat ne vit plus que dans `S.form` (`selectPreneur`, `selectSuit`, `selectContre`, `setContractVal` sans DOM ; `confirmContract` lit `S.form.value`). `updateSaisieForm()` réinitialise seulement le pavé. Supprimées : `setScoreTotal`, `getScoreTotal`, `renderContractReminder`, `onBeloteChange`, `refreshBeloteBoxes`, `onCapotChange`, `setCapot`, `setQuickScore`, `stepScore`, `onScoreTyped`, `stepScoreFine`, `refreshCapotBoxes`, `readSaisieRawInput`, `calcAndPreview`, `showScoreResult`, `closeScoreModal`, `toggleScoreDetail`, `stepContract`, `clearSuitSelection`, `buildUndoLastRoundSummaryHtml`. « Tout le monde passe » et « Annuler la donne » agissent toujours tout de suite avec le message « Annuler ».
+- **CSS** : 126 règles retirées (sélecteurs visant les éléments supprimés, classes `.suit-btn`, `.contract-badge`, `.btn-row`…), outil `csspurge.py` ; aucune règle partagée modifiée hormis le retrait de sélecteurs morts dans deux listes.
+- **Taille** : `index.html` passe de 9 053 à 8 031 lignes (543 Ko → 477 Ko).
+- **Aide** : parties 4 (Contrat) et 5 (Résultat) réécrites pour la seule saisie, illustrations redessinées ; la partie 5 bis disparaît ; textes « Annuler la donne » et « Enregistrer » mis à jour.
+- **Tests** : passés sur le pavé (`fastKey`, `fastValidate`, `fastToggleBelote`…) au lieu des champs classiques ; vérifications ajoutées (écrans classiques absents, ancien réglage nettoyé, aide sans référence classique).
+- **Suite possible** : retirer le préfixe `body.fast-input` des sélecteurs et fusionner les règles de la section SAISIE avec les blocs par appareil (simplification CSS progressive).
 
 ---
 
@@ -1537,6 +1550,15 @@ pc-table-regression.html : PASS 20 (nouveau ; en échec sur v20261101_1800, comm
 TABLE iPhone/iPad (4 formats × 2 modes) : géométrie et styles identiques à v20261101_1800
 ```
 
+Validation de la livraison `v20261101_2045` (suppression de la saisie classique) :
+
+```text
+Test PWA/cache/hors ligne : PASS 58
+14 pages de test navigateur : toutes PASS (409 contrôles), plus 10 cas de score
+Géométrie de 16 écrans × 5 formats comparée à v20261101_1845 : identique (hors Réglages)
+Parcours complet au doigt (contrat → Manche en cours → pavé → Valider → Annuler la donne → Annuler) : OK sur iPhone, iPad, PC
+```
+
 ---
 
 ## 13. Notes pour Codex lors d'une reprise
@@ -1614,9 +1636,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261101_1845` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261101_2045` |
 | Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 443 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261101_1845 |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 409 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261101_2045 |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
@@ -1664,7 +1686,9 @@ Statuts utilisés :
 | Test de police instable | Rendre le contrôle « Cynthia & / Eric » indépendant des polices. | Fait | Moyenne | Corrigé en `v20261101_1800` |
 | TABLE sur PC | Nom d'équipe en haut et plus gros, score en dessous, cases nettes, colonne centrée. | Fait | Haute | Livré en `v20261101_1840` |
 | Points gagnés 10 s et icône d'onglet | Affichage des points gagnés étendu à 10 secondes ; favicon pour repérer l'onglet sur PC. | Fait | Moyenne | Livré en `v20261101_1845` |
-| Choix définitif du mode de saisie | Garder classique ou rapide, supprimer l'autre. | À préciser | Moyen terme | Après usage du mode rapide |
+| Suppression de la saisie classique | Garder la saisie rapide comme seul mode, retirer le code classique. | Fait | Haute | Livré en `v20261101_2045` |
+| Simplification CSS progressive | Retirer le préfixe `body.fast-input`, réduire les blocs par appareil au profit de tailles fluides. | À faire | Moyen terme | Écran par écran, en commençant par Manche en cours |
+| Choix définitif du mode de saisie | Garder classique ou rapide, supprimer l'autre. | Fait | Moyen terme | Saisie rapide conservée en `v20261101_2045` |
 | Aide contextuelle | Petits boutons `?` sur contrat, belote, capot, tournoi. | À faire | Moyen terme | Faible risque si ciblé |
 | Export résumé lisible | Générer un résumé texte/image de la partie à partager. | À faire | Moyen terme | Peut compléter l'export image actuel |
 | Amélioration tournoi | Continuer à enrichir appariements, saisie scores tournoi et historique tournoi. | À préciser | Moyen terme | Besoin de demandes plus concrètes |

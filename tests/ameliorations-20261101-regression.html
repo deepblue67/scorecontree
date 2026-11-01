@@ -9,7 +9,7 @@
 <!-- Cadre au format iPad portrait (834 × 1194), hors écran, pour vérifier les tableaux agrandis -->
 <iframe id="app" src="../index.html" style="position:absolute;left:-9999px;top:0;width:834px;height:1194px;border:0;"></iframe>
 <script>
-  // Couvre : bouton « Saisir le score » de Manche en cours (classique et rapide),
+  // Couvre : bouton « Saisir le score » de Manche en cours,
   // alerte « dernière donne » (points et manches, masquée en correction),
   // tableaux agrandis en iPad portrait, illustrations et textes de l'aide.
   document.getElementById('app').addEventListener('load', function() {
@@ -38,7 +38,6 @@
     setTimeout(() => {
     try {
       // ── Bouton « Saisir le score » sur Manche en cours ──
-      app.setInputMode('classic');
       newGame();
       setContract('t1', 100, '♥', 'h');
       app.showMancheEnCours();
@@ -46,20 +45,13 @@
       const btn = el('mec-btn-saisie');
       check(!!btn && btn.offsetParent !== null, 'Manche en cours : bouton « Saisir le score » absent ou masqué');
       check(btn && /Saisir le score/.test(btn.textContent), 'Manche en cours : libellé du bouton incorrect');
-      btn.click();
-      check(app.getActiveScreenName() === 'game' && app.eval('currentGameTab') === 'saisie', 'Classique : le bouton doit ouvrir l’écran Résultat');
-      check(el('inp-pts-t1') && el('inp-pts-t1').offsetParent !== null, 'Classique : formulaire Résultat non visible');
+      check(!!btn.querySelector('svg'), 'Manche en cours : icône dessinée attendue sur le bouton');
       check(!!el('mec-card-wrap').getAttribute('onclick').includes("showTab('enjeu')"), 'Manche en cours : la carte doit toujours ramener à la table');
-
-      app.setInputMode('fast');
-      app.showMancheEnCours();
-      check(!!el('mec-btn-saisie').querySelector('svg'), 'Rapide : icône dessinée attendue sur le bouton');
-      el('mec-btn-saisie').click();
-      check(app.eval('currentGameTab') === 'saisie' && el('fast-saisie').offsetParent !== null, 'Rapide : le bouton doit ouvrir le pavé Résultat');
+      btn.click();
+      check(app.getActiveScreenName() === 'game' && app.eval('currentGameTab') === 'saisie' && el('fast-saisie').offsetParent !== null, 'Le bouton doit ouvrir le pavé Résultat');
       app.eval('S.contract = null');
       app.mecSaisirScore();
       check(app.eval('currentGameTab') === 'enjeu', 'Sans contrat : le bouton doit ramener à la table');
-      app.setInputMode('classic');
 
       // ── Points maximum d'une donne ──
       let m = app.maxDealPoints({preneurTeam:'t1', value:100, suit:'♥', isCapot:false, contre:'none'});
@@ -70,44 +62,40 @@
       check(m.t1 === 520, 'maxDealPoints capot annoncé : ' + JSON.stringify(m));
 
       // ── Alerte « dernière donne » ──
+      const alertNow = () => doc.querySelector('#fast-last-deal .last-deal-alert');
       newGame();
       app.eval('S.score = {t1:1700, t2:1000}');
       setContract('t1', 100, '♥', 'h');
       app.showTab('saisie'); app.updateSaisieForm();
-      check(!doc.querySelector('#contract-reminder .last-deal-alert'), 'Alerte affichée à tort (1700 + 282 < 2001)');
-      app.eval('S.score = {t1:1720, t2:1000}'); app.renderContractReminder();
-      const alertEl = doc.querySelector('#contract-reminder .last-deal-alert');
-      check(!!alertEl && alertEl.offsetParent !== null, 'Classique : alerte absente alors que 1720 + 282 ≥ 2001');
-      check(alertEl && /au point près/.test(alertEl.textContent), 'Alerte : texte incorrect');
-      app.eval('S.score = {t1:0, t2:1721}'); app.renderContractReminder();
-      check(!!doc.querySelector('#contract-reminder .last-deal-alert'), 'Alerte : la défense peut aussi gagner sur la chute');
-      app.setInputMode('fast'); app.updateSaisieForm();
-      check(!!doc.querySelector('#fast-last-deal .last-deal-alert') && el('fast-last-deal').offsetParent !== null, 'Rapide : alerte absente');
+      check(!alertNow(), 'Alerte affichée à tort (1700 + 282 < 2001)');
+      app.eval('S.score = {t1:1720, t2:1000}'); app.renderFastSaisie();
+      check(!!alertNow() && el('fast-last-deal').offsetParent !== null, 'Alerte absente alors que 1720 + 282 ≥ 2001');
+      check(alertNow() && /au point près/.test(alertNow().textContent), 'Alerte : texte incorrect');
+      app.eval('S.score = {t1:0, t2:1721}'); app.renderFastSaisie();
+      check(!!alertNow(), 'Alerte : la défense peut aussi gagner sur la chute');
       app.eval('S.score = {t1:0, t2:1530}'); app.renderFastSaisie();
-      check(el('fast-last-deal').innerHTML === '', 'Rapide : alerte non retirée');
+      check(el('fast-last-deal').innerHTML === '', 'Alerte non retirée');
       app.fastSetContre('surcontre');
-      check(!!doc.querySelector('#fast-last-deal .last-deal-alert'), 'Rapide : un surcontre doit faire apparaître l’alerte (1530 + 480)');
-      app.setInputMode('classic');
+      check(!!alertNow(), 'Un surcontre doit faire apparaître l’alerte (1530 + 480)');
 
       // Mode manches
       newGame();
       app.eval("S.gameMode = 'manches'; S.winningManches = 3; S.manche = 2");
       setContract('t1', 80, '♣', 'c');
       app.showTab('saisie'); app.updateSaisieForm();
-      check(!doc.querySelector('#contract-reminder .last-deal-alert'), 'Manches : alerte à tort avant la dernière manche');
-      app.eval('S.manche = 3'); app.renderContractReminder();
-      const mAlert = doc.querySelector('#contract-reminder .last-deal-alert');
-      check(!!mAlert && /Dernière manche/.test(mAlert.textContent), 'Manches : alerte « Dernière manche » absente');
+      check(!alertNow(), 'Manches : alerte à tort avant la dernière manche');
+      app.eval('S.manche = 3'); app.renderFastSaisie();
+      check(!!alertNow() && /Dernière manche/.test(alertNow().textContent), 'Manches : alerte « Dernière manche » absente');
 
       // Correction d'une ancienne donne : pas d'alerte
       newGame();
       setContract('t1', 100, '♥', 'h');
       app.showTab('saisie'); app.updateSaisieForm();
-      el('inp-pts-t1').value = 110; el('inp-pts-t2').value = 50; app.calcAndPreview(); app.validateScore();
+      app.fastKey('1'); app.fastKey('1'); app.fastKey('0'); app.fastValidate();
       app.eval('S.score = {t1:1900, t2:100}');
       app.openEdit(1);
-      check(!doc.querySelector('#contract-reminder .last-deal-alert'), 'Correction : l’alerte ne doit pas s’afficher');
-      app.cancelEditRound ? app.cancelEditRound() : app.showTab('enjeu');
+      check(!alertNow(), 'Correction : l’alerte ne doit pas s’afficher');
+      app.cancelEditRound();
 
       // ── Tableaux en iPad portrait ──
       const sz = app.getTableSizes();
@@ -115,7 +103,7 @@
       newGame();
       setContract('t1', 100, '♥', 'h');
       app.showTab('saisie'); app.updateSaisieForm();
-      el('inp-pts-t1').value = 110; el('inp-pts-t2').value = 50; app.calcAndPreview(); app.validateScore();
+      app.fastKey('1'); app.fastKey('1'); app.fastKey('0'); app.fastValidate();
       app.renderFeuille();
       const fh = el('feuille-content').textContent;
       check(/Équipe preneuse/.test(fh) && /Résultat/.test(fh) && /Alice & Bruno/.test(fh), 'iPad portrait : en-têtes complets absents de la feuille');
@@ -128,7 +116,9 @@
       // ── Aide ──
       app.renderHelpContent();
       const help = el('help-content');
-      check(help.querySelectorAll('svg').length >= 12, 'Aide : illustrations manquantes (' + help.querySelectorAll('svg').length + ')');
+      // 11 illustrations depuis la suppression de la saisie classique (une par partie illustrée)
+      check(help.querySelectorAll('svg').length >= 11, 'Aide : illustrations manquantes (' + help.querySelectorAll('svg').length + ')');
+      check(!/Classique|Prévisualiser|Confirmer le contrat|5 bis/.test(help.textContent), 'Aide : référence à la saisie classique encore présente');
       check(/4 bis\. Manche en cours/.test(help.textContent) && /Saisir le score/.test(help.textContent), 'Aide : partie « Manche en cours » absente');
       check(/Dernière donne : au point près/.test(help.textContent), 'Aide : alerte de dernière donne non décrite');
       check(!/onglet Score\)/.test(help.textContent), 'Aide : référence obsolète à l’onglet Score');
