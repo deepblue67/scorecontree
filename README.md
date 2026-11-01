@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261101_0045`.
+Version applicative actuellement documentée : `v20261101_1140`.
 
 ---
 
@@ -1071,6 +1071,19 @@ Version `v20261101_0045`. Deux interrupteurs dans **Réglages › Saisie pendant
 - **Afficher les points gagnés** (`bct_show_gain`) : badges « +202 / +80 » après chaque donne, désormais affichés **5 secondes** (`GAIN_BADGE_MS`, auparavant 2 s).
 
 Fonctions : `getTablePref`, `setTablePref`, `renderTablePrefs` (appelée au chargement et dans `initInputSettings`).
+
+### 8.33 Saisie rapide sur PC : colonne de droite de la TABLE
+
+Version `v20261101_1140`, constaté sur PC (souris, `min-width:1025px` + `pointer:fine`). **iPhone et iPad inchangés.**
+
+Défauts : « manque … » partait tout à droite des cases de score (case en flex `space-between` à 3 éléments), les cases et les boutons étaient collés, et « Terminer la partie » restait seul sur une demi-largeur quand « Annuler la donne » était masqué.
+
+Correction, en saisie rapide uniquement :
+
+- la colonne de droite prend la hauteur de la table (`calc(100vh - 160px)`) ;
+- les cases de score s'étirent, en grille nom / « manque » à gauche et score (88px) à droite, avec 16px d'écart entre les cases et avant les boutons ;
+- les boutons font 64px ;
+- sans donne à annuler, « Terminer la partie » prend toute la largeur. Le sélecteur couvre `display:none` et `display: none` (le style inline n'est pas toujours re-sérialisé).
 
 ---
 
