@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261101_1600`.
+Version applicative actuellement documentée : `v20261101_1620`.
 
 ---
 
@@ -1094,6 +1094,15 @@ Version `v20261101_1600`, uniquement en saisie rapide :
 - **« ← Retour » jaune et décalé** : l'éclair doré (`.is-flash`) imposait `transform:scale()`, qui écrasait le `translateY(-50%)` de centrage. Le bouton descendait d'une demi-hauteur pendant l'appui. « ← Retour » est exclu de l'éclair (bouton de navigation).
 - **iPad paysage, TABLE** : nom de l'équipe sur une seule ligne au-dessus des points (cases en colonne, `<br>` masqué). `formatTeamName` ajoute une espace après le `<br>` pour séparer les noms quand il est masqué. Le badge de points gagnés passe en bas à droite de la case.
 - **iPhone paysage, TABLE** : noms des équipes à 13px et scores à 64px dans les deux cases de droite.
+
+### 8.35 Feuille de score et historique lisibles en paysage (iPhone et iPad)
+
+Version `v20261101_1620`, **les deux modes de saisie**. Uniquement en paysage iPhone (`max-width:899px` + paysage) et iPad (`min-width:1025px` + paysage + `pointer:coarse`). Portrait et PC inchangés.
+
+- `getTableSizes()` renvoie un indicateur `wide` et des tailles plus grandes : iPad paysage avec contrat 20px, scores 22px, total 24px ; iPhone paysage avec contrat 16px, scores 17px, total 18px.
+- `roundTableHeaders(sizes)` : en-têtes complets en mode `wide`, avec les noms d'équipes en entier, « Équipe preneuse » au lieu de « Pren. » et « Résultat » au lieu de « Résult. ».
+- `renderCurrentRoundRow` : équipe preneuse écrite en entier, mention de contre plus lisible, boutons ✏️ / 🗑 plus grands.
+- S'applique à la feuille « En cours », à l'historique de la partie et au détail des parties archivées (« Résultat »).
 
 ---
 

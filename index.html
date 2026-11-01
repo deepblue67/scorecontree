@@ -2290,7 +2290,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_1600</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_1620</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -3844,8 +3844,22 @@ function changeTeams() {
 //  HISTORY
 // ═══════════════════════════════════════════════════════════
 function getTableSizes() {
+  // Paysage iPhone et iPad (tactile) : tableau plus grand, noms d'équipes et libellés en entier
+  const iphoneLandscape = window.matchMedia('(max-width: 899px) and (orientation: landscape)').matches;
+  const ipadLandscape = window.matchMedia('(min-width: 1025px) and (orientation: landscape) and (pointer: coarse)').matches;
+  if(ipadLandscape) return {
+    wide: true,
+    fsHeader:'17px', fsPad:'12px 10px', fsNum:'18px', fsContrat:'20px', fsPreneur:'18px',
+    fsBadge:'15px', fsBadgePad:'4px 12px', fsScore:'22px', fsTotal:'24px', fsTotalLabel:'18px', fsTdPad:'12px 10px'
+  };
+  if(iphoneLandscape) return {
+    wide: true,
+    fsHeader:'13px', fsPad:'6px', fsNum:'15px', fsContrat:'16px', fsPreneur:'14px',
+    fsBadge:'12px', fsBadgePad:'2px 8px', fsScore:'17px', fsTotal:'18px', fsTotalLabel:'14px', fsTdPad:'7px 6px'
+  };
   const isIpadLandscape = window.innerWidth >= 1025 && window.innerWidth > window.innerHeight;
   return {
+    wide: false,
     fsHeader:     isIpadLandscape ? '15px' : '10px',
     fsPad:        isIpadLandscape ? '10px 8px' : '4px',
     fsNum:        isIpadLandscape ? '16px' : '12px',
@@ -3857,6 +3871,18 @@ function getTableSizes() {
     fsTotal:      isIpadLandscape ? '20px' : '14px',
     fsTotalLabel: isIpadLandscape ? '16px' : '12px',
     fsTdPad:      isIpadLandscape ? '10px 8px' : '5px 4px',
+  };
+}
+
+// En-têtes du tableau des donnes : complets en paysage iPhone / iPad
+function roundTableHeaders(sizes) {
+  const wide = !!(sizes && sizes.wide);
+  const team = (name, key) => renderTeamHeader(wide ? escapeHtml(neutralizeTableMarkup(name)) : renderTeamInitials(name), key);
+  return {
+    t1: team(S.t1.name, 't1'),
+    t2: team(S.t2.name, 't2'),
+    taker: wide ? 'Équipe preneuse' : 'Pren.',
+    result: wide ? 'Résultat' : 'Résult.'
   };
 }
 
@@ -3916,10 +3942,11 @@ function renderCurrentRoundRow(round, sizes, withActions = false) {
     : '<em style="color:#b07800;font-size:11px;">Corr.</em>';
   const takerTeam = roundTakerTeam(round, S.t1 && S.t1.name);
   const taker = hasContract
-    ? escapeHtml(neutralizeTableMarkup(initiales(round.preneur)))
+    ? escapeHtml(neutralizeTableMarkup(withActions && sizes && sizes.wide ? round.preneur : initiales(round.preneur)))
     : '';
+  const wideRow = !!(withActions && sizes && sizes.wide);
   const counter = hasContract && round.contre && round.contre !== 'none'
-    ? `<span style="font-size:9px;color:#c8960a;font-weight:700;">${escapeHtml(neutralizeTableMarkup(round.contre))}</span>`
+    ? `<span style="font-size:${wideRow ? '12px' : '9px'};color:#c8960a;font-weight:700;">${escapeHtml(neutralizeTableMarkup(round.contre))}</span>`
     : '';
   const result = hasContract ? renderRoundResultBadge(round.chute, sizes) : '';
   const padding = withActions ? sizes.fsTdPad : '5px 4px';
@@ -3928,8 +3955,8 @@ function renderCurrentRoundRow(round, sizes, withActions = false) {
   const takerSize = withActions ? sizes.fsPreneur : '11px';
   const scoreSize = withActions ? sizes.fsScore : '13px';
   const actions = withActions
-    ? `<td style="padding:5px 2px;text-align:center;"><button onclick="openEdit(${Number(round.manche)})" style="background:#e8e4dc;border:1px solid #bbb;border-radius:6px;color:#444;font-size:10px;padding:1px 3px;cursor:pointer;font-family:inherit;">✏️</button></td>
-      <td style="padding:5px 2px;text-align:center;"><button onclick="deleteManche(${Number(round.manche)})" style="background:#fce8e8;border:1px solid #e8b0b0;border-radius:6px;color:#cc1f1f;font-size:10px;padding:1px 3px;cursor:pointer;font-family:inherit;">🗑</button></td>`
+    ? `<td style="padding:5px 2px;text-align:center;"><button onclick="openEdit(${Number(round.manche)})" style="background:#e8e4dc;border:1px solid #bbb;border-radius:6px;color:#444;font-size:${wideRow ? '15px' : '10px'};padding:${wideRow ? '4px 8px' : '1px 3px'};cursor:pointer;font-family:inherit;">✏️</button></td>
+      <td style="padding:5px 2px;text-align:center;"><button onclick="deleteManche(${Number(round.manche)})" style="background:#fce8e8;border:1px solid #e8b0b0;border-radius:6px;color:#cc1f1f;font-size:${wideRow ? '15px' : '10px'};padding:${wideRow ? '4px 8px' : '1px 3px'};cursor:pointer;font-family:inherit;">🗑</button></td>`
     : '<td style="padding:5px 4px;text-align:center;"></td><td style="padding:5px 4px;text-align:center;"></td>';
 
   return `<tr style="border-bottom:1px solid rgba(0,0,0,0.06);">
@@ -3956,8 +3983,8 @@ function renderHistory() {
   // Mettre à jour le titre
   const titleEl = eid('history-title');
   if(titleEl) titleEl.innerHTML = renderTeamMatchupTitle(S.t1.name, S.t2.name);
-  const i1 = renderTeamHeader(renderTeamInitials(S.t1.name), 't1');
-  const i2 = renderTeamHeader(renderTeamInitials(S.t2.name), 't2');
+  const hd = roundTableHeaders(sizes);
+  const hs = sizes.wide ? `padding:${sizes.fsPad};font-size:${sizes.fsHeader}` : 'padding:4px 4px;font-size:10px';
   const tot1 = S.history[S.history.length-1].total1;
   const tot2 = S.history[S.history.length-1].total2;
 
@@ -3967,13 +3994,13 @@ function renderHistory() {
     <table style="width:100%;border-collapse:collapse;font-family:inherit;">
       <thead>
         <tr style="border-bottom:2px solid rgba(0,0,0,0.12);">
-          <th style="padding:4px 4px;font-size:10px;color:var(--text2);text-align:left;font-weight:700;">#</th>
-          <th style="padding:4px 4px;font-size:10px;color:var(--text2);text-align:left;font-weight:700;">Contrat</th>
-          <th style="padding:4px 4px;font-size:10px;color:var(--text2);text-align:center;font-weight:700;">Pren.</th>
-          <th style="padding:4px 4px;font-size:10px;color:var(--text2);text-align:center;font-weight:700;">Résult.</th>
-          <th style="padding:4px 4px;font-size:10px;color:var(--text2);text-align:right;font-weight:700;">${i1}</th>
-          <th style="padding:4px 4px;font-size:10px;color:var(--text2);text-align:right;font-weight:700;">${i2}</th>
-          <th colspan="2" style="padding:4px 4px;font-size:10px;color:var(--text2);text-align:center;font-weight:700;"></th>
+          <th style="${hs};color:var(--text2);text-align:left;font-weight:700;">#</th>
+          <th style="${hs};color:var(--text2);text-align:left;font-weight:700;">Contrat</th>
+          <th style="${hs};color:var(--text2);text-align:center;font-weight:700;">${hd.taker}</th>
+          <th style="${hs};color:var(--text2);text-align:center;font-weight:700;">${hd.result}</th>
+          <th style="${hs};color:var(--text2);text-align:right;font-weight:700;">${hd.t1}</th>
+          <th style="${hs};color:var(--text2);text-align:right;font-weight:700;">${hd.t2}</th>
+          <th colspan="2" style="${hs};color:var(--text2);text-align:center;font-weight:700;"></th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
@@ -4249,7 +4276,7 @@ function buildPastTable(p) {
     + '<thead><tr style="border-bottom:1px solid #e0ddd6;">'
     + '<th style="padding:'+sz.fsTdPad+';text-align:left;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">#</th>'
     + '<th style="padding:'+sz.fsTdPad+';text-align:left;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">Contrat</th>'
-    + '<th style="padding:'+sz.fsTdPad+';text-align:center;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">Résult.</th>'
+    + '<th style="padding:'+sz.fsTdPad+';text-align:center;color:#888;font-size:'+sz.fsHeader+';font-weight:600;">'+(sz.wide ? 'Résultat' : 'Résult.')+'</th>'
     + '<th style="padding:'+sz.fsTdPad+';text-align:right;color:'+TEAM_COLORS.t1+';font-size:'+sz.fsHeader+';font-weight:700;">'+escapeHtml(p.t1)+'</th>'
     + '<th style="padding:'+sz.fsTdPad+';text-align:right;color:'+TEAM_COLORS.t2+';font-size:'+sz.fsHeader+';font-weight:700;">'+escapeHtml(p.t2)+'</th>'
     + '</tr></thead>'
@@ -6554,8 +6581,7 @@ function renderFeuille() {
     return;
   }
 
-  const i1 = renderTeamHeader(renderTeamInitials(S.t1.name), 't1');
-  const i2 = renderTeamHeader(renderTeamInitials(S.t2.name), 't2');
+  const hd = roundTableHeaders(sizes);
   const tot1 = S.history[S.history.length-1].total1;
   const tot2 = S.history[S.history.length-1].total2;
 
@@ -6567,10 +6593,10 @@ function renderFeuille() {
         <tr style="border-bottom:2px solid rgba(0,0,0,0.12);">
           <th style="padding:${fsPad};font-size:${fsHeader};color:var(--text2);text-align:left;">#</th>
           <th style="padding:${fsPad};font-size:${fsHeader};color:var(--text2);text-align:left;">Contrat</th>
-          <th style="padding:${fsPad};font-size:${fsHeader};color:var(--text2);text-align:center;">Pren.</th>
-          <th style="padding:${fsPad};font-size:${fsHeader};color:var(--text2);text-align:center;">Résult.</th>
-          <th style="padding:${fsPad};font-size:${fsHeader};color:var(--text2);text-align:right;">${i1}</th>
-          <th style="padding:${fsPad};font-size:${fsHeader};color:var(--text2);text-align:right;">${i2}</th>
+          <th style="padding:${fsPad};font-size:${fsHeader};color:var(--text2);text-align:center;">${hd.taker}</th>
+          <th style="padding:${fsPad};font-size:${fsHeader};color:var(--text2);text-align:center;">${hd.result}</th>
+          <th style="padding:${fsPad};font-size:${fsHeader};color:var(--text2);text-align:right;">${hd.t1}</th>
+          <th style="padding:${fsPad};font-size:${fsHeader};color:var(--text2);text-align:right;">${hd.t2}</th>
           <th style="padding:4px;width:24px;"></th>
           <th style="padding:4px;width:24px;"></th>
         </tr>
