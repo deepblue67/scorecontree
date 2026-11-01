@@ -9,7 +9,7 @@
 <!-- Cadre au format PC (1440 × 900, souris), hors écran -->
 <iframe id="app" src="../index.html" style="position:absolute;left:-9999px;top:0;width:1440px;height:900px;border:0;"></iframe>
 <script>
-  // Couvre (PC uniquement) : table et colonne de droite centrées ensemble, cases d'équipes
+  // Couvre : icône de l'onglet (favicon) ; PC uniquement : table et colonne de droite centrées ensemble, cases d'équipes
   // sans fond commun entre elles, nom de l'équipe au-dessus du score, dans les deux modes.
   document.getElementById('app').addEventListener('load', function() {
     const result = document.getElementById('result');
@@ -23,8 +23,11 @@
 
     setTimeout(() => {
     try {
+      // Icône de l'onglet du navigateur (favicon)
+      const icons = doc.querySelectorAll('link[rel="icon"]');
+      check(icons.length >= 1 && [...icons].every(l => /^data:image\/png;base64,/.test(l.getAttribute('href'))), 'Favicon absent ou mal formé');
       if(!app.matchMedia('(min-width: 1025px) and (pointer: fine)').matches) {
-        result.textContent = 'PASS 0 (requête PC non applicable dans ce navigateur)';
+        result.textContent = (failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks) + ' (requête PC non applicable dans ce navigateur)';
         result.dataset.status = 'pass';
         return;
       }

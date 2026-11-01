@@ -157,7 +157,7 @@
       check(el('btn-undo-last-round').textContent.trim() === 'Annuler la donne' && !!el('btn-undo-last-round').querySelector('svg'), 'Icônes : bouton Annuler sans icône dessinée');
       check(!!el('game-settings-btn').querySelector('svg') && !el('game-settings-btn').textContent.includes('⚙'), 'Icônes : roue des Réglages encore en emoji');
       check(app.getComputedStyle(el('btn-end-game-table')).color === 'rgb(255, 255, 255)', 'Lisibilité : Terminer la partie doit être en blanc');
-      check(app.eval('GAIN_BADGE_MS') === 5000, 'Points gagnés : durée de 5 secondes attendue');
+      check(app.eval('GAIN_BADGE_MS') === 10000, 'Points gagnés : durée de 10 secondes attendue');
       check(visible(el('toggle-show-need')) || app.getComputedStyle(el('toggle-show-need').closest('.fast-setting')).display !== 'none', 'Réglages : options d’affichage absentes en mode rapide');
       app.setTablePref('show-need', false);
       check(app.localStorage.getItem('bct_show_need') === '0' && app.getComputedStyle(doc.querySelector('#ej-st1 .t-need')).display === 'none', 'Réglage points manquants : désactivation sans effet');
