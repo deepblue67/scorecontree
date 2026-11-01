@@ -9,7 +9,8 @@
 <iframe id="app" src="../index.html" style="display:none;"></iframe>
 <script>
   // Couvre : plus de plafond de 50 parties (sauvegarde et import fusionné),
-  // avertissement « mémoire presque pleine » et « mémoire pleine » avec proposition d'export.
+  // avertissement « mémoire presque pleine » et « mémoire pleine » avec proposition d'export,
+  // import par code « Ajouter à mes données » (fusion sans doublon, joueurs complétés, thème conservé).
   document.getElementById('app').addEventListener('load', function() {
     const result = document.getElementById('result');
     const app = this.contentWindow;
@@ -64,6 +65,32 @@
       check(past().length === before, 'Mémoire pleine : l’historique existant ne doit pas être modifié');
       check(el('confirm-modal').style.display === 'flex' && /Mémoire pleine/.test(el('confirm-msg').textContent), 'Mémoire pleine : avertissement absent');
       app.closeConfirm();
+
+      // Import par code « Ajouter à mes données » : fusion sans rien effacer, sans doublon
+      app.localStorage.setItem('belote_history', JSON.stringify([
+        {id:9001,date:'sam. 31/10/2026',time:'21:00',t1:'A & B',t2:'C & D',score1:2010,score2:900,winner:'A & B',manches:10,history:[]},
+        {id:9000,date:'lun. 03/08/2026',time:'21:00',t1:'A & B',t2:'C & D',score1:900,score2:2010,winner:'C & D',manches:10,history:[]}]));
+      app.eval(`S.players = ['A','B','C','D']; savePlayers(); localStorage.setItem('bct_theme','blue');`);
+      const oldExport = { version:1, players:['A','E','F'], theme:'green', history:[
+        {id:100,date:'sam. 30/05/2026',time:'16:54',t1:'A & E',t2:'F & B',score1:1700,score2:2050,winner:'F & B',manches:12,history:[]},
+        {id:99,date:'sam. 23/05/2026',time:'23:11',t1:'A & E',t2:'F & B',score1:2090,score2:1560,winner:'A & E',manches:12,history:[]},
+        {id:9000,date:'lun. 03/08/2026',time:'21:00',t1:'X',t2:'Y',score1:0,score2:0,winner:'X',manches:1,history:[]}]};
+      const code = 'BCT1:' + app.btoa(app.unescape(app.encodeURIComponent(JSON.stringify(oldExport))));
+      app.showSyncImport();
+      doc.querySelector('#sync-modal-content textarea').value = code;
+      el('sync-import-merge').click();
+      let h = past();
+      check(h.length === 4, 'Ajouter : 2 anciennes parties attendues en plus des 2 actuelles (' + h.length + ')');
+      check(h[0].id === 9001 && h[h.length-1].id === 99, 'Ajouter : historique non trié du plus récent au plus ancien');
+      check(h.find(g => g.id === 9000).t1 === 'A & B', 'Ajouter : en cas de même partie, la version de l’appareil doit être gardée');
+      check(app.eval('S.players.join(",")') === 'A,B,C,D,E,F', 'Ajouter : joueurs non complétés sans doublon');
+      check(app.localStorage.getItem('bct_theme') === 'blue', 'Ajouter : le thème de l’appareil ne doit pas changer');
+      app.showSyncImport();
+      doc.querySelector('#sync-modal-content textarea').value = code;
+      el('sync-import-merge').click();
+      check(past().length === 4, 'Ajouter deux fois : aucun doublon attendu');
+      check(!!el('sync-import-replace'), 'Bouton « Remplacer mes données » absent');
+      app.closeModal && app.closeModal('sync-modal');
 
       check(!/slice\(0,\s*50\)/.test(app.savePastGame.toString() + app.applyImportData.toString()), 'Plafond de 50 parties encore présent');
 

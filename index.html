@@ -1896,7 +1896,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_2120</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_2140</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -3651,10 +3651,33 @@ async function gistDownload() {
 }
 
 function mergeHistory(local, remote) {
-  // Fusion par id unique : on garde toutes les parties sans doublon
+  // Fusion par id unique : on garde toutes les parties sans doublon (la version locale l'emporte)
+  const key = p => (p && p.id != null) ? 'id:' + p.id : 'k:' + [p && p.date, p && p.time, p && p.t1, p && p.t2, p && p.score1, p && p.score2].join('|');
   const map = new Map();
-  [...local, ...remote].forEach(p => map.set(p.id, p));
-  return Array.from(map.values()).sort((a,b) => b.id - a.id);
+  [...remote, ...local].forEach(p => { if(p && typeof p === 'object') map.set(key(p), p); });
+  return Array.from(map.values()).sort((a,b) => (Number(b.id) || 0) - (Number(a.id) || 0));
+}
+
+// Import « Ajouter à mes données » : complète joueurs, historique et tournois sans rien effacer.
+// La partie en cours, la dernière configuration et le thème restent ceux de l'appareil.
+function mergeImportData(data) {
+  if(!isImportData(data)) return null;
+  if(!createPreImportBackup('code-merge')) return null;
+  const known = new Set(S.players);
+  const newPlayers = (data.players || []).filter(p => typeof p === 'string' && p && !known.has(p));
+  if(newPlayers.length) { S.players = [...S.players, ...newPlayers]; savePlayers(); }
+  const local = storageReadJSON('belote_history', [], Array.isArray);
+  const merged = mergeHistory(local, Array.isArray(data.history) ? data.history : []);
+  if(!storageWriteJSON('belote_history', merged)) { warnStorageFull(); return null; }
+  let addedTournois = 0;
+  if(Array.isArray(data.tournois_history) && data.tournois_history.length) {
+    const localT = storageReadJSON('belote_tournois_history', [], Array.isArray);
+    const mapT = new Map();
+    [...data.tournois_history, ...localT].forEach(t => { if(t && t.id != null) mapT.set(t.id, t); });
+    addedTournois = mapT.size - localT.length;
+    storageWriteJSON('belote_tournois_history', Array.from(mapT.values()).sort((a,b) => (Number(b.id) || 0) - (Number(a.id) || 0)));
+  }
+  return { games: merged.length - local.length, players: newPlayers.length, tournois: Math.max(0, addedTournois) };
 }
 
 function applyImportData(data) {
@@ -7622,7 +7645,7 @@ function renderHelpContent() {
     section('💾', '10. Données, sauvegarde et hors ligne', [
       step(1, 'L\'application fonctionne hors ligne grâce au service worker : une fois installée, elle reste disponible sans réseau.'),
       step(2, 'Les données sont stockées localement sur l\'appareil : joueurs, partie en cours, historique, tournois et thème.'),
-      step(3, 'Pour changer d\'appareil, utilisez <strong>Exporter mes données</strong> puis <strong>Importer des données</strong>.'),
+      step(3, 'Utilisez <strong>Exporter mes données</strong> puis <strong>Importer des données</strong> : <strong>Ajouter à mes données</strong> complète joueurs et historique sans rien effacer (pour regrouper les parties de plusieurs appareils ou d\'un ancien export) ; <strong>Remplacer mes données</strong> écrase tout (nouvel appareil).'),
       step(4, 'Avant un import, une sauvegarde locale est créée pour permettre une restauration si le contenu importé n\'est pas le bon.'),
       note('Le QR Code a été supprimé car les historiques volumineux dépassaient facilement sa capacité.'),
     ].join(''), svgSync) +
@@ -7748,7 +7771,7 @@ function showSyncImport() {
   content.innerHTML = '';
 
   content.innerHTML += `<div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:6px;">📥 Importer des données</div>`;
-  content.innerHTML += `<div style="font-size:13px;color:var(--text2);margin-bottom:16px;text-align:center;line-height:1.5;">⚠️ Cela remplacera joueurs, historique et réglages.</div>`;
+  content.innerHTML += `<div style="font-size:13px;color:var(--text2);margin-bottom:16px;text-align:center;line-height:1.5;"><strong>Ajouter</strong> complète vos joueurs et votre historique sans rien effacer.<br><strong>Remplacer</strong> écrase toutes vos données (changement d'appareil).</div>`;
 
   const ta = document.createElement('textarea');
   ta.placeholder = 'Collez le code BCT1:... ici';
@@ -7778,24 +7801,55 @@ function showSyncImport() {
     content.appendChild(restoreWrap);
   }
 
+  const decodeCode = () => {
+    const raw = ta.value.trim();
+    if(!raw.startsWith('BCT1:')) { errDiv.textContent = 'Code invalide — doit commencer par BCT1:'; return null; }
+    try {
+      const data = JSON.parse(decodeURIComponent(escape(atob(raw.slice(5)))));
+      if(!isImportData(data)) { errDiv.textContent = 'Format invalide ou données incomplètes.'; return null; }
+      return data;
+    } catch(e) {
+      errDiv.textContent = 'Erreur de décodage : ' + e.message;
+      return null;
+    }
+  };
+
+  // Ajouter (fusion) : rien n'est effacé
+  const mergeBtn = document.createElement('button');
+  mergeBtn.id = 'sync-import-merge';
+  mergeBtn.textContent = '➕ Ajouter à mes données';
+  mergeBtn.className = 'btn btn-green btn-full';
+  mergeBtn.style.marginBottom = '8px';
+  mergeBtn.onclick = () => {
+    const data = decodeCode();
+    if(!data) return;
+    const r = mergeImportData(data);
+    if(!r) { if(!errDiv.textContent) errDiv.textContent = 'Import annulé : impossible de créer la sauvegarde de sécurité.'; return; }
+    refreshSelects();
+    try { renderPastHistory(); renderStats(); } catch(e) {}
+    closeModal(modal);
+    const parts = [r.games + ' partie(s)', r.players + ' joueur(s)'];
+    if(r.tournois) parts.push(r.tournois + ' tournoi(s)');
+    showToast('✅ Ajouté : ' + parts.join(', '));
+  };
+  content.appendChild(mergeBtn);
+
+  // Remplacer : ancien comportement (changement d'appareil)
   const importBtn = document.createElement('button');
-  importBtn.textContent = '✅ Importer';
-  importBtn.className = 'btn btn-green btn-full';
+  importBtn.id = 'sync-import-replace';
+  importBtn.textContent = 'Remplacer mes données';
+  importBtn.className = 'btn btn-outline-dark btn-full';
   importBtn.style.marginBottom = '8px';
   importBtn.onclick = () => {
-    const raw = ta.value.trim();
-    if(!raw.startsWith('BCT1:')) { errDiv.textContent = 'Code invalide — doit commencer par BCT1:'; return; }
+    const data = decodeCode();
+    if(!data) return;
     try {
-      const json = decodeURIComponent(escape(atob(raw.slice(5))));
-      const data = JSON.parse(json);
-      if(!isImportData(data)) { errDiv.textContent = 'Format invalide ou données incomplètes.'; return; }
-      const msg = `Importer ${data.players.length} joueur(s) et ${(data.history||[]).length} partie(s) ? Vos données actuelles seront remplacées.`;
+      const msg = `Remplacer par ${data.players.length} joueur(s) et ${(data.history||[]).length} partie(s) ? Vos données actuelles seront effacées.`;
       if(!confirm(msg)) return;
       if(!createPreImportBackup('code-import')) {
         errDiv.textContent = 'Import annulé : impossible de créer la sauvegarde de sécurité.';
         return;
       }
-      // Appliquer les données
       S.players = data.players || [];
       savePlayers();
       if(data.history) storageWriteJSON('belote_history', data.history);
@@ -7807,7 +7861,7 @@ function showSyncImport() {
       closeModal(modal);
       showToast('✅ Import réussi !');
     } catch(e) {
-      errDiv.textContent = 'Erreur de décodage : ' + e.message;
+      errDiv.textContent = 'Erreur : ' + e.message;
     }
   };
   content.appendChild(importBtn);
