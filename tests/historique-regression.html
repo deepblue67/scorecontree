@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests historique des parties ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  // Couvre : plus de plafond de 50 parties (sauvegarde et import fusionné),
+  // avertissement « mémoire presque pleine » et « mémoire pleine » avec proposition d'export.
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+    const check = (condition, message) => { checks += 1; if(!condition) failures.push(message); };
+    const el = id => doc.getElementById(id);
+    const past = () => JSON.parse(app.localStorage.getItem('belote_history') || '[]');
+
+    setTimeout(() => {
+    try {
+      app.localStorage.removeItem('belote_history');
+      app.eval(`
+        S.t1 = {name:'A & B',players:['A','B']};
+        S.t2 = {name:'C & D',players:['C','D']};
+        S.score = {t1:2010, t2:900};
+        S.history = [{manche:1,contract:'100 ♥',contre:'none',preneur:'A & B',chute:false,pts1:2010,pts2:900,total1:2010,total2:900}];
+      `);
+      // 60 parties enregistrées : toutes conservées
+      app.eval(`window.storageUsedChars = () => 1000;`);
+      for(let i = 0; i < 60; i++) app.eval(`S._savedGameId = null; savePastGame();`);
+      check(past().length === 60, 'Sauvegarde : les 60 parties doivent être conservées (' + past().length + ')');
+      // Identifiants uniques (dans le test, les 60 parties sont créées dans la même milliseconde)
+      app.localStorage.setItem('belote_history', JSON.stringify(past().map((g, i) => ({ ...g, id: 5000 + i }))));
+
+      // Import fusionné (Gist) : aucune partie recoupée
+      const remote = Array.from({length:70}, (_, i) => ({ id: 1000 + i, date:'lun. 01/06/2026', time:'20:00', t1:'A & B', t2:'C & D', score1:2001, score2:500, winner:'A & B', manches:10, history:[] }));
+      check(app.applyImportData({ version:1, players:['A','B','C','D'], history: remote }) !== false, 'Import fusionné refusé');
+      check(past().length === 130, 'Import fusionné : 130 parties attendues (' + past().length + ')');
+      app.closeConfirm && app.closeConfirm();
+
+      // Mémoire presque pleine : avertissement avec export proposé, une seule fois par session
+      app.eval(`window.storageUsedChars = () => 4500000; storageWarnedThisSession = false;`);
+      app.eval(`S._savedGameId = null; savePastGame();`);
+      check(el('confirm-modal').style.display === 'flex' && /presque pleine/.test(el('confirm-msg').textContent), 'Mémoire presque pleine : avertissement absent');
+      check(el('confirm-ok').textContent.includes('Exporter'), 'Mémoire presque pleine : bouton Exporter absent');
+      app.closeConfirm();
+      check(el('confirm-ok').textContent === 'Confirmer', 'Le libellé du bouton de confirmation doit revenir à « Confirmer »');
+      app.eval(`S._savedGameId = null; savePastGame();`);
+      check(el('confirm-modal').style.display !== 'flex', 'Mémoire presque pleine : un seul avertissement par session');
+      check(past().length === 132, 'Mémoire presque pleine : la partie doit quand même être enregistrée');
+
+      // Mémoire pleine : écriture refusée → rien n'est effacé, avertissement affiché
+      const before = past().length;
+      app.eval(`
+        window.__origSet = Storage.prototype.setItem;
+        Storage.prototype.setItem = function(k, v) { if(k === 'belote_history') { const e = new Error('QuotaExceededError'); e.name = 'QuotaExceededError'; throw e; } return window.__origSet.call(this, k, v); };
+        S._savedGameId = null; savePastGame();
+        Storage.prototype.setItem = window.__origSet;
+      `);
+      check(past().length === before, 'Mémoire pleine : l’historique existant ne doit pas être modifié');
+      check(el('confirm-modal').style.display === 'flex' && /Mémoire pleine/.test(el('confirm-msg').textContent), 'Mémoire pleine : avertissement absent');
+      app.closeConfirm();
+
+      check(!/slice\(0,\s*50\)/.test(app.savePastGame.toString() + app.applyImportData.toString()), 'Plafond de 50 parties encore présent');
+
+      app.localStorage.removeItem('belote_history');
+      app.localStorage.removeItem('belote_pre_import_backup');
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message + ' ' + (error.stack||'').split('\n')[1];
+      result.dataset.status = 'error';
+    }
+    }, 300);
+  });
+</script>
+</body>
+</html>

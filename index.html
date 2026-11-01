@@ -1896,7 +1896,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_2045</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_2120</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -3066,6 +3066,8 @@ function askChangeTeams() {
 }
 function closeConfirm() {
   closeModal('confirm-modal');
+  const ok = eid('confirm-ok');
+  if(ok) ok.textContent = 'Confirmer'; // libellé par défaut (l'avertissement mémoire le change)
 }
 
 
@@ -3422,9 +3424,42 @@ function savePastGame() {
       S._savedGameId = Date.now();
       past.unshift({ id: S._savedGameId, date: dateStr, time: timeStr, ...results });
     }
-    // Garder max 50 parties
-    storageWriteJSON('belote_history', past.slice(0, 50));
+    // Toutes les parties sont conservées (l'ancien plafond de 50 effaçait les plus anciennes)
+    if(!storageWriteJSON('belote_history', past)) { warnStorageFull(); return; }
+    warnStorageNearlyFull();
   } catch(e) {}
+}
+
+// ── Mémoire du navigateur ──────────────────────────────────
+// Environ 5 Mo sur iPhone / iPad (≈ plusieurs centaines de parties). Rien n'est jamais effacé
+// automatiquement : on prévient et on propose un export.
+const STORAGE_SOFT_LIMIT = 4000000; // caractères (~80 % de la place disponible sur Safari)
+function storageUsedChars() {
+  let n = 0;
+  try {
+    for(let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      n += k.length + (localStorage.getItem(k) || '').length;
+    }
+  } catch(e) {}
+  return n;
+}
+let storageWarnedThisSession = false;
+function warnStorageNearlyFull() {
+  if(storageWarnedThisSession || storageUsedChars() < STORAGE_SOFT_LIMIT) return;
+  storageWarnedThisSession = true;
+  showStorageWarning('💾 La mémoire de l’application est presque pleine. Exportez vos données (Réglages › Synchronisation) pour en garder une copie.');
+}
+function warnStorageFull() {
+  showStorageWarning('⚠️ Mémoire pleine : la partie n’a pas pu être archivée. Exportez vos données (Réglages › Synchronisation), puis supprimez d’anciennes parties pour libérer de la place.');
+}
+function showStorageWarning(message) {
+  const msg = eid('confirm-msg'), ok = eid('confirm-ok');
+  if(!msg || !ok) { showToast(message); return; }
+  msg.textContent = message;
+  ok.textContent = '📤 Exporter maintenant';
+  ok.onclick = () => { closeConfirm(); showSyncExport(); };
+  openModal('confirm-modal');
 }
 
 let pastHistoryOpen = true;
@@ -3629,7 +3664,7 @@ function applyImportData(data) {
   if(data.history?.length) {
     const local  = storageReadJSON('belote_history', [], Array.isArray);
     const merged = mergeHistory(local, data.history);
-    storageWriteJSON('belote_history', merged.slice(0, 50));
+    if(!storageWriteJSON('belote_history', merged)) warnStorageFull(); // plus de plafond : toutes les parties fusionnées sont gardées
   }
   if(data.tournois_history?.length) {
     const localT  = storageReadJSON('belote_tournois_history', [], Array.isArray);

@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261101_2045`.
+Version applicative actuellement documentée : `v20261101_2120`.
 
 ---
 
@@ -82,6 +82,7 @@ ScoreBelote/
     ameliorations-20261031-regression.html
     ameliorations-20261101-regression.html
     pc-table-regression.html
+    historique-regression.html
     saisie-rapide-regression.html
 ```
 
@@ -408,12 +409,13 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `saisie-rapide-regression.html` | saisie (seul mode) : écrans classiques et choix du mode absents, ancien réglage nettoyé, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, TABLE (points gagnés / manquants et leurs réglages, icônes, lisibilité, éclair), contrat → Manche en cours, bandeau du bas masqué (jeu, Réglages, Manche en cours), écran allumé, retour au classique | 65 |
 | `ameliorations-20261031-regression.html` | édition via écran Résultat, suppression de donne, passe sur la TABLE, annulation après passe, couleurs feuille, victoire, archive sans doublon, règle capot + belote, saisie clavier | 38 |
 | `ameliorations-20261101-regression.html` | bouton « Saisir le score » de Manche en cours, points maximum d'une donne, alerte « dernière donne » (points, manches, contre, masquée en correction), tableaux agrandis en iPad portrait (cadre 834 × 1194), illustrations et textes de l'aide | 28 |
+| `historique-regression.html` | plus de plafond de 50 parties (sauvegarde et import fusionné), avertissement « mémoire presque pleine » une fois par session, « mémoire pleine » sans rien effacer, libellé du bouton de confirmation rétabli | 11 |
 | `pc-table-regression.html` | icône de l'onglet (favicon PNG) ; TABLE sur PC (cadre 1440 × 900, souris) : table et colonne de droite centrées ensemble, colonne éloignée du bord, pas de fond commun entre les cases d'équipes, nom au-dessus du score et centré | 11 |
 
 Total des contrôles disponibles :
 
 ```text
-409 contrôles navigateur (14 pages de test)
+420 contrôles navigateur (15 pages de test)
 + 10 cas de score (scoring-regression.js)
 + 58 contrôles PWA (offline-pwa-regression.js)
 ```
@@ -1148,6 +1150,15 @@ Version `v20261101_2045`. La saisie rapide devient **le seul mode**. Aucun chang
 - **Tests** : passés sur le pavé (`fastKey`, `fastValidate`, `fastToggleBelote`…) au lieu des champs classiques ; vérifications ajoutées (écrans classiques absents, ancien réglage nettoyé, aide sans référence classique).
 - **Suite possible** : retirer le préfixe `body.fast-input` des sélecteurs et fusionner les règles de la section SAISIE avec les blocs par appareil (simplification CSS progressive).
 
+### 8.40 Historique : plus de plafond de 50 parties
+
+Version `v20261101_2120`. Signalé par l'utilisateur : les parties d'avant le 3 août n'apparaissaient plus.
+
+- **Cause** : `savePastGame()` ne gardait que les 50 parties les plus récentes (`past.slice(0, 50)`, présent depuis le printemps 2026, avant la reprise du projet) ; l'import fusionné (`applyImportData`, Gist) recoupait aussi à 50. Chaque nouvelle partie effaçait donc la plus ancienne une fois 50 atteint. Les parties déjà effacées ne sont pas récupérables sur l'appareil (seulement depuis un autre appareil, un export, un Gist ou la sauvegarde pré-import).
+- **Correction** : plus aucun plafond ; toutes les parties sont conservées. Une partie pèse environ 5 Ko ; la mémoire du navigateur (~5 Mo sur iPhone/iPad) permet plusieurs centaines de parties.
+- **Garde-fous** : `storageUsedChars()` mesure la place occupée. Au-delà de `STORAGE_SOFT_LIMIT` (4 000 000 caractères, ~80 %), `warnStorageNearlyFull()` prévient une fois par session. Si l'écriture échoue (`QuotaExceededError`), `warnStorageFull()` prévient que la partie n'a pas pu être archivée — rien n'est effacé. Les deux proposent « 📤 Exporter maintenant » (`showSyncExport()`) dans la fenêtre de confirmation ; `closeConfirm()` remet le libellé « Confirmer ».
+- **Non modifié** : l'historique des tournois garde son plafond de 20 ; l'import par code ou fichier **remplace** toujours les données (avec sauvegarde pré-import) au lieu de fusionner.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1636,9 +1647,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261101_2045` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261101_2120` |
 | Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 409 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261101_2045 |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 420 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261101_2120 |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
@@ -1687,6 +1698,8 @@ Statuts utilisés :
 | TABLE sur PC | Nom d'équipe en haut et plus gros, score en dessous, cases nettes, colonne centrée. | Fait | Haute | Livré en `v20261101_1840` |
 | Points gagnés 10 s et icône d'onglet | Affichage des points gagnés étendu à 10 secondes ; favicon pour repérer l'onglet sur PC. | Fait | Moyenne | Livré en `v20261101_1845` |
 | Suppression de la saisie classique | Garder la saisie rapide comme seul mode, retirer le code classique. | Fait | Haute | Livré en `v20261101_2045` |
+| Historique sans plafond | Ne plus effacer les parties au-delà de 50 ; prévenir quand la mémoire se remplit. | Fait | Haute | Livré en `v20261101_2120` |
+| Import par code / fichier en fusion | Fusionner l'historique importé au lieu de le remplacer (récupération d'anciennes parties). | À faire | Haute | Proposé |
 | Simplification CSS progressive | Retirer le préfixe `body.fast-input`, réduire les blocs par appareil au profit de tailles fluides. | À faire | Moyen terme | Écran par écran, en commençant par Manche en cours |
 | Choix définitif du mode de saisie | Garder classique ou rapide, supprimer l'autre. | Fait | Moyen terme | Saisie rapide conservée en `v20261101_2045` |
 | Aide contextuelle | Petits boutons `?` sur contrat, belote, capot, tournoi. | À faire | Moyen terme | Faible risque si ciblé |
