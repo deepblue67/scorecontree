@@ -400,7 +400,7 @@ body.fast-input .fast-hdr.is-shown { display:flex; }
 #game-header .fast-hdr-right { position:absolute; right:14px; top:50%; transform:translateY(-50%); gap:8px; }
 #game-header .fast-hdr-icon { min-height:0; color:#fff; background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.5); border-radius:50%; width:44px; height:44px; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; touch-action:manipulation; padding:0; }
 #game-header .fast-hdr-back { position:absolute; left:14px; top:50%; transform:translateY(-50%); align-items:center; min-height:40px; padding:0 16px; border-radius:99px; background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.5); color:#fff; font-size:15px; font-weight:800; font-family:inherit; cursor:pointer; touch-action:manipulation; }
-body.fast-input.on-game-screen #bottom-nav { display:none !important; }
+body.fast-input.on-game-screen #bottom-nav, body.fast-input.screen-not-setup #bottom-nav { display:none !important; }
 @media (min-width: 600px) and (orientation: portrait), (min-width: 1025px) and (orientation: landscape) and (pointer: coarse) {
   /* iPad : l'en-tête inclut la barre d'état iOS, on centre les boutons sous celle-ci */
   #game-header .fast-hdr-right, #game-header .fast-hdr-back { top:calc(50% + env(safe-area-inset-top, 0px) / 2); }
@@ -448,8 +448,9 @@ body.fast-input #ej-action-grid #btn-undo-last-round, body.fast-input #ej-action
   body.fast-input.on-game-screen #ej-score-wrap { grid-column:2 !important; grid-row:1 !important; display:flex !important; align-self:stretch !important; margin:0 !important; padding:8px !important; min-height:0 !important; }
   body.fast-input.on-game-screen #ej-score-wrap .score-board { flex:1 1 auto !important; display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px !important; }
   body.fast-input.on-game-screen #ej-score-wrap .score-team { display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; padding:6px !important; gap:0 !important; }
-  body.fast-input.on-game-screen #ej-score-wrap .score-team .t-name { font-size:10px !important; text-align:center !important; }
-  body.fast-input.on-game-screen #ej-score-wrap .score-team .t-score { font-size:clamp(34px, 7vh, 52px) !important; }
+  body.fast-input.on-game-screen #ej-score-wrap .score-team .t-name { font-size:13px !important; line-height:1.25 !important; text-align:center !important; }
+  body.fast-input.on-game-screen #ej-score-wrap .score-team .t-score { font-size:64px !important; line-height:1.05 !important; }
+  body.fast-input.show-need.on-game-screen #tab-enjeu #ej-score-wrap .score-team .t-need { font-size:13px !important; }
   body.fast-input.on-game-screen #ej-action-grid { grid-column:2 !important; grid-row:2 !important; gap:8px !important; margin:0 !important; width:100% !important; }
   body.fast-input.on-game-screen #ej-action-grid .btn { font-size:13px !important; padding:0 6px !important; min-height:46px !important; }
   .gain-badge { top:4px; right:4px; font-size:13px; padding:2px 8px; }
@@ -461,13 +462,14 @@ body.fast-input #ej-action-grid #btn-undo-last-round, body.fast-input #ej-action
   body.fast-input.on-game-screen #ej-right-col { justify-content:flex-start !important; padding:0 !important; gap:14px !important; }
   body.fast-input.on-game-screen #ej-score-wrap { flex:1 1 auto !important; min-height:0 !important; }
   body.fast-input.on-game-screen #ej-score-wrap .score-board { flex:1 1 auto !important; }
-  body.fast-input.on-game-screen #ej-score-wrap .score-team { flex:1 1 0 !important; display:grid !important; grid-template-columns:minmax(0,1fr) auto !important; grid-template-areas:"name score" "need score" !important; align-content:center !important; align-items:center !important; padding:18px 24px !important; }
-  body.fast-input.on-game-screen #ej-score-wrap .score-team .t-name { grid-area:name !important; align-self:end !important; }
-  body.fast-input.on-game-screen #ej-score-wrap .score-team .t-score { grid-area:score !important; font-size:104px !important; }
-  body.fast-input.show-need.on-game-screen #tab-enjeu #ej-score-wrap .score-team .t-need { grid-area:need !important; align-self:start !important; justify-self:start !important; text-align:left !important; font-size:18px !important; }
+  body.fast-input.on-game-screen #ej-score-wrap .score-team { flex:1 1 0 !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:4px !important; padding:16px 20px !important; min-width:0 !important; }
+  body.fast-input.on-game-screen #ej-score-wrap .score-team .t-name { white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important; max-width:100% !important; text-align:center !important; font-size:21px !important; line-height:1.2 !important; }
+  body.fast-input.on-game-screen #ej-score-wrap .score-team .t-name br { display:none !important; }
+  body.fast-input.on-game-screen #ej-score-wrap .score-team .t-score { font-size:104px !important; }
+  body.fast-input.show-need.on-game-screen #tab-enjeu #ej-score-wrap .score-team .t-need { text-align:center !important; font-size:18px !important; }
   body.fast-input.on-game-screen #ej-action-grid { gap:12px !important; }
   body.fast-input.on-game-screen #ej-action-grid .btn { font-size:18px !important; line-height:1.15 !important; min-height:84px !important; padding:0 12px !important; border-radius:22px !important; }
-  .gain-badge { top:14px; right:20px; font-size:26px; padding:5px 16px; }
+  .gain-badge { top:auto; bottom:16px; right:20px; font-size:26px; padding:5px 16px; }
 }
 /* 7 · PC (souris) : colonne de droite à la hauteur de la table, « manque » sous le nom, cases espacées */
 @media (min-width: 1025px) and (pointer: fine) {
@@ -2288,7 +2290,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_1140</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_1600</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -6032,7 +6034,7 @@ function formatTeamName(name) {
   const isPC = window.innerWidth >= 1025;
   if((isLandscape || isPC) && name && name.includes(' & ')) {
     const parts = name.split(' & ');
-    return escapeHtml(parts[0]) + ' &amp;<br>' + escapeHtml(parts[1]);
+    return escapeHtml(parts[0]) + ' &amp;<br> ' + escapeHtml(parts[1]);
   }
   return escapeHtml(name);
 }
@@ -6962,6 +6964,7 @@ function activateAppScreen(name) {
   if(name === 'tournoi') target.style.display = 'flex';
   target.classList.add('active');
   document.body.classList.toggle('on-game-screen', name === 'game');
+  document.body.classList.toggle('screen-not-setup', name !== 'setup');
   return true;
 }
 
@@ -7593,7 +7596,7 @@ function showGainBadges(p1, p2) {
 // Point 3 : éclair doré sur le bouton touché (iOS ne vibre pas dans une application web)
 document.addEventListener('pointerdown', e => {
   if(!document.body.classList.contains('fast-input')) return;
-  const b = e.target.closest && e.target.closest('.fast-panel button, #ej-action-grid button, #game-header .fast-hdr-icon, #game-header .fast-hdr-back, .undo-toast button');
+  const b = e.target.closest && e.target.closest('.fast-panel button, #ej-action-grid button, #game-header .fast-hdr-icon, .undo-toast button');
   if(!b || b.disabled) return;
   b.classList.add('is-flash');
   setTimeout(() => b.classList.remove('is-flash'), 200);
@@ -7659,6 +7662,8 @@ function fastPickSuit(suit, key, color) {
   if(!S.form.valueChosen) { if(hint) hint.textContent = 'Choisissez d’abord la hauteur'; haptic('medium'); return; }
   selectSuit(suit, key, color);
   confirmContract();
+  // Saisie rapide : on affiche directement la grande carte « Manche en cours »
+  if(S.contract) showMancheEnCours();
 }
 
 // ── Résultat rapide ─────────────────────────────────────────
@@ -8303,7 +8308,7 @@ function renderHelpContent() {
     // ── 5 bis. Saisie rapide ──
     section('⚡', '5 bis. Saisie rapide (Réglages)', [
       step(1, 'Dans <strong>Réglages › Saisie pendant le jeu</strong>, choisissez <strong>Rapide</strong>. <strong>Classique</strong> remet la saisie habituelle à tout moment, sans rien perdre.'),
-      step(2, '<strong>Contrat</strong> : équipe, hauteur, contre s\'il y en a un, puis la <strong>couleur</strong> : toucher la couleur valide le contrat et ramène à la table.'),
+      step(2, '<strong>Contrat</strong> : équipe, hauteur, contre s\'il y en a un, puis la <strong>couleur</strong> : toucher la couleur valide le contrat et affiche la grande carte <strong>Manche en cours</strong> (donneur, premier à jouer). Touchez la carte pour revenir à la table.'),
       step(3, '<strong>Résultat</strong> : tapez les points sur le pavé (preneur par défaut, ou touchez l\'autre équipe pour saisir la défense). Le résultat FAIT / CHUTE s\'affiche en direct, puis un seul appui sur <strong>Valider</strong>.'),
       step(4, 'Un contre oublié se corrige en haut de l\'écran Résultat (Sans contre / Contre / Surcontre).'),
       step(5, 'Le bandeau du bas disparaît pendant la partie : <strong>📋 Parties</strong> et <strong>📈 Stats</strong> sont en haut à droite de la table, et <strong>← Retour</strong> ramène à la table.'),

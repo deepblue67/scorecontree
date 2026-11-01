@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261101_1140`.
+Version applicative actuellement documentée : `v20261101_1600`.
 
 ---
 
@@ -403,7 +403,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 45 |
 | `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage, ajustements iPhone résultat/contrat et écran Manche en cours | 62 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
-| `saisie-rapide-regression.html` | mode rapide : réglage, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, TABLE (points gagnés / manquants et leurs réglages, icônes, lisibilité, éclair), bandeau du bas masqué, écran allumé, retour au classique | 67 |
+| `saisie-rapide-regression.html` | mode rapide : réglage, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, TABLE (points gagnés / manquants et leurs réglages, icônes, lisibilité, éclair), contrat → Manche en cours, bandeau du bas masqué (jeu, Réglages, Manche en cours), écran allumé, retour au classique | 69 |
 | `ameliorations-20261031-regression.html` | édition via écran Résultat, suppression de donne, passe sur la TABLE, annulation après passe, couleurs feuille, victoire, archive sans doublon, règle capot + belote, saisie clavier | 37 |
 
 Total des contrôles disponibles :
@@ -1084,6 +1084,16 @@ Correction, en saisie rapide uniquement :
 - les cases de score s'étirent, en grille nom / « manque » à gauche et score (88px) à droite, avec 16px d'écart entre les cases et avant les boutons ;
 - les boutons font 64px ;
 - sans donne à annuler, « Terminer la partie » prend toute la largeur. Le sélecteur couvre `display:none` et `display: none` (le style inline n'est pas toujours re-sérialisé).
+
+### 8.34 Saisie rapide : retours d'usage du 1er novembre 2026
+
+Version `v20261101_1600`, uniquement en saisie rapide :
+
+- **Contrat validé → « Manche en cours »** : toucher la couleur valide le contrat puis affiche directement la grande carte (`showMancheEnCours`), au lieu de revenir à la TABLE. Toucher la carte ramène à la TABLE.
+- **Bandeau du bas** masqué sur tous les écrans sauf la configuration : classe `screen-not-setup` posée par `activateAppScreen()`. Avant, il réapparaissait dans les Réglages et sur « Manche en cours ».
+- **« ← Retour » jaune et décalé** : l'éclair doré (`.is-flash`) imposait `transform:scale()`, qui écrasait le `translateY(-50%)` de centrage. Le bouton descendait d'une demi-hauteur pendant l'appui. « ← Retour » est exclu de l'éclair (bouton de navigation).
+- **iPad paysage, TABLE** : nom de l'équipe sur une seule ligne au-dessus des points (cases en colonne, `<br>` masqué). `formatTeamName` ajoute une espace après le `<br>` pour séparer les noms quand il est masqué. Le badge de points gagnés passe en bas à droite de la case.
+- **iPhone paysage, TABLE** : noms des équipes à 13px et scores à 64px dans les deux cases de droite.
 
 ---
 
