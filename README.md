@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261101_1800`.
+Version applicative actuellement documentée : `v20261101_1840`.
 
 ---
 
@@ -81,6 +81,7 @@ ScoreBelote/
     iphone-table-actions-regression.html
     ameliorations-20261031-regression.html
     ameliorations-20261101-regression.html
+    pc-table-regression.html
     saisie-rapide-regression.html
 ```
 
@@ -407,11 +408,12 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `saisie-rapide-regression.html` | mode rapide : réglage, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, TABLE (points gagnés / manquants et leurs réglages, icônes, lisibilité, éclair), contrat → Manche en cours, bandeau du bas masqué (jeu, Réglages, Manche en cours), écran allumé, retour au classique | 69 |
 | `ameliorations-20261031-regression.html` | édition via écran Résultat, suppression de donne, passe sur la TABLE, annulation après passe, couleurs feuille, victoire, archive sans doublon, règle capot + belote, saisie clavier | 37 |
 | `ameliorations-20261101-regression.html` | bouton « Saisir le score » de Manche en cours (classique et rapide), points maximum d'une donne, alerte « dernière donne » (points, manches, contre, masquée en correction), tableaux agrandis en iPad portrait (cadre 834 × 1194), illustrations et textes de l'aide | 30 |
+| `pc-table-regression.html` | TABLE sur PC (cadre 1440 × 900, souris), deux modes : table et colonne de droite centrées ensemble, colonne éloignée du bord, pas de fond commun entre les cases d'équipes, nom au-dessus du score et centré | 20 |
 
 Total des contrôles disponibles :
 
 ```text
-422 contrôles navigateur (13 pages de test)
+442 contrôles navigateur (14 pages de test)
 + 10 cas de score (scoring-regression.js)
 + 58 contrôles PWA (offline-pwa-regression.js)
 ```
@@ -1118,6 +1120,14 @@ Version `v20261101_1800`, **les deux modes de saisie** :
 - **Aide** : illustrations redessinées (Réglages avec la saisie, TABLE actuelle, Contrat, Résultat avec l'alerte, feuille et historique aux couleurs des équipes) ; nouvelles illustrations « Manche en cours » (partie 4 bis) et « Saisie rapide » (5 bis) ; accents corrigés ; textes mis à jour.
 - **Test de police** : `iphone-table-actions-regression.html` ne dépend plus des polices installées. Il vérifie que le « & » ne commence jamais la seconde ligne, puis force une largeur réduite pour contrôler la coupure « Cynthia & / Eric ».
 
+### 8.37 TABLE sur PC : cases des équipes et centrage
+
+Version `v20261101_1840`, **PC uniquement** (`min-width:1025px` + `pointer:fine`), les deux modes de saisie. iPhone et iPad inchangés (géométrie et styles de la TABLE comparés avant/après sur les 4 formats et les 2 modes : identiques).
+
+- **Centrage** : `#tab-enjeu` passe de `1fr 420px` à `minmax(0, max-content) 420px` avec `justify-content:center` et un écart `clamp(40px, 5vw, 96px)`. La table et la colonne de droite sont centrées ensemble ; la colonne n'est plus collée au bord droit (sur 1907 px : 329 px de marge de chaque côté au lieu de 48 px à droite).
+- **Espace entre les deux cases** : le cadre commun `#ej-score-wrap` (fond sombre, bordure, coins de 16px) apparaissait entre les cases dont les coins étaient de 12px. Il devient transparent ; chaque case porte son propre fond, une bordure et des coins de 16px, avec 16px d'écart.
+- **Contenu des cases** : nom de l'équipe en haut, plus gros, sur une ligne (`<br>` masqué), score en dessous, « manque … » sous le score, le tout centré. Saisie rapide : tailles proportionnelles à la hauteur de l'écran (nom `clamp(15px, 2.4vh, 22px)`, score `clamp(48px, 10vh, 96px)`) pour tenir sur les petits écrans de PC. Saisie classique : nom 18px, score 72px. Le badge des points gagnés passe en bas à droite de la case pour ne pas chevaucher le nom.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1511,6 +1521,15 @@ ameliorations-20261101-regression.html : PASS 30 (nouveau)
 iphone-table-actions-regression.html : PASS 63 (test de police réparé)
 ```
 
+Validation de la livraison `v20261101_1840` :
+
+```text
+Test PWA/cache/hors ligne : PASS 58
+14 pages de test navigateur : toutes PASS (442 contrôles), plus 10 cas de score
+pc-table-regression.html : PASS 20 (nouveau ; en échec sur v20261101_1800, comme attendu)
+TABLE iPhone/iPad (4 formats × 2 modes) : géométrie et styles identiques à v20261101_1800
+```
+
 ---
 
 ## 13. Notes pour Codex lors d'une reprise
@@ -1588,9 +1607,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261101_1800` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261101_1840` |
 | Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 422 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261101_1800 |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 442 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261101_1840 |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
@@ -1636,6 +1655,7 @@ Statuts utilisés :
 | Tableaux iPad portrait | Noms complets et texte plus grand dans la feuille et l'historique. | Fait | Moyenne | Livré en `v20261101_1800` |
 | Illustrations de l'aide | Redessiner les illustrations selon le design actuel. | Fait | Moyenne | Livré en `v20261101_1800` |
 | Test de police instable | Rendre le contrôle « Cynthia & / Eric » indépendant des polices. | Fait | Moyenne | Corrigé en `v20261101_1800` |
+| TABLE sur PC | Nom d'équipe en haut et plus gros, score en dessous, cases nettes, colonne centrée. | Fait | Haute | Livré en `v20261101_1840` |
 | Choix définitif du mode de saisie | Garder classique ou rapide, supprimer l'autre. | À préciser | Moyen terme | Après usage du mode rapide |
 | Aide contextuelle | Petits boutons `?` sur contrat, belote, capot, tournoi. | À faire | Moyen terme | Faible risque si ciblé |
 | Export résumé lisible | Générer un résumé texte/image de la partie à partager. | À faire | Moyen terme | Peut compléter l'export image actuel |

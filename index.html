@@ -502,16 +502,18 @@ body.fast-input #ej-action-grid #btn-undo-last-round, body.fast-input #ej-action
   body.fast-input.on-game-screen #ej-right-col { grid-column:2 !important; grid-row:1 / 4 !important; align-self:start !important; height:calc(100vh - 160px) !important; display:flex !important; flex-direction:column !important; gap:16px !important; }
   body.fast-input.on-game-screen #ej-score-wrap { flex:1 1 auto !important; display:flex !important; min-height:0 !important; }
   body.fast-input.on-game-screen #ej-score-wrap .score-board { flex:1 1 auto !important; display:flex !important; flex-direction:column !important; gap:16px !important; }
-  body.fast-input.on-game-screen #tab-enjeu #ej-score-wrap .score-team { flex:1 1 0 !important; display:grid !important; grid-template-columns:minmax(0,1fr) auto !important; grid-template-areas:"name score" "need score" !important; align-content:center !important; align-items:center !important; column-gap:16px !important; padding:20px 26px !important; }
-  body.fast-input.on-game-screen #tab-enjeu #ej-score-wrap .score-team .t-name { grid-area:name !important; align-self:end !important; font-size:15px !important; }
-  body.fast-input.on-game-screen #tab-enjeu #ej-score-wrap .score-team .t-score { grid-area:score !important; font-size:88px !important; }
-  body.fast-input.show-need.on-game-screen #tab-enjeu #ej-score-wrap .score-team .t-need { grid-area:need !important; align-self:start !important; justify-self:start !important; text-align:left !important; font-size:15px !important; margin-top:4px !important; }
+  /* Nom de l'équipe en haut (plus gros), score en dessous, centrés */
+  body.fast-input.on-game-screen #tab-enjeu #ej-score-wrap .score-team { flex:1 1 0 !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:clamp(2px, 1vh, 10px) !important; padding:clamp(8px, 2vh, 20px) 28px !important; min-height:0 !important; }
+  body.fast-input.on-game-screen #tab-enjeu #ej-score-wrap .score-team .t-name { order:1 !important; font-size:clamp(15px, 2.4vh, 22px) !important; line-height:1.25 !important; letter-spacing:.04em !important; margin:0 !important; white-space:normal !important; }
+  body.fast-input.on-game-screen #tab-enjeu #ej-score-wrap .score-team .t-name br { display:none !important; }
+  body.fast-input.on-game-screen #tab-enjeu #ej-score-wrap .score-team .t-score { order:2 !important; font-size:clamp(48px, 10vh, 96px) !important; line-height:1 !important; }
+  body.fast-input.show-need.on-game-screen #tab-enjeu #ej-score-wrap .score-team .t-need { order:3 !important; text-align:center !important; font-size:clamp(12px, 1.8vh, 16px) !important; margin-top:0 !important; }
   body.fast-input.on-game-screen #ej-action-grid { flex:0 0 auto !important; gap:12px !important; }
   body.fast-input.on-game-screen #ej-action-grid .btn { min-height:64px !important; padding:0 12px !important; font-size:17px !important; }
   /* Sans donne à annuler, « Terminer la partie » prend toute la largeur */
   body.fast-input #ej-action-grid #btn-undo-last-round[style*="display: none"] + #btn-end-game-table,
   body.fast-input #ej-action-grid #btn-undo-last-round[style*="display:none"] + #btn-end-game-table { grid-column:1 / -1 !important; }
-  .gain-badge { top:14px; right:20px; font-size:22px; padding:4px 14px; }
+  .gain-badge { top:auto; bottom:14px; right:20px; font-size:22px; padding:4px 14px; }
 }
 /* iPad paysage uniquement (même requête que les blocs iPad paysage A/B) :
    les écrans rapides occupent toute la hauteur disponible */
@@ -1447,15 +1449,22 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   }
 
   /* Page TABLE */
-  #tab-enjeu { display:grid !important; grid-template-columns:1fr 420px !important; grid-template-rows:auto auto auto !important; column-gap:32px !important; row-gap:20px !important; padding:20px 48px 90px !important; align-items:start !important; min-height:calc(100vh - 60px); }
+  /* Table + colonne de droite centrées ensemble (la colonne n'est plus collée au bord droit) */
+  #tab-enjeu { display:grid !important; grid-template-columns:minmax(0, max-content) 420px !important; justify-content:center !important; grid-template-rows:auto auto auto !important; column-gap:clamp(40px, 5vw, 96px) !important; row-gap:20px !important; padding:20px 48px 90px !important; align-items:start !important; min-height:calc(100vh - 60px); }
   #ej-table-wrap { grid-column:1 !important; grid-row:1 / 4 !important; max-width:100% !important; padding:0 !important; display:flex !important; align-items:center !important; justify-content:center !important; height:calc(100vh - 160px) !important; }
   #ej-table-wrap svg { width:auto !important; height:100% !important; max-height:calc(100vh - 160px) !important; max-width:100% !important; display:block !important; }
   #tab-enjeu > div:nth-child(2) { grid-column:2; grid-row:1; }
   #tab-enjeu > div:nth-child(3) { grid-column:2; grid-row:2; }
-  #tab-enjeu > div:nth-child(2) .score-board { grid-template-columns:1fr !important; gap:12px; }
-  #tab-enjeu > div:nth-child(2) .score-team { display:flex !important; align-items:center !important; justify-content:space-between !important; text-align:left !important; padding:20px 24px !important; }
-  #tab-enjeu > div:nth-child(2) .score-team .t-name { margin-bottom:0 !important; font-size:13px !important; white-space:normal !important; line-height:1.3 !important; word-break:keep-all !important; }
-  #tab-enjeu > div:nth-child(2) .score-team .t-score { font-size:64px !important; line-height:1 !important; }
+  #tab-enjeu > div:nth-child(2) .score-board { grid-template-columns:1fr !important; gap:16px; }
+  /* Cases des équipes nettes : plus de fond commun derrière (il apparaissait entre les deux cases) */
+  #tab-enjeu #ej-score-wrap { background:transparent !important; border:none !important; border-radius:0 !important; }
+  #tab-enjeu #ej-score-wrap .score-team { background:linear-gradient(rgba(255,255,255,0.10), rgba(255,255,255,0.10)), rgba(0,0,0,0.28); border:2px solid rgba(255,255,255,0.10); border-radius:16px !important; }
+  #tab-enjeu #ej-score-wrap .score-team.leading { background:linear-gradient(rgba(58,140,63,0.28), rgba(58,140,63,0.28)), rgba(0,0,0,0.28); border-color:var(--green); }
+  /* Nom de l'équipe en haut (plus gros), score en dessous, centrés */
+  #tab-enjeu > div:nth-child(2) .score-team { display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; text-align:center !important; gap:8px !important; padding:20px 24px !important; }
+  #tab-enjeu > div:nth-child(2) .score-team .t-name { margin-bottom:0 !important; font-size:18px !important; white-space:normal !important; line-height:1.25 !important; letter-spacing:.04em !important; word-break:keep-all !important; }
+  #tab-enjeu > div:nth-child(2) .score-team .t-name br { display:none !important; }
+  #tab-enjeu > div:nth-child(2) .score-team .t-score { font-size:72px !important; line-height:1 !important; }
   #tab-enjeu > div:nth-child(2) .score-team .t-need { display:none !important; }
   #ej-action-grid { display:grid !important; grid-template-columns:1fr 1fr !important; gap:12px !important; padding:0 !important; max-width:none !important; margin:0 !important; }
   #ej-action-grid .btn { font-size:16px !important; padding:18px 8px !important; }
@@ -2321,7 +2330,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_1800</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_1840</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>

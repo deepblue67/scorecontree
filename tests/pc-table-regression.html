@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests TABLE sur PC ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<!-- Cadre au format PC (1440 × 900, souris), hors écran -->
+<iframe id="app" src="../index.html" style="position:absolute;left:-9999px;top:0;width:1440px;height:900px;border:0;"></iframe>
+<script>
+  // Couvre (PC uniquement) : table et colonne de droite centrées ensemble, cases d'équipes
+  // sans fond commun entre elles, nom de l'équipe au-dessus du score, dans les deux modes.
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+    const check = (condition, message) => { checks += 1; if(!condition) failures.push(message); };
+    const el = id => doc.getElementById(id);
+    const rect = e => e.getBoundingClientRect();
+
+    setTimeout(() => {
+    try {
+      if(!app.matchMedia('(min-width: 1025px) and (pointer: fine)').matches) {
+        result.textContent = 'PASS 0 (requête PC non applicable dans ce navigateur)';
+        result.dataset.status = 'pass';
+        return;
+      }
+      app.eval(`
+        localStorage.removeItem('belote_history');
+        resetGameProgress();
+        S.pos = {nord:'Christophe',sud:'Cynthia',est:'Eric',ouest:'Daniel'};
+        S.t1 = {name:'Christophe & Cynthia',players:['Christophe','Cynthia']};
+        S.t2 = {name:'Eric & Daniel',players:['Eric','Daniel']};
+        S.gameMode = 'points'; S.winningPts = 2001; S.dealerIdx = 0;
+        showScreen('game'); initGameUI(); showTab('enjeu');
+      `);
+      for(const mode of ['fast', 'classic']) {
+        app.setInputMode(mode);
+        app.showTab('enjeu');
+        const tbl = el('ej-table-wrap').querySelector('svg') || el('ej-table-wrap');
+        const col = el('ej-right-col') || el('ej-score-wrap');
+        const left = rect(tbl).left;
+        const right = app.innerWidth - rect(col).right;
+        check(Math.abs(left - right) <= 40, mode + ' : table + colonne non centrées (gauche ' + Math.round(left) + ', droite ' + Math.round(right) + ')');
+        check(right >= 60, mode + ' : colonne de droite trop près du bord (' + Math.round(right) + 'px)');
+        const wrapBg = app.getComputedStyle(el('ej-score-wrap')).backgroundColor;
+        check(wrapBg === 'rgba(0, 0, 0, 0)' || wrapBg === 'transparent', mode + ' : fond commun encore visible entre les cases (' + wrapBg + ')');
+        const teams = el('ej-score-wrap').querySelectorAll('.score-team');
+        check(teams.length === 2 && rect(teams[1]).top - rect(teams[0]).bottom >= 12, mode + ' : espace entre les deux cases incorrect');
+        teams.forEach((team, i) => {
+          const name = team.querySelector('.t-name'), score = team.querySelector('.t-score');
+          check(rect(name).bottom <= rect(score).top + 2, mode + ' : case ' + (i+1) + ', le nom doit être au-dessus du score');
+          const nc = rect(name).left + rect(name).width / 2, sc = rect(score).left + rect(score).width / 2, tc = rect(team).left + rect(team).width / 2;
+          check(Math.abs(nc - tc) <= 6 && Math.abs(sc - tc) <= 6, mode + ' : case ' + (i+1) + ', nom et score non centrés');
+          check(parseFloat(app.getComputedStyle(name).fontSize) >= 15, mode + ' : nom d’équipe trop petit');
+        });
+      }
+      app.setInputMode('classic');
+      app.localStorage.removeItem('belote_autosave');
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message + ' ' + (error.stack||'').split('\n')[1];
+      result.dataset.status = 'error';
+    }
+    }, 300);
+  });
+</script>
+</body>
+</html>
