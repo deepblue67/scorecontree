@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests améliorations 01/11/2026 ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<!-- Cadre au format iPad portrait (834 × 1194), hors écran, pour vérifier les tableaux agrandis -->
+<iframe id="app" src="../index.html" style="position:absolute;left:-9999px;top:0;width:834px;height:1194px;border:0;"></iframe>
+<script>
+  // Couvre : bouton « Saisir le score » de Manche en cours (classique et rapide),
+  // alerte « dernière donne » (points et manches, masquée en correction),
+  // tableaux agrandis en iPad portrait, illustrations et textes de l'aide.
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+    const check = (condition, message) => { checks += 1; if(!condition) failures.push(message); };
+    const el = id => doc.getElementById(id);
+
+    const newGame = () => app.eval(`
+      localStorage.removeItem('belote_history');
+      resetGameProgress();
+      S.pos = {nord:'A',sud:'B',est:'C',ouest:'D'};
+      S.t1 = {name:'Alice & Bruno',players:['Alice','Bruno']};
+      S.t2 = {name:'Cécile & Denis',players:['Cécile','Denis']};
+      S.gameMode = 'points'; S.winningPts = 2001; S.dealerIdx = 0;
+      showScreen('game'); initGameUI(); showTab('enjeu');
+    `);
+    const setContract = (team, value, suit, key, contre) => app.eval(`
+      showTab('contrat'); selectPreneur('${team}'); selectSuit('${suit}','${key}','${key==='h'||key==='d'?'red':'dark'}');
+      selectContre('${contre||'none'}'); setContractVal(${value}); confirmContract();
+    `);
+
+    setTimeout(() => {
+    try {
+      // ── Bouton « Saisir le score » sur Manche en cours ──
+      app.setInputMode('classic');
+      newGame();
+      setContract('t1', 100, '♥', 'h');
+      app.showMancheEnCours();
+      check(app.getActiveScreenName() === 'mancheencours', 'Manche en cours : écran non affiché');
+      const btn = el('mec-btn-saisie');
+      check(!!btn && btn.offsetParent !== null, 'Manche en cours : bouton « Saisir le score » absent ou masqué');
+      check(btn && /Saisir le score/.test(btn.textContent), 'Manche en cours : libellé du bouton incorrect');
+      btn.click();
+      check(app.getActiveScreenName() === 'game' && app.eval('currentGameTab') === 'saisie', 'Classique : le bouton doit ouvrir l’écran Résultat');
+      check(el('inp-pts-t1') && el('inp-pts-t1').offsetParent !== null, 'Classique : formulaire Résultat non visible');
+      check(!!el('mec-card-wrap').getAttribute('onclick').includes("showTab('enjeu')"), 'Manche en cours : la carte doit toujours ramener à la table');
+
+      app.setInputMode('fast');
+      app.showMancheEnCours();
+      check(!!el('mec-btn-saisie').querySelector('svg'), 'Rapide : icône dessinée attendue sur le bouton');
+      el('mec-btn-saisie').click();
+      check(app.eval('currentGameTab') === 'saisie' && el('fast-saisie').offsetParent !== null, 'Rapide : le bouton doit ouvrir le pavé Résultat');
+      app.eval('S.contract = null');
+      app.mecSaisirScore();
+      check(app.eval('currentGameTab') === 'enjeu', 'Sans contrat : le bouton doit ramener à la table');
+      app.setInputMode('classic');
+
+      // ── Points maximum d'une donne ──
+      let m = app.maxDealPoints({preneurTeam:'t1', value:100, suit:'♥', isCapot:false, contre:'none'});
+      check(m.t1 === 282 && m.t2 === 280, 'maxDealPoints 100 sans contre : ' + JSON.stringify(m));
+      m = app.maxDealPoints({preneurTeam:'t2', value:100, suit:'♥', isCapot:false, contre:'contre'});
+      check(m.t2 === 380 && m.t1 === 380, 'maxDealPoints 100 contré : ' + JSON.stringify(m));
+      m = app.maxDealPoints({preneurTeam:'t1', value:250, suit:'♠', isCapot:true, contre:'none'});
+      check(m.t1 === 520, 'maxDealPoints capot annoncé : ' + JSON.stringify(m));
+
+      // ── Alerte « dernière donne » ──
+      newGame();
+      app.eval('S.score = {t1:1700, t2:1000}');
+      setContract('t1', 100, '♥', 'h');
+      app.showTab('saisie'); app.updateSaisieForm();
+      check(!doc.querySelector('#contract-reminder .last-deal-alert'), 'Alerte affichée à tort (1700 + 282 < 2001)');
+      app.eval('S.score = {t1:1720, t2:1000}'); app.renderContractReminder();
+      const alertEl = doc.querySelector('#contract-reminder .last-deal-alert');
+      check(!!alertEl && alertEl.offsetParent !== null, 'Classique : alerte absente alors que 1720 + 282 ≥ 2001');
+      check(alertEl && /au point près/.test(alertEl.textContent), 'Alerte : texte incorrect');
+      app.eval('S.score = {t1:0, t2:1721}'); app.renderContractReminder();
+      check(!!doc.querySelector('#contract-reminder .last-deal-alert'), 'Alerte : la défense peut aussi gagner sur la chute');
+      app.setInputMode('fast'); app.updateSaisieForm();
+      check(!!doc.querySelector('#fast-last-deal .last-deal-alert') && el('fast-last-deal').offsetParent !== null, 'Rapide : alerte absente');
+      app.eval('S.score = {t1:0, t2:1530}'); app.renderFastSaisie();
+      check(el('fast-last-deal').innerHTML === '', 'Rapide : alerte non retirée');
+      app.fastSetContre('surcontre');
+      check(!!doc.querySelector('#fast-last-deal .last-deal-alert'), 'Rapide : un surcontre doit faire apparaître l’alerte (1530 + 480)');
+      app.setInputMode('classic');
+
+      // Mode manches
+      newGame();
+      app.eval("S.gameMode = 'manches'; S.winningManches = 3; S.manche = 2");
+      setContract('t1', 80, '♣', 'c');
+      app.showTab('saisie'); app.updateSaisieForm();
+      check(!doc.querySelector('#contract-reminder .last-deal-alert'), 'Manches : alerte à tort avant la dernière manche');
+      app.eval('S.manche = 3'); app.renderContractReminder();
+      const mAlert = doc.querySelector('#contract-reminder .last-deal-alert');
+      check(!!mAlert && /Dernière manche/.test(mAlert.textContent), 'Manches : alerte « Dernière manche » absente');
+
+      // Correction d'une ancienne donne : pas d'alerte
+      newGame();
+      setContract('t1', 100, '♥', 'h');
+      app.showTab('saisie'); app.updateSaisieForm();
+      el('inp-pts-t1').value = 110; el('inp-pts-t2').value = 50; app.calcAndPreview(); app.validateScore();
+      app.eval('S.score = {t1:1900, t2:100}');
+      app.openEdit(1);
+      check(!doc.querySelector('#contract-reminder .last-deal-alert'), 'Correction : l’alerte ne doit pas s’afficher');
+      app.cancelEditRound ? app.cancelEditRound() : app.showTab('enjeu');
+
+      // ── Tableaux en iPad portrait ──
+      const sz = app.getTableSizes();
+      check(sz.wide === true && sz.fsScore === '20px', 'iPad portrait : tailles agrandies non appliquées ' + JSON.stringify(sz));
+      newGame();
+      setContract('t1', 100, '♥', 'h');
+      app.showTab('saisie'); app.updateSaisieForm();
+      el('inp-pts-t1').value = 110; el('inp-pts-t2').value = 50; app.calcAndPreview(); app.validateScore();
+      app.renderFeuille();
+      const fh = el('feuille-content').textContent;
+      check(/Équipe preneuse/.test(fh) && /Résultat/.test(fh) && /Alice & Bruno/.test(fh), 'iPad portrait : en-têtes complets absents de la feuille');
+      app.renderHistory();
+      const firstTd = el('history-content').querySelector('tbody td:nth-child(5)');
+      check(firstTd && parseFloat(app.getComputedStyle(firstTd).fontSize) >= 20, 'iPad portrait : scores de l’historique trop petits');
+      const totTd = el('history-content').querySelector('tfoot td:nth-child(2)');
+      check(totTd && parseFloat(app.getComputedStyle(totTd).fontSize) >= 22, 'iPad portrait : total de l’historique trop petit');
+
+      // ── Aide ──
+      app.renderHelpContent();
+      const help = el('help-content');
+      check(help.querySelectorAll('svg').length >= 12, 'Aide : illustrations manquantes (' + help.querySelectorAll('svg').length + ')');
+      check(/4 bis\. Manche en cours/.test(help.textContent) && /Saisir le score/.test(help.textContent), 'Aide : partie « Manche en cours » absente');
+      check(/Dernière donne : au point près/.test(help.textContent), 'Aide : alerte de dernière donne non décrite');
+      check(!/onglet Score\)/.test(help.textContent), 'Aide : référence obsolète à l’onglet Score');
+
+      app.localStorage.removeItem('belote_history');
+      app.localStorage.removeItem('belote_autosave');
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message + ' ' + (error.stack||'').split('\n')[1];
+      result.dataset.status = 'error';
+    }
+    }, 300);
+  });
+</script>
+</body>
+</html>

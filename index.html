@@ -175,6 +175,11 @@
 #mec-card-wrap { cursor:pointer; border-radius:20px; animation:card-pulse 3.5s ease-in-out infinite; -webkit-tap-highlight-color:transparent; }
 #mec-card-wrap:active { transform:scale(0.96) !important; opacity:0.85; }
 #mec-card-svg { width:100%; height:auto; display:block; }
+#mec-center { display:flex; flex-direction:column; align-items:stretch; gap:10px; flex-shrink:0; }
+#mec-card-hint { text-align:center; margin-top:6px; font-size:11px; color:rgba(255,255,255,0.45); letter-spacing:.05em; }
+#mec-center #mec-btn-saisie { min-height:54px; border:none; border-radius:99px; background:var(--gold, #c8a84a); color:#2a1f14; font-family:inherit; font-size:17px; font-weight:900; display:flex; align-items:center; justify-content:center; gap:8px; padding:0 18px; box-shadow:0 3px 0 rgba(0,0,0,0.22); cursor:pointer; -webkit-tap-highlight-color:transparent; }
+#mec-center #mec-btn-saisie:active { transform:scale(0.97); filter:brightness(1.08); }
+#mec-center #mec-btn-saisie .fast-ico { width:22px; height:22px; }
 
 /* Composants visuels partagés (couleurs/styles, pas de tailles) */
 .screen { display:none; flex-direction:column; flex:1; }
@@ -320,6 +325,21 @@ body.fast-input #tab-saisie > :not(#fast-saisie) { display:none !important; }
 .fast-panel .fast-validate { min-height:54px; font-size:17px; font-weight:900; }
 .fast-panel .fast-validate:disabled { opacity:.45; }
 #fast-edit-banner:empty { display:none; }
+/* Alerte « dernière donne » : comptage au point près */
+#fast-last-deal:empty { display:none; }
+.last-deal-alert { display:flex; align-items:center; justify-content:center; gap:8px; background:#fff4d6; border:2px solid #c8960a; color:#6b4e00; border-radius:12px; padding:8px 12px; font-size:14px; font-weight:800; text-align:center; line-height:1.25; }
+/* Saisie classique : l'alerte se place à droite dans le rappel du contrat (pas de ligne en plus) */
+#contract-reminder .last-deal-alert { margin-left:auto; flex:0 1 46%; max-width:340px; font-size:13px; padding:8px 10px; }
+#contract-reminder .last-deal-alert .ld-long { display:none; }
+#contract-reminder .last-deal-alert .ld-short { display:inline; }
+.last-deal-alert .ld-ico { font-size:18px; line-height:1; flex-shrink:0; }
+.last-deal-alert .ld-short { display:none; }
+@media (max-width: 599px) and (orientation: portrait) {
+  .last-deal-alert .ld-long { display:none; }
+  .last-deal-alert .ld-short { display:inline; }
+  #contract-reminder .last-deal-alert { flex-basis:44%; font-size:11px; padding:6px 8px; gap:5px; border-radius:10px; }
+  #contract-reminder .last-deal-alert .ld-ico { font-size:14px; }
+}
 .fast-edit-banner { background:#fff4d6; border:1.5px solid #c8960a; color:#6b4e00; border-radius:10px; padding:7px 12px; font-size:13px; font-weight:700; text-align:center; }
 .undo-toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%); z-index:10000; display:flex; align-items:center; gap:12px; background:rgba(20,20,20,0.92); color:#fff; padding:8px 8px 8px 18px; border-radius:99px; font-size:14px; font-weight:600; box-shadow:0 4px 18px rgba(0,0,0,0.35); max-width:calc(100vw - 24px); transition:opacity .3s; }
 .undo-toast button { border:none; border-radius:99px; background:var(--gold); color:#2a1f14; font-weight:900; font-size:14px; padding:9px 16px; font-family:inherit; cursor:pointer; white-space:nowrap; }
@@ -360,6 +380,10 @@ body.fast-input #tab-saisie > :not(#fast-saisie) { display:none !important; }
   .fast-panel .fast-key { height:38px; font-size:20px; border-radius:10px; }
   .fast-panel .fast-key-alt { font-size:13px; }
   .fast-panel .fast-cancel, .fast-panel .fast-validate { min-height:40px; font-size:14px; }
+  .last-deal-alert { padding:3px 10px; font-size:12px; border-width:1.5px; border-radius:9px; }
+  .last-deal-alert .ld-ico { font-size:14px; }
+  .last-deal-alert .ld-long { display:none; }
+  .last-deal-alert .ld-short { display:inline; }
 }
 @media (min-width: 768px) and (min-height: 700px) {
   .fast-panel { max-width:720px; gap:14px; }
@@ -390,6 +414,8 @@ body.fast-input #tab-saisie > :not(#fast-saisie) { display:none !important; }
   .fast-panel .fast-key { height:72px; font-size:32px; border-radius:18px; }
   .fast-panel .fast-key-alt { font-size:18px; }
   .fast-panel .fast-cancel, .fast-panel .fast-validate { min-height:64px; font-size:20px; }
+  .last-deal-alert { font-size:18px; padding:12px 16px; }
+  .last-deal-alert .ld-ico { font-size:24px; }
 }
 @media (min-width: 768px) and (min-height: 700px) and (orientation: landscape) {
   .fast-panel { max-width:1180px; }
@@ -1005,8 +1031,8 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   #tab-saisie .card { overflow:visible !important; margin-bottom:10px !important; }
   #tab-saisie #contract-reminder > div { padding:5px 10px !important; flex-direction:row !important; align-items:center !important; gap:8px !important; border-radius:8px !important; }
   #tab-saisie #contract-reminder > div > div:first-child { font-size:22px !important; }
-  #tab-saisie #contract-reminder > div > div:last-child > div:first-child { font-size:14px !important; }
-  #tab-saisie #contract-reminder > div > div:last-child > div:last-child { font-size:11px !important; margin-top:1px !important; }
+  #tab-saisie #contract-reminder > div > div:nth-child(2) > div:first-child { font-size:14px !important; }
+  #tab-saisie #contract-reminder > div > div:nth-child(2) > div:last-child { font-size:11px !important; margin-top:1px !important; }
   #tab-saisie .card-title { display:none !important; }
   #tab-saisie .card { padding:6px 10px !important; gap:0 !important; }
   #tab-saisie .card > div[style*="grid"] { gap:8px !important; }
@@ -1184,9 +1210,13 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 
   /* Historique */
   .hi-contract { font-size:16px; }
-  #history-content table td, #history-content table th { font-size:13px !important; padding:7px 6px !important; }
-  #history-content table td:nth-child(5), #history-content table td:nth-child(6) { font-size:15px !important; }
-  #history-content table tfoot td { font-size:16px !important; }
+  /* Même lisibilité que la feuille en cours (noms complets, texte plus grand) */
+  #history-content table th { font-size:15px !important; padding:10px 8px !important; }
+  #history-content table td { font-size:16px !important; padding:10px 8px !important; }
+  #history-content table td:nth-child(2) { font-size:18px !important; }
+  #history-content table td:nth-child(5), #history-content table td:nth-child(6) { font-size:20px !important; }
+  #history-content table tfoot td:nth-child(n) { font-size:22px !important; }
+  #history-content table td:nth-child(7) button, #history-content table td:nth-child(8) button { font-size:15px !important; padding:4px 8px !important; }
   #history-title { font-size:15px !important; }
 
   /* Manche en cours */
@@ -1649,8 +1679,8 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   /* Bandeau contrat en haut */
   #tab-saisie #contract-reminder > div { padding: 12px 20px !important; gap: 16px !important; border-radius: 12px !important; }
   #tab-saisie #contract-reminder > div > div:first-child { font-size: 48px !important; }
-  #tab-saisie #contract-reminder > div > div:last-child > div:first-child { font-size: 32px !important; font-weight: 900 !important; }
-  #tab-saisie #contract-reminder > div > div:last-child > div:last-child { font-size: 22px !important; margin-top: 4px !important; }
+  #tab-saisie #contract-reminder > div > div:nth-child(2) > div:first-child { font-size: 32px !important; font-weight: 900 !important; }
+  #tab-saisie #contract-reminder > div > div:nth-child(2) > div:last-child { font-size: 22px !important; margin-top: 4px !important; }
 
   /* Noms des équipes */
   #lbl-pts-t1, #lbl-pts-t2 { font-size: 20px !important; white-space: normal !important; overflow: visible !important; }
@@ -1984,6 +2014,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
             </div>
           </div>
           <div id="fast-edit-banner"></div>
+          <div id="fast-last-deal"></div>
           <div class="fast-grid-2 fast-score-boxes">
             <div id="fast-box-t1" class="fast-score-box">
               <button type="button" class="fast-box-head" onclick="fastSetTarget('t1')">
@@ -2290,7 +2321,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_1620</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_1800</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -2527,9 +2558,13 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
       <!-- Joueur qui commence -->
       <div id="mec-first-player" style="width:100%;background:rgba(0,0,0,0.2);border-radius:12px;padding:10px 16px;margin-bottom:0;"></div>
       <!-- Carte SVG -->
-      <div id="mec-card-wrap" onclick="showScreen('game');showTab('enjeu');" title="Retour à la table">
-        <svg id="mec-card-svg" viewBox="0 0 240 340" xmlns="http://www.w3.org/2000/svg"></svg>
-        <div style="text-align:center;margin-top:8px;font-size:11px;color:rgba(255,255,255,0.45);letter-spacing:.05em;">Appuyer pour retourner à la table</div>
+      <div id="mec-center">
+        <div id="mec-card-wrap" onclick="showScreen('game');showTab('enjeu');" title="Retour à la table">
+          <svg id="mec-card-svg" viewBox="0 0 240 340" xmlns="http://www.w3.org/2000/svg"></svg>
+          <div id="mec-card-hint">Toucher la carte : retour à la table</div>
+        </div>
+        <!-- Raccourci : saisie du score sans repasser par la table -->
+        <button id="mec-btn-saisie" type="button" onclick="mecSaisirScore()">📊 Saisir le score</button>
       </div>
       <!-- Scores -->
       <div id="mec-scores">
@@ -3253,7 +3288,54 @@ function updateSaisieForm() {
   }
 }
 
+// ── Alerte « dernière donne » ───────────────────────────────
+// Points : une équipe peut atteindre l'objectif sur cette donne (contrat fait ou chuté,
+// belote comprise ; le capot non annoncé n'est pas compté). Manches : dernière manche.
+function maxDealPoints(c) {
+  if(!c) return { t1:0, t2:0 };
+  const preT1 = c.preneurTeam === 't1';
+  const mk = (pre, adv, belPre, belAdv, capPre) => calculateBeloteScore({
+    contract:c,
+    pts1Raw: preT1 ? pre : adv, pts2Raw: preT1 ? adv : pre,
+    bel1: preT1 ? belPre : belAdv, bel2: preT1 ? belAdv : belPre,
+    cap1: !!(capPre && preT1), cap2: !!(capPre && !preT1)
+  });
+  const cases = [mk(162, 0, true, false, false), mk(0, 162, false, true, false)];
+  if(c.isCapot) cases.push(mk(0, 0, true, false, true));
+  return {
+    t1: Math.max(...cases.map(r => Number(r.pts1) || 0)),
+    t2: Math.max(...cases.map(r => Number(r.pts2) || 0))
+  };
+}
+
+function lastDealAlertInfo() {
+  if(!S.contract || !S.t1 || !S.score) return null;
+  if(typeof editRoundCtx !== 'undefined' && editRoundCtx) return null; // correction d'une ancienne donne
+  if(S.gameMode === 'manches') {
+    const wm = S.winningManches || 10;
+    return S.manche >= wm ? { long:'Dernière manche : comptez au point près', short:'Dernière manche : au point près' } : null;
+  }
+  const target = S.winningPts || 2001;
+  const max = maxDealPoints(S.contract);
+  const can1 = (Number(S.score.t1) || 0) + max.t1 >= target;
+  const can2 = (Number(S.score.t2) || 0) + max.t2 >= target;
+  if(!can1 && !can2) return null;
+  return { long:'Dernière donne possible : comptez au point près', short:'Dernière donne : au point près' };
+}
+
+function lastDealAlertHtml() {
+  const info = lastDealAlertInfo();
+  if(!info) return '';
+  return `<div class="last-deal-alert" role="status"><span class="ld-ico">🎯</span><span class="ld-long">${info.long}</span><span class="ld-short">${info.short}</span></div>`;
+}
+
+function renderLastDealAlert() {
+  const html = lastDealAlertHtml();
+  const b = eid('fast-last-deal'); if(b) b.innerHTML = html;
+}
+
 function renderContractReminder() {
+  renderLastDealAlert();
   const el = eid('contract-reminder');
   if(!el) return;
   if(S.contract) {
@@ -3269,6 +3351,7 @@ function renderContractReminder() {
         <div style="font-size:26px;font-weight:900;color:#fff;line-height:1.1;">${c.isCapot?'Capot':c.value}${contreTxt}</div>
         <div style="font-size:20px;font-weight:700;color:#7ddd82;margin-top:6px;">🏆 ${escapeHtml(pTeam)}</div>
       </div>
+      ${lastDealAlertHtml()}
     </div>${editRoundCtx ? `<div id="edit-round-banner" style="background:#fff4d6;border:1.5px solid #c8960a;color:#6b4e00;border-radius:10px;padding:8px 12px;font-size:13px;font-weight:700;margin:-6px 0 12px;text-align:center;">✏️ Modification de la manche ${Number(editRoundCtx.manche)}${editRoundCtx.legacy ? '<br><span style="font-weight:600;font-size:12px;">Ressaisissez les points des cartes de cette donne</span>' : ''}</div>` : ''}`;
   } else {
     el.innerHTML = '<div style="background:rgba(255,68,68,0.2);border:2px solid rgba(255,68,68,0.6);border-radius:12px;padding:14px 18px;font-size:14px;font-weight:700;color:#ff6666;margin-bottom:14px;">⚠️ Aucun contrat saisi pour cette manche</div>';
@@ -3852,6 +3935,13 @@ function getTableSizes() {
     fsHeader:'17px', fsPad:'12px 10px', fsNum:'18px', fsContrat:'20px', fsPreneur:'18px',
     fsBadge:'15px', fsBadgePad:'4px 12px', fsScore:'22px', fsTotal:'24px', fsTotalLabel:'18px', fsTdPad:'12px 10px'
   };
+  // iPad portrait : même traitement (noms complets, texte plus grand), proportions adaptées à la largeur
+  const ipadPortrait = window.matchMedia('(min-width: 600px) and (orientation: portrait)').matches;
+  if(ipadPortrait) return {
+    wide: true,
+    fsHeader:'15px', fsPad:'10px 8px', fsNum:'16px', fsContrat:'18px', fsPreneur:'16px',
+    fsBadge:'14px', fsBadgePad:'3px 10px', fsScore:'20px', fsTotal:'22px', fsTotalLabel:'16px', fsTdPad:'10px 8px'
+  };
   if(iphoneLandscape) return {
     wide: true,
     fsHeader:'13px', fsPad:'6px', fsNum:'15px', fsContrat:'16px', fsPreneur:'14px',
@@ -3874,7 +3964,7 @@ function getTableSizes() {
   };
 }
 
-// En-têtes du tableau des donnes : complets en paysage iPhone / iPad
+// En-têtes du tableau des donnes : complets en paysage iPhone / iPad et en iPad portrait
 function roundTableHeaders(sizes) {
   const wide = !!(sizes && sizes.wide);
   const team = (name, key) => renderTeamHeader(wide ? escapeHtml(neutralizeTableMarkup(name)) : renderTeamInitials(name), key);
@@ -6429,8 +6519,10 @@ function showMancheEnCours() {
   const isLandscape = window.innerWidth > window.innerHeight;
   const isTablet = window.innerWidth >= 900 || window.innerHeight >= 900;
   if (isTablet && isLandscape) {
-    const availH = window.innerHeight - 140;
+    const btnH = 64, btnGap = 12; // bouton « Saisir le score » sous la carte
+    const availH = window.innerHeight - 140 - btnH - btnGap;
     const cardH = Math.min(availH, 480);
+    const colH = cardH + btnH + btnGap;
     const cardW = Math.round(cardH * 240/340);
     // Colonnes latérales : largeur proportionnelle à l'espace restant
     const sideW = Math.round((window.innerWidth - cardW - 32*4) / 2);
@@ -6439,17 +6531,20 @@ function showMancheEnCours() {
     eid('mec-body').style.cssText = 'display:flex;flex-direction:row;align-items:center;justify-content:center;gap:32px;padding:16px 24px 84px;flex:1;';
 
     // Colonne gauche : 2 boxes empilées, hauteur = hauteur de la carte
-    eid('mec-first-player').style.cssText = 'width:'+colW+'px;flex-shrink:0;flex-direction:column;gap:12px;display:flex;height:'+cardH+'px;';
+    eid('mec-first-player').style.cssText = 'width:'+colW+'px;flex-shrink:0;flex-direction:column;gap:12px;display:flex;height:'+colH+'px;';
     const fpd = eid('mec-fp-donneur');
     const fpp = eid('mec-fp-premier');
     if(fpd) fpd.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:rgba(0,0,0,0.28);border-radius:14px;padding:14px 16px;gap:6px;';
     if(fpp) fpp.style.cssText = 'flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:rgba(0,0,0,0.28);border-radius:14px;padding:14px 16px;gap:6px;';
 
     // Carte
-    eid('mec-card-wrap').style.cssText = 'flex:0 0 auto;width:'+cardW+'px;align-self:center;';
+    eid('mec-center').style.cssText = 'flex:0 0 auto;width:'+Math.max(cardW,220)+'px;align-self:center;gap:'+btnGap+'px;';
+    eid('mec-card-wrap').style.cssText = 'width:'+cardW+'px;align-self:center;';
+    eid('mec-btn-saisie').style.cssText = 'min-height:'+btnH+'px;font-size:20px;';
+    eid('mec-card-hint').style.cssText = '';
 
     // Colonne droite : 2 score-boxes, même hauteur que la carte
-    eid('mec-scores').style.cssText = 'width:'+colW+'px;flex-shrink:0;gap:12px;display:flex;flex-direction:column;height:'+cardH+'px;';
+    eid('mec-scores').style.cssText = 'width:'+colW+'px;flex-shrink:0;gap:12px;display:flex;flex-direction:column;height:'+colH+'px;';
     const st1 = eid('mec-st1');
     const st2 = eid('mec-st2');
     const scoreBoxStyle = 'flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:16px 20px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);border-radius:14px;gap:8px;';
@@ -6472,14 +6567,16 @@ function showMancheEnCours() {
   } else if (isLandscape && !isTablet) {
     // ── iPhone PAYSAGE : copie exacte de la logique iPad Pro, proportions réduites ──
     const chrome = 93; // header(44) + nav(49)
-    const cardH = Math.min(window.innerHeight - chrome - 8, 200);
+    const btnH = 44, btnGap = 6; // bouton « Saisir le score » sous la carte
+    const cardH = Math.min(window.innerHeight - chrome - 8 - btnH - btnGap, 200);
+    const colH = cardH + btnH + btnGap;
     const cardW = Math.round(cardH * 240/340);
     const sideW = Math.round((window.innerWidth - cardW - 12*4) / 2);
     const colW = Math.min(sideW, 200);
 
     eid('mec-body').style.cssText = 'display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;padding:4px 12px 52px;flex:1;';
 
-    eid('mec-first-player').style.cssText = 'width:'+colW+'px;flex-shrink:0;flex-direction:column;gap:8px;display:flex;height:'+cardH+'px;';
+    eid('mec-first-player').style.cssText = 'width:'+colW+'px;flex-shrink:0;flex-direction:column;gap:8px;display:flex;height:'+colH+'px;';
     const fpd = eid('mec-fp-donneur');
     const fpp = eid('mec-fp-premier');
     const boxStyle = 'flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:rgba(0,0,0,0.28);border-radius:10px;padding:8px;gap:4px;';
@@ -6492,9 +6589,12 @@ function showMancheEnCours() {
       if(divs[1]) divs[1].style.cssText = 'font-size:16px;font-weight:800;line-height:1.2;color:'+(bi===0?'#fff':'#f5a623')+';';
     });
 
-    eid('mec-card-wrap').style.cssText = 'flex:0 0 auto;width:'+cardW+'px;align-self:center;';
+    eid('mec-center').style.cssText = 'flex:0 0 auto;width:'+Math.max(cardW,170)+'px;align-self:center;gap:'+btnGap+'px;';
+    eid('mec-card-wrap').style.cssText = 'width:'+cardW+'px;align-self:center;';
+    eid('mec-btn-saisie').style.cssText = 'min-height:'+btnH+'px;font-size:15px;padding:0 10px;';
+    eid('mec-card-hint').style.cssText = 'font-size:9px;margin-top:3px;letter-spacing:0;';
 
-    eid('mec-scores').style.cssText = 'width:'+colW+'px;flex-shrink:0;gap:8px;display:flex;flex-direction:column;height:'+cardH+'px;';
+    eid('mec-scores').style.cssText = 'width:'+colW+'px;flex-shrink:0;gap:8px;display:flex;flex-direction:column;height:'+colH+'px;';
     const st1 = eid('mec-st1');
     const st2 = eid('mec-st2');
     const scoreBox = 'flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:8px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.12);border-radius:10px;gap:2px;';
@@ -6508,7 +6608,10 @@ function showMancheEnCours() {
     // Forcer padding-bottom suffisant pour voir les 2 scores
     eid('mec-body').style.cssText = 'padding-bottom:100px;';
     eid('mec-first-player').style.cssText = '';
+    eid('mec-center').style.cssText = '';
     eid('mec-card-wrap').style.cssText = '';
+    eid('mec-btn-saisie').style.cssText = '';
+    eid('mec-card-hint').style.cssText = '';
     eid('mec-scores').style.cssText = '';
     document.querySelectorAll('.mec-team-name').forEach(el => { el.style.cssText = ''; });
     document.querySelectorAll('.mec-team-score').forEach(el => { el.style.cssText = ''; });
@@ -6554,6 +6657,15 @@ function showMancheEnCours() {
   });
 
   showScreen('mancheencours');
+}
+
+// Bouton « Saisir le score » de Manche en cours : un appui de moins par donne
+function mecSaisirScore() {
+  if(!S.contract) { showScreen('game'); showTab('enjeu'); return; }
+  haptic('light');
+  showScreen('game');
+  showTab('saisie');
+  updateSaisieForm();
 }
 
 function initiales(name) {
@@ -7567,6 +7679,7 @@ const FAST_BUTTON_HTML = {
   'setup-settings-btn': () => fastSvg('gear', 'gear-ico'),
   'btn-action-contrat': () => fastSvg('pencil') + 'Contrat',
   'btn-action-saisie': () => fastSvg('chart') + 'Saisir score',
+  'mec-btn-saisie': () => fastSvg('chart') + 'Saisir le score',
   'btn-action-passe': () => fastSvg('skip') + 'Tout le monde passe',
   'btn-undo-last-round': () => fastSvg('undo') + 'Annuler la donne',
   'btn-end-game-table': () => fastSvg('flag') + 'Terminer la partie'
@@ -7727,6 +7840,7 @@ function computeFastSaisie() {
 
 function renderFastSaisie() {
   if(!eid('fast-saisie')) return;
+  renderLastDealAlert();
   const c = S.contract;
   const st = fastSaisie;
   const main = eid('fast-reminder-main');
@@ -8040,29 +8154,37 @@ function renderHelpContent() {
 
   // ── Écrans SVG illustrés ──────────────────────────────────
 
-  const svgReglages = `<svg viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-    <rect width="320" height="130" fill="#1a3318"/>
-    <rect x="12" y="10" width="296" height="110" rx="10" fill="#f5f2ea"/>
-    <!-- Titre -->
-    <text x="160" y="30" text-anchor="middle" font-size="13" font-weight="800" fill="#1a1a1a">⚙️ Réglages</text>
+  const svgReglages = `<svg viewBox="0 0 320 156" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" font-family="-apple-system,system-ui,sans-serif">
+    <rect width="320" height="156" fill="#1a3318"/>
+    <rect x="12" y="8" width="296" height="140" rx="10" fill="#f5f2ea"/>
+    <text x="160" y="27" text-anchor="middle" font-size="13" font-weight="800" fill="#1a1a1a">⚙️ Réglages</text>
     <!-- Joueurs -->
-    <rect x="20" y="38" width="280" height="22" rx="8" fill="#e8e4dc" stroke="#ccc" stroke-width="1"/>
-    <text x="30" y="53" font-size="10" fill="#555">👥 Liste des joueurs (29)</text>
+    <rect x="20" y="35" width="280" height="22" rx="8" fill="#e8e4dc"/>
+    <text x="30" y="50" font-size="10" fill="#555">👥 Liste des joueurs</text>
+    <text x="290" y="50" text-anchor="end" font-size="10" fill="#888">▼</text>
+    <!-- Saisie pendant le jeu -->
+    <rect x="20" y="62" width="280" height="26" rx="8" fill="#e8e4dc"/>
+    <text x="30" y="79" font-size="10" font-weight="700" fill="#1a1a1a">⚡ Saisie</text>
+    <rect x="150" y="66" width="144" height="18" rx="9" fill="#fff" stroke="#d8d3c8"/>
+    <rect x="152" y="68" width="70" height="14" rx="7" fill="transparent"/>
+    <text x="187" y="79" text-anchor="middle" font-size="9" fill="#888">Classique</text>
+    <rect x="222" y="68" width="70" height="14" rx="7" fill="#2e6b28"/>
+    <text x="257" y="79" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">⚡ Rapide</text>
     <!-- Mode fin -->
-    <rect x="20" y="66" width="280" height="22" rx="8" fill="#e8e4dc" stroke="#ccc" stroke-width="1"/>
-    <rect x="26" y="71" width="70" height="12" rx="6" fill="#2e6b28"/>
-    <text x="61" y="81" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">🏆 Points</text>
-    <rect x="100" y="71" width="70" height="12" rx="6" fill="rgba(0,0,0,0.08)"/>
-    <text x="135" y="81" text-anchor="middle" font-size="9" fill="#888">🔢 Manches</text>
-    <text x="190" y="81" font-size="10" font-weight="700" fill="#1a1a1a">2001</text>
-    <text x="218" y="81" font-size="9" fill="#888">pts</text>
+    <rect x="20" y="93" width="280" height="22" rx="8" fill="#e8e4dc"/>
+    <rect x="26" y="98" width="70" height="12" rx="6" fill="#2e6b28"/>
+    <text x="61" y="108" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">🏆 Points</text>
+    <rect x="100" y="98" width="70" height="12" rx="6" fill="rgba(0,0,0,0.08)"/>
+    <text x="135" y="108" text-anchor="middle" font-size="9" fill="#888">🔢 Manches</text>
+    <text x="190" y="108" font-size="10" font-weight="700" fill="#1a1a1a">2001</text>
+    <text x="218" y="108" font-size="9" fill="#888">pts</text>
     <!-- Thème -->
-    <rect x="20" y="94" width="82" height="20" rx="8" fill="#1a3318" stroke="#c8960a" stroke-width="2"/>
-    <text x="61" y="108" text-anchor="middle" font-size="9" fill="#fff">♠ Vert</text>
-    <rect x="108" y="94" width="82" height="20" rx="8" fill="#0a1a3a"/>
-    <text x="149" y="108" text-anchor="middle" font-size="9" fill="#fff">♠ Bleu</text>
-    <rect x="196" y="94" width="82" height="20" rx="8" fill="#2a0a0a"/>
-    <text x="237" y="108" text-anchor="middle" font-size="9" fill="#fff">♠ Rouge</text>
+    <rect x="20" y="121" width="88" height="20" rx="8" fill="#1a3318" stroke="#c8960a" stroke-width="2"/>
+    <text x="64" y="135" text-anchor="middle" font-size="9" fill="#fff">♠ Vert</text>
+    <rect x="116" y="121" width="88" height="20" rx="8" fill="#0a1a3a"/>
+    <text x="160" y="135" text-anchor="middle" font-size="9" fill="#fff">♠ Bleu</text>
+    <rect x="212" y="121" width="88" height="20" rx="8" fill="#2a0a0a"/>
+    <text x="256" y="135" text-anchor="middle" font-size="9" fill="#fff">♠ Rouge</text>
   </svg>`;
 
   const svgConfig = `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
@@ -8079,143 +8201,232 @@ function renderHelpContent() {
     <rect x="184" y="56" width="72" height="22" rx="8" fill="#1a3fa8"/>
     <text x="220" y="71" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">Anna — EST</text>
     <!-- Bouton commencer -->
-    <rect x="30" y="132" width="260" height="22" rx="11" fill="#2e6b28" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-    <text x="160" y="143" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Commencer la partie ▶</text>
-    <text x="160" y="152" text-anchor="middle" font-size="8" fill="#111">La partie se joue en 2001 points</text>
+    <rect x="30" y="128" width="260" height="28" rx="14" fill="#3a8c3f" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    <text x="160" y="140" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Commencer la partie ▶</text>
+    <text x="160" y="151" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,0.8)">La partie se joue en 2001 points</text>
   </svg>`;
 
-  const svgTable = `<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-    <rect width="320" height="170" fill="#1a3318"/>
-    <ellipse cx="160" cy="74" rx="86" ry="48" fill="#236020" stroke="#c8960a" stroke-width="2"/>
-    <rect x="112" y="12" width="96" height="24" rx="10" fill="#123512"/>
-    <text x="160" y="28" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Marie</text>
-    <rect x="112" y="112" width="96" height="24" rx="10" fill="#123512"/>
-    <text x="160" y="128" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Paul</text>
-    <rect x="18" y="62" width="88" height="24" rx="10" fill="#0d3978"/>
-    <text x="62" y="78" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Luc</text>
-    <rect x="214" y="62" width="88" height="24" rx="10" fill="#0d3978"/>
-    <text x="258" y="78" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Anna</text>
-    <text x="160" y="64" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">Appuyez sur un joueur</text>
-    <text x="160" y="79" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.85)">pour permuter avec son partenaire</text>
-    <rect x="14" y="142" width="140" height="18" rx="9" fill="#c8960a"/>
-    <text x="84" y="155" text-anchor="middle" font-size="9" font-weight="800" fill="#111">Annuler derniere donne</text>
-    <rect x="166" y="142" width="140" height="18" rx="9" fill="#2e6b28"/>
-    <text x="236" y="155" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">Saisir score</text>
+  const svgTable = `<svg viewBox="0 0 320 214" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" font-family="-apple-system,system-ui,sans-serif">
+    <rect width="320" height="214" fill="#2e6b28"/>
+    <!-- Table -->
+    <rect x="62" y="8" width="196" height="118" rx="10" fill="#2a6226" stroke="#c8a84a" stroke-width="2"/>
+    <rect x="126" y="13" width="68" height="24" rx="7" fill="#1f5a33" stroke="rgba(255,255,255,0.25)"/><text x="160.0" y="25" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Marie</text><text x="160.0" y="33" text-anchor="middle" font-size="6" font-weight="700" fill="rgba(255,255,255,0.65)" letter-spacing="1">NORD</text>
+    <rect x="126" y="97" width="68" height="24" rx="7" fill="#1f5a33" stroke="rgba(255,255,255,0.25)"/><text x="160.0" y="109" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Paul</text><text x="160.0" y="117" text-anchor="middle" font-size="6" font-weight="700" fill="rgba(255,255,255,0.65)" letter-spacing="1">SUD</text>
+    <circle cx="202" cy="109" r="7" fill="#c8a84a"/><text x="202" y="112" text-anchor="middle" font-size="8" font-weight="900" fill="#2a1f14">D</text>
+    <rect x="68" y="55" width="54" height="24" rx="7" fill="#17407a" stroke="rgba(255,255,255,0.25)"/><text x="95.0" y="67" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Luc</text><text x="95.0" y="75" text-anchor="middle" font-size="6" font-weight="700" fill="rgba(255,255,255,0.65)" letter-spacing="1">OUEST</text>
+    <rect x="198" y="55" width="54" height="24" rx="7" fill="#17407a" stroke="rgba(255,255,255,0.25)"/><text x="225.0" y="67" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Anna</text><text x="225.0" y="75" text-anchor="middle" font-size="6" font-weight="700" fill="rgba(255,255,255,0.65)" letter-spacing="1">EST</text>
+    <!-- Carte du contrat -->
+    <rect x="143" y="42" width="34" height="48" rx="5" fill="#faf6ee" stroke="#c8a84a"/>
+    <text x="160" y="62" text-anchor="middle" font-size="12" font-weight="900" fill="#111">110</text>
+    <text x="160" y="80" text-anchor="middle" font-size="14" fill="#111">♣</text>
+    <!-- Scores -->
+    <rect x="14" y="134" width="144" height="38" rx="8" fill="rgba(0,0,0,0.22)" stroke="#3a8c3f" stroke-width="1.5"/>
+    <text x="86" y="145" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(255,255,255,0.75)" letter-spacing=".5">MARIE &amp; PAUL</text>
+    <text x="86" y="161" text-anchor="middle" font-size="16" font-weight="900" fill="#fff">480</text>
+    <text x="86" y="169" text-anchor="middle" font-size="6" fill="rgba(255,255,255,0.6)">manque 1521</text>
+    <rect x="128" y="129" width="26" height="11" rx="5.5" fill="#c8a84a"/><text x="141" y="137" text-anchor="middle" font-size="7" font-weight="900" fill="#2a1f14">+250</text>
+    <rect x="162" y="134" width="144" height="38" rx="8" fill="rgba(0,0,0,0.22)"/>
+    <text x="234" y="145" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(255,255,255,0.75)" letter-spacing=".5">ANNA &amp; LUC</text>
+    <text x="234" y="161" text-anchor="middle" font-size="16" font-weight="900" fill="#fff">50</text>
+    <text x="234" y="169" text-anchor="middle" font-size="6" fill="rgba(255,255,255,0.6)">manque 1951</text>
+    <!-- Actions -->
+    <rect x="14" y="179" width="144" height="15" rx="7.5" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.45)"/>
+    <text x="86" y="190" text-anchor="middle" font-size="8" font-weight="800" fill="#fff">✏️ Contrat</text>
+    <rect x="162" y="179" width="144" height="15" rx="7.5" fill="rgba(255,255,255,0.12)" stroke="#9fe0a3" stroke-width="1.5"/>
+    <text x="234" y="190" text-anchor="middle" font-size="8" font-weight="800" fill="#fff">📊 Saisir score</text>
+    <rect x="14" y="197" width="144" height="14" rx="7" fill="none" stroke="rgba(255,255,255,0.35)"/>
+    <text x="86" y="207" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fff">↩ Annuler la donne</text>
+    <rect x="162" y="197" width="144" height="14" rx="7" fill="none" stroke="rgba(255,255,255,0.35)"/>
+    <text x="234" y="207" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fff">🏁 Terminer la partie</text>
   </svg>`;
 
-  const svgContrat = `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-    <rect width="320" height="160" fill="#f5f2ea"/>
-    <text x="16" y="22" font-size="10" font-weight="800" fill="#888" letter-spacing="1">CONTRAT</text>
-    <!-- Équipes -->
-    <rect x="16" y="28" width="132" height="28" rx="10" fill="#e8e4dc"/>
-    <text x="82" y="46" text-anchor="middle" font-size="11" font-weight="700" fill="#1a1a1a">Marie &amp; Paul</text>
-    <rect x="156" y="28" width="148" height="28" rx="10" fill="#e8e4dc"/>
-    <text x="230" y="46" text-anchor="middle" font-size="11" fill="#555">Anna &amp; Luc</text>
-    <!-- Valeur -->
-    <rect x="16" y="62" width="288" height="32" rx="10" fill="#e8e4dc"/>
-    <text x="44" y="83" text-anchor="middle" font-size="20" fill="#888">−</text>
-    <text x="160" y="84" text-anchor="middle" font-size="18" font-weight="800" fill="#1a1a1a">100</text>
-    <text x="276" y="83" text-anchor="middle" font-size="20" fill="#888">+</text>
-    <!-- Boutons valeurs -->
-    <rect x="16" y="100" width="36" height="18" rx="9" fill="white" stroke="#ddd" stroke-width="1"/>
-    <text x="34" y="113" text-anchor="middle" font-size="9" fill="#555">80</text>
-    <rect x="56" y="100" width="36" height="18" rx="9" fill="white" stroke="#ddd" stroke-width="1"/>
-    <text x="74" y="113" text-anchor="middle" font-size="9" fill="#555">100</text>
-    <rect x="96" y="100" width="36" height="18" rx="9" fill="white" stroke="#ddd" stroke-width="1"/>
-    <text x="114" y="113" text-anchor="middle" font-size="9" fill="#555">120</text>
-    <rect x="136" y="100" width="36" height="18" rx="9" fill="white" stroke="#ddd" stroke-width="1"/>
-    <text x="154" y="113" text-anchor="middle" font-size="9" fill="#555">Capot</text>
-    <!-- Couleurs -->
-    <text x="42" y="138" text-anchor="middle" font-size="18" fill="#cc2222">♥</text>
-    <text x="96" y="138" text-anchor="middle" font-size="18" fill="#cc2222">♦</text>
-    <text x="150" y="138" text-anchor="middle" font-size="18" fill="#1a1a1a">♣</text>
-    <text x="204" y="138" text-anchor="middle" font-size="18" fill="#1a1a1a">♠</text>
-    <!-- Contre -->
-    <rect x="228" y="122" width="76" height="20" rx="10" fill="#2e6b28"/>
-    <text x="266" y="136" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">Aucun</text>
-    <!-- Confirmer -->
-    <rect x="16" y="140" width="288" height="16" rx="8" fill="#2e6b28"/>
-    <text x="160" y="151" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">✓ Confirmer le contrat</text>
+  const svgContrat = `<svg viewBox="0 0 320 196" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" font-family="-apple-system,system-ui,sans-serif">
+    <rect width="320" height="196" fill="#2e6b28"/>
+    <rect x="8" y="6" width="304" height="152" rx="10" fill="#f5f2ea"/>
+    <text x="16" y="20" font-size="8" font-weight="800" fill="#888" letter-spacing="1">CONTRAT · ÉQUIPE PRENEUSE</text>
+    <rect x="16" y="25" width="140" height="18" rx="9.0" fill="#2e6b28" stroke="#2e6b28"/><text x="86.0" y="37.24" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">Marie &amp; Paul</text>
+    <rect x="164" y="25" width="140" height="18" rx="9.0" fill="#fff" stroke="#d8d3c8"/><text x="234.0" y="37.24" text-anchor="middle" font-size="9" font-weight="600" fill="#1a1a1a">Anna &amp; Luc</text>
+    <rect x="16" y="49" width="288" height="20" rx="10" fill="#e8e4dc"/>
+    <text x="34" y="63" text-anchor="middle" font-size="13" fill="#888">−</text>
+    <text x="160" y="64" text-anchor="middle" font-size="13" font-weight="900" fill="#1a1a1a">110</text>
+    <text x="286" y="63" text-anchor="middle" font-size="13" fill="#888">+</text>
+    <rect x="16" y="74" width="52" height="16" rx="8.0" fill="#fff" stroke="#d8d3c8"/><text x="42.0" y="84.88" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">90</text><rect x="74" y="74" width="52" height="16" rx="8.0" fill="#fff" stroke="#d8d3c8"/><text x="100.0" y="84.88" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">100</text><rect x="132" y="74" width="52" height="16" rx="8.0" fill="#2e6b28" stroke="#2e6b28"/><text x="158.0" y="84.88" text-anchor="middle" font-size="8" font-weight="800" fill="#fff">110</text><rect x="190" y="74" width="52" height="16" rx="8.0" fill="#fff" stroke="#d8d3c8"/><text x="216.0" y="84.88" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">120</text><rect x="248" y="74" width="52" height="16" rx="8.0" fill="#fff" stroke="#d8d3c8"/><text x="274.0" y="84.88" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">130</text><rect x="16" y="94" width="52" height="16" rx="8.0" fill="#fff" stroke="#d8d3c8"/><text x="42.0" y="104.88" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">140</text><rect x="74" y="94" width="52" height="16" rx="8.0" fill="#fff" stroke="#d8d3c8"/><text x="100.0" y="104.88" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">150</text><rect x="132" y="94" width="52" height="16" rx="8.0" fill="#fff" stroke="#d8d3c8"/><text x="158.0" y="104.88" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">160</text><rect x="190" y="94" width="52" height="16" rx="8.0" fill="#fff" stroke="#d8d3c8"/><text x="216.0" y="104.88" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">170</text><rect x="248" y="94" width="52" height="16" rx="8.0" fill="#fff" stroke="#d8d3c8"/><text x="274.0" y="104.88" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">Capot</text>
+    <text x="16" y="124" font-size="8" font-weight="700" fill="#888">Couleur atout</text>
+    <circle cx="140" cy="121" r="9" fill="#fff" stroke="#d8d3c8"/><text x="140" y="125" text-anchor="middle" font-size="11" fill="#111">♠</text>
+    <circle cx="164" cy="121" r="9" fill="#fff" stroke="#d8d3c8"/><text x="164" y="125" text-anchor="middle" font-size="11" fill="#cc2222">♥</text>
+    <circle cx="188" cy="121" r="9" fill="#fff" stroke="#d8d3c8"/><text x="188" y="125" text-anchor="middle" font-size="11" fill="#cc2222">♦</text>
+    <circle cx="212" cy="121" r="9" fill="#fff" stroke="#2e6b28" stroke-width="2.5"/><text x="212" y="125" text-anchor="middle" font-size="11" fill="#111">♣</text>
+    <text x="16" y="146" font-size="8" font-weight="700" fill="#888">Contre</text>
+    <rect x="70" y="136" width="60" height="15" rx="7.5" fill="#2e6b28" stroke="#2e6b28"/><text x="100.0" y="146.38" text-anchor="middle" font-size="8" font-weight="800" fill="#fff">Aucun</text>
+    <rect x="136" y="136" width="70" height="15" rx="7.5" fill="#fff" stroke="#d8d3c8"/><text x="171.0" y="146.38" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">Contre ×2</text>
+    <rect x="212" y="136" width="86" height="15" rx="7.5" fill="#fff" stroke="#d8d3c8"/><text x="255.0" y="146.38" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">Surcontre ×3</text>
+    <rect x="8" y="166" width="150" height="24" rx="12" fill="#3a8c3f"/>
+    <text x="83" y="182" text-anchor="middle" font-size="9.5" font-weight="900" fill="#fff">✓ Confirmer le contrat</text>
+    <rect x="164" y="166" width="148" height="24" rx="12" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.4)"/>
+    <text x="238" y="182" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">Retour à la table</text>
   </svg>`;
 
-  const svgResultat = `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-    <rect width="320" height="160" fill="#f5f2ea"/>
-    <!-- Contrat -->
-    <rect x="16" y="10" width="288" height="28" rx="10" fill="#1a3318"/>
-    <text x="30" y="28" font-size="11" font-weight="700" fill="#fff">♥ 100 — 🏆 Marie &amp; Paul</text>
-    <!-- Toggle 160/170 -->
-    <text x="16" y="56" font-size="10" fill="#888">Total cartes :</text>
-    <rect x="88" y="44" width="36" height="16" rx="8" fill="#2e6b28"/>
-    <text x="106" y="56" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">160</text>
-    <rect x="128" y="44" width="36" height="16" rx="8" fill="white" stroke="#111" stroke-width="1"/>
-    <text x="146" y="56" text-anchor="middle" font-size="9" font-weight="700" fill="#111">170</text>
-    <!-- Steppers -->
-    <rect x="16" y="66" width="132" height="28" rx="10" fill="#e8e4dc"/>
-    <text x="30" y="84" font-size="16" fill="#888">−</text>
-    <text x="82" y="85" text-anchor="middle" font-size="16" font-weight="800" fill="#1a1a1a">230</text>
-    <text x="136" y="84" font-size="16" fill="#888">+</text>
-    <rect x="172" y="66" width="132" height="28" rx="10" fill="#e8e4dc"/>
-    <text x="186" y="84" font-size="16" fill="#888">−</text>
-    <text x="238" y="85" text-anchor="middle" font-size="16" font-weight="800" fill="#1a1a1a">40</text>
-    <text x="292" y="84" font-size="16" fill="#888">+</text>
-    <!-- Belote -->
-    <rect x="60" y="100" width="55" height="14" rx="7" fill="#e8e4dc"/>
-    <text x="88" y="111" text-anchor="middle" font-size="9" fill="#555">☐ Belote</text>
-    <rect x="200" y="100" width="55" height="14" rx="7" fill="#e8e4dc"/>
-    <text x="228" y="111" text-anchor="middle" font-size="9" fill="#555">☐ Belote</text>
-    <!-- Calculer -->
-    <rect x="16" y="120" width="288" height="18" rx="9" fill="#2e6b28"/>
-    <text x="160" y="133" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Calculer &amp; Prévisualiser</text>
-    <!-- Annuler -->
-    <rect x="16" y="142" width="288" height="14" rx="7" fill="#e8e4dc"/>
-    <text x="160" y="152" text-anchor="middle" font-size="9" fill="#888">Annuler</text>
+  const svgResultat = `<svg viewBox="0 0 320 196" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" font-family="-apple-system,system-ui,sans-serif">
+    <rect width="320" height="196" fill="#2e6b28"/>
+    <rect x="8" y="6" width="304" height="148" rx="10" fill="#f5f2ea"/>
+    <!-- Rappel du contrat + alerte dernière donne -->
+    <rect x="16" y="12" width="288" height="34" rx="9" fill="#1f5a1f"/>
+    <text x="34" y="36" text-anchor="middle" font-size="20" fill="#111">♣</text>
+    <text x="52" y="27" font-size="12" font-weight="900" fill="#fff">110</text>
+    <text x="52" y="40" font-size="9" font-weight="700" fill="#7ddd82">🏆 Marie &amp; Paul</text>
+    <rect x="160" y="18" width="138" height="22" rx="7" fill="#fff4d6" stroke="#c8960a" stroke-width="1.5"/>
+    <text x="229" y="32" text-anchor="middle" font-size="7" font-weight="800" fill="#6b4e00">🎯 Dernière donne : au point près</text>
+    <text x="104" y="60" font-size="8" fill="#888">Total cartes :</text>
+    <rect x="158" y="51" width="28" height="13" rx="6.5" fill="#2e6b28"/><text x="172" y="60.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#fff">160</text>
+    <rect x="190" y="51" width="28" height="13" rx="6.5" fill="#fff" stroke="#111"/><text x="204" y="60.5" text-anchor="middle" font-size="7.5" font-weight="700" fill="#111">170</text>
+    <text x="82" y="72" text-anchor="middle" font-size="7.5" font-weight="800" fill="#1a6b3c">MARIE &amp; PAUL</text>
+    <rect x="16" y="76" width="132" height="22" rx="11" fill="#e8e4dc"/>
+    <text x="28" y="91" text-anchor="middle" font-size="12" fill="#888">−</text>
+    <text x="82" y="92" text-anchor="middle" font-size="13" font-weight="800" fill="#1a1a1a">122</text>
+    <text x="136" y="91" text-anchor="middle" font-size="12" fill="#888">+</text>
+    <rect x="50" y="102" width="24" height="13" rx="6.5" fill="#e8e4dc" stroke="#bbb8b0"/><text x="62.0" y="111.5" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">−1</text><rect x="90" y="102" width="24" height="13" rx="6.5" fill="#e8e4dc" stroke="#bbb8b0"/><text x="102.0" y="111.5" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">+1</text>
+    <rect x="18" y="119" width="24" height="13" rx="6.5" fill="#e8e4dc" stroke="#bbb8b0"/><text x="30.0" y="128.5" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">80</text><rect x="44" y="119" width="24" height="13" rx="6.5" fill="#e8e4dc" stroke="#bbb8b0"/><text x="56.0" y="128.5" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">100</text><rect x="70" y="119" width="24" height="13" rx="6.5" fill="#e8e4dc" stroke="#bbb8b0"/><text x="82.0" y="128.5" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">120</text><rect x="96" y="119" width="24" height="13" rx="6.5" fill="#e8e4dc" stroke="#bbb8b0"/><text x="108.0" y="128.5" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">140</text>
+    <rect x="122" y="119" width="26" height="13" rx="6.5" fill="#e8f0fb" stroke="#1a5295"/><text x="135" y="128.5" text-anchor="middle" font-size="7" font-weight="800" fill="#1a5295">Capot</text>
+    <rect x="58" y="137" width="48" height="12" rx="6" fill="#e8e4dc"/><text x="82" y="146" text-anchor="middle" font-size="7.5" fill="#555">☐ Belote</text>
+    <text x="238" y="72" text-anchor="middle" font-size="7.5" font-weight="800" fill="#1a5295">ANNA &amp; LUC</text>
+    <rect x="172" y="76" width="132" height="22" rx="11" fill="#e8e4dc"/>
+    <text x="184" y="91" text-anchor="middle" font-size="12" fill="#888">−</text>
+    <text x="238" y="92" text-anchor="middle" font-size="13" font-weight="800" fill="#1a1a1a">40</text>
+    <text x="292" y="91" text-anchor="middle" font-size="12" fill="#888">+</text>
+    <rect x="206" y="102" width="24" height="13" rx="6.5" fill="#e8e4dc" stroke="#bbb8b0"/><text x="218.0" y="111.5" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">−1</text><rect x="246" y="102" width="24" height="13" rx="6.5" fill="#e8e4dc" stroke="#bbb8b0"/><text x="258.0" y="111.5" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">+1</text>
+    <rect x="174" y="119" width="24" height="13" rx="6.5" fill="#e8e4dc" stroke="#bbb8b0"/><text x="186.0" y="128.5" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">80</text><rect x="200" y="119" width="24" height="13" rx="6.5" fill="#e8e4dc" stroke="#bbb8b0"/><text x="212.0" y="128.5" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">100</text><rect x="226" y="119" width="24" height="13" rx="6.5" fill="#e8e4dc" stroke="#bbb8b0"/><text x="238.0" y="128.5" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">120</text><rect x="252" y="119" width="24" height="13" rx="6.5" fill="#e8e4dc" stroke="#bbb8b0"/><text x="264.0" y="128.5" text-anchor="middle" font-size="8" font-weight="600" fill="#1a1a1a">140</text>
+    <rect x="278" y="119" width="26" height="13" rx="6.5" fill="#e8f0fb" stroke="#1a5295"/><text x="291" y="128.5" text-anchor="middle" font-size="7" font-weight="800" fill="#1a5295">Capot</text>
+    <rect x="214" y="137" width="48" height="12" rx="6" fill="#e8e4dc"/><text x="238" y="146" text-anchor="middle" font-size="7.5" fill="#555">☐ Belote</text>
+    <rect x="8" y="160" width="304" height="16" rx="8" fill="#3a8c3f"/>
+    <text x="160" y="171.5" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">Calculer &amp; Prévisualiser</text>
+    <rect x="8" y="180" width="304" height="13" rx="6.5" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.35)"/>
+    <text x="160" y="189.5" text-anchor="middle" font-size="8" fill="#fff">Annuler</text>
   </svg>`;
 
-  const svgParties = `<svg viewBox="0 0 320 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+  const svgMancheEnCours = `<svg viewBox="0 0 320 196" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" font-family="-apple-system,system-ui,sans-serif">
+    <rect width="320" height="196" fill="#2e6b28"/>
+    <rect width="320" height="22" fill="#1e4a1c"/>
+    <text x="160" y="15" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Manche 3 en cours</text>
+    <!-- Colonne gauche -->
+    <rect x="10" y="32" width="84" height="64" rx="9" fill="rgba(0,0,0,0.28)"/>
+    <text x="52" y="56" text-anchor="middle" font-size="6.5" font-weight="700" fill="rgba(255,255,255,0.6)" letter-spacing="1">🃏 DONNEUR</text>
+    <text x="52" y="74" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">Paul</text>
+    <rect x="10" y="102" width="84" height="64" rx="9" fill="rgba(0,0,0,0.28)"/>
+    <text x="52" y="126" text-anchor="middle" font-size="6.5" font-weight="700" fill="rgba(255,255,255,0.6)" letter-spacing="1">🎯 PREMIER À JOUER</text>
+    <text x="52" y="144" text-anchor="middle" font-size="12" font-weight="800" fill="#f5a623">Anna</text>
+    <!-- Carte -->
+    <rect x="114" y="30" width="92" height="124" rx="9" fill="#faf6ee" stroke="#c8a84a" stroke-width="1.5"/>
+    <text x="124" y="44" text-anchor="middle" font-size="10" fill="#111">♣</text>
+    <text x="196" y="44" text-anchor="middle" font-size="10" fill="#111">♣</text>
+    <text x="160" y="80" text-anchor="middle" font-size="28" fill="#111">♣</text>
+    <text x="160" y="112" text-anchor="middle" font-size="22" font-weight="900" fill="#111">110</text>
+    <text x="160" y="128" text-anchor="middle" font-size="8" font-weight="700" fill="#5a3a0a">Marie</text>
+    <text x="160" y="138" text-anchor="middle" font-size="8" font-weight="700" fill="#5a3a0a">&amp; Paul</text>
+    <text x="160" y="164" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,0.55)">Toucher la carte : retour à la table</text>
+    <!-- Bouton Saisir le score -->
+    <rect x="108" y="170" width="104" height="20" rx="10" fill="#c8a84a"/>
+    <text x="160" y="184" text-anchor="middle" font-size="9" font-weight="900" fill="#2a1f14">📊 Saisir le score</text>
+    <!-- Scores -->
+    <rect x="226" y="32" width="84" height="64" rx="9" fill="rgba(58,140,63,0.3)" stroke="#3a8c3f" stroke-width="1.5"/>
+    <text x="268" y="56" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(255,255,255,0.85)">MARIE &amp; PAUL</text>
+    <text x="268" y="80" text-anchor="middle" font-size="20" font-weight="900" fill="#fff">480</text>
+    <rect x="226" y="102" width="84" height="64" rx="9" fill="rgba(0,0,0,0.25)"/>
+    <text x="268" y="126" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(255,255,255,0.85)">ANNA &amp; LUC</text>
+    <text x="268" y="150" text-anchor="middle" font-size="20" font-weight="900" fill="#fff">50</text>
+  </svg>`;
+
+  const svgSaisieRapide = `<svg viewBox="0 0 320 214" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" font-family="-apple-system,system-ui,sans-serif">
+    <rect width="320" height="214" fill="#1a3318"/>
+    <!-- Écran Contrat rapide -->
+    <rect x="8" y="6" width="148" height="202" rx="12" fill="#2e6b28"/>
+    <text x="82" y="20" text-anchor="middle" font-size="8.5" font-weight="900" fill="#fff">1 · Contrat</text>
+    <rect x="12" y="26" width="140" height="160" rx="9" fill="#f5f2ea"/>
+    <text x="16" y="36" font-size="5.5" font-weight="800" fill="#888" letter-spacing=".5">1 · ÉQUIPE PRENEUSE</text>
+    <rect x="16" y="40" width="64" height="14" rx="5" fill="#1a6b3c" stroke="#1a6b3c"/><text x="48.0" y="49.34" text-anchor="middle" font-size="6.5" font-weight="800" fill="#fff">Marie &amp; Paul</text>
+    <rect x="84" y="40" width="64" height="14" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="116.0" y="49.34" text-anchor="middle" font-size="6.5" font-weight="800" fill="#1a1a1a">Anna &amp; Luc</text>
+    <text x="16" y="61" font-size="5.5" font-weight="800" fill="#888" letter-spacing=".5">2 · HAUTEUR</text>
+    <rect x="16" y="64" width="30" height="12" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="31.0" y="72.52" text-anchor="middle" font-size="7" font-weight="800" fill="#1a1a1a">80</text><rect x="49" y="64" width="30" height="12" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="64.0" y="72.52" text-anchor="middle" font-size="7" font-weight="800" fill="#1a1a1a">90</text><rect x="82" y="64" width="30" height="12" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="97.0" y="72.52" text-anchor="middle" font-size="7" font-weight="800" fill="#1a1a1a">100</text><rect x="115" y="64" width="30" height="12" rx="5" fill="#2e6b28" stroke="#2e6b28"/><text x="130.0" y="72.52" text-anchor="middle" font-size="7" font-weight="800" fill="#fff">110</text><rect x="16" y="79" width="30" height="12" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="31.0" y="87.52" text-anchor="middle" font-size="7" font-weight="800" fill="#1a1a1a">120</text><rect x="49" y="79" width="30" height="12" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="64.0" y="87.52" text-anchor="middle" font-size="7" font-weight="800" fill="#1a1a1a">130</text><rect x="82" y="79" width="30" height="12" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="97.0" y="87.52" text-anchor="middle" font-size="7" font-weight="800" fill="#1a1a1a">140</text><rect x="115" y="79" width="30" height="12" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="130.0" y="87.52" text-anchor="middle" font-size="7" font-weight="800" fill="#1a1a1a">150</text><rect x="16" y="94" width="30" height="12" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="31.0" y="102.52" text-anchor="middle" font-size="7" font-weight="800" fill="#1a1a1a">160</text><rect x="49" y="94" width="30" height="12" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="64.0" y="102.52" text-anchor="middle" font-size="7" font-weight="800" fill="#1a1a1a">170</text><rect x="82" y="94" width="63" height="12" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="113.5" y="102.52" text-anchor="middle" font-size="7" font-weight="800" fill="#1a1a1a">Capot</text>
+    <text x="16" y="118" font-size="5.5" font-weight="800" fill="#888" letter-spacing=".5">3 · CONTRE (s'il y en a un)</text>
+    <rect x="16" y="122" width="42" height="12" rx="5" fill="#2e6b28" stroke="#2e6b28"/><text x="37.0" y="130.16" text-anchor="middle" font-size="6" font-weight="800" fill="#fff">Aucun</text><rect x="61" y="122" width="42" height="12" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="82.0" y="130.16" text-anchor="middle" font-size="6" font-weight="800" fill="#1a1a1a">Contre ×2</text><rect x="106" y="122" width="42" height="12" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="127.0" y="130.16" text-anchor="middle" font-size="6" font-weight="800" fill="#1a1a1a">Surc. ×3</text>
+    <text x="16" y="145" font-size="5.5" font-weight="800" fill="#2e6b28" letter-spacing=".5">4 · COULEUR — VALIDE LE CONTRAT</text>
+    <rect x="16" y="150" width="30" height="26" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="31.0" y="168.4" text-anchor="middle" font-size="15" font-weight="800" fill="#1a1a1a">♠</text><rect x="50" y="150" width="30" height="26" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="65.0" y="168.4" text-anchor="middle" font-size="15" font-weight="800" fill="#cc1f1f">♥</text><rect x="84" y="150" width="30" height="26" rx="5" fill="#fff" stroke="#d8d3c8"/><text x="99.0" y="168.4" text-anchor="middle" font-size="15" font-weight="800" fill="#cc1f1f">♦</text><rect x="118" y="150" width="30" height="26" rx="5" fill="#fff" stroke="#2e6b28"/><text x="133.0" y="168.4" text-anchor="middle" font-size="15" font-weight="800" fill="#1a1a1a">♣</text>
+    <rect x="12" y="190" width="140" height="14" rx="7" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.35)"/>
+    <text x="82" y="199.5" text-anchor="middle" font-size="6.5" font-weight="700" fill="#fff">Retour à la table</text>
+    <!-- Écran Résultat rapide -->
+    <rect x="164" y="6" width="148" height="202" rx="12" fill="#2e6b28"/>
+    <text x="238" y="20" text-anchor="middle" font-size="8.5" font-weight="900" fill="#fff">2 · Résultat</text>
+    <rect x="168" y="26" width="140" height="20" rx="7" fill="rgba(0,0,0,0.3)"/>
+    <text x="178" y="40" font-size="11" fill="#111">♣</text>
+    <text x="190" y="40" font-size="10" font-weight="900" fill="#fff">110</text>
+    <text x="212" y="39" font-size="6.5" font-weight="800" fill="#9fe0a3">Marie &amp; Paul</text>
+    <rect x="168" y="50" width="68" height="42" rx="7" fill="#f0ede6" stroke="#c8a84a" stroke-width="2"/>
+    <text x="202" y="60" text-anchor="middle" font-size="5.5" font-weight="800" fill="#1a6b3c">MARIE &amp; PAUL</text>
+    <text x="202" y="67" text-anchor="middle" font-size="5" fill="#5a4a38">Preneur · saisie</text>
+    <text x="202" y="85" text-anchor="middle" font-size="15" font-weight="900" fill="#1a6b3c">122</text>
+    <rect x="240" y="50" width="68" height="42" rx="7" fill="#f0ede6"/>
+    <text x="274" y="60" text-anchor="middle" font-size="5.5" font-weight="800" fill="#1a5295">ANNA &amp; LUC</text>
+    <text x="274" y="67" text-anchor="middle" font-size="5" fill="#5a4a38">Défense · auto</text>
+    <text x="274" y="85" text-anchor="middle" font-size="15" font-weight="900" fill="#1a5295">40</text>
+    <rect x="168" y="96" width="140" height="18" rx="7" fill="#2a7d2e"/>
+    <text x="176" y="108" font-size="7" font-weight="900" fill="#fff" letter-spacing=".5">FAIT</text>
+    <text x="262" y="108" text-anchor="middle" font-size="8" font-weight="800" fill="#fff">232 — 40</text>
+    <rect x="172" y="118" width="42" height="13" rx="5" fill="#f0ede6" stroke="none"/><text x="193.0" y="127.38" text-anchor="middle" font-size="8" font-weight="800" fill="#1a1a1a">1</text><rect x="218" y="118" width="42" height="13" rx="5" fill="#f0ede6" stroke="none"/><text x="239.0" y="127.38" text-anchor="middle" font-size="8" font-weight="800" fill="#1a1a1a">2</text><rect x="264" y="118" width="42" height="13" rx="5" fill="#f0ede6" stroke="none"/><text x="285.0" y="127.38" text-anchor="middle" font-size="8" font-weight="800" fill="#1a1a1a">3</text><rect x="172" y="134" width="42" height="13" rx="5" fill="#f0ede6" stroke="none"/><text x="193.0" y="143.38" text-anchor="middle" font-size="8" font-weight="800" fill="#1a1a1a">4</text><rect x="218" y="134" width="42" height="13" rx="5" fill="#f0ede6" stroke="none"/><text x="239.0" y="143.38" text-anchor="middle" font-size="8" font-weight="800" fill="#1a1a1a">5</text><rect x="264" y="134" width="42" height="13" rx="5" fill="#f0ede6" stroke="none"/><text x="285.0" y="143.38" text-anchor="middle" font-size="8" font-weight="800" fill="#1a1a1a">6</text><rect x="172" y="150" width="42" height="13" rx="5" fill="#f0ede6" stroke="none"/><text x="193.0" y="159.38" text-anchor="middle" font-size="8" font-weight="800" fill="#1a1a1a">7</text><rect x="218" y="150" width="42" height="13" rx="5" fill="#f0ede6" stroke="none"/><text x="239.0" y="159.38" text-anchor="middle" font-size="8" font-weight="800" fill="#1a1a1a">8</text><rect x="264" y="150" width="42" height="13" rx="5" fill="#f0ede6" stroke="none"/><text x="285.0" y="159.38" text-anchor="middle" font-size="8" font-weight="800" fill="#1a1a1a">9</text><rect x="172" y="166" width="42" height="13" rx="5" fill="#d9d3c6" stroke="none"/><text x="193.0" y="174.84" text-anchor="middle" font-size="6.5" font-weight="800" fill="#1a1a1a">Eff.</text><rect x="218" y="166" width="42" height="13" rx="5" fill="#f0ede6" stroke="none"/><text x="239.0" y="175.38" text-anchor="middle" font-size="8" font-weight="800" fill="#1a1a1a">0</text><rect x="264" y="166" width="42" height="13" rx="5" fill="#d9d3c6" stroke="none"/><text x="285.0" y="175.38" text-anchor="middle" font-size="8" font-weight="800" fill="#1a1a1a">⌫</text>
+    <rect x="168" y="186" width="44" height="16" rx="8" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.45)"/>
+    <text x="190" y="196.5" text-anchor="middle" font-size="6.5" font-weight="700" fill="#fff">Annuler</text>
+    <rect x="216" y="186" width="92" height="16" rx="8" fill="#c8a84a"/>
+    <text x="262" y="196.5" text-anchor="middle" font-size="7" font-weight="900" fill="#2a1f14">✓ Valider la manche</text>
+  </svg>`;
+
+  const svgParties = `<svg viewBox="0 0 320 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" font-family="-apple-system,system-ui,sans-serif">
     <rect width="320" height="165" fill="#2e6b28"/>
-    <!-- Sous-onglets -->
     <rect x="12" y="8" width="296" height="28" rx="12" fill="rgba(0,0,0,0.2)"/>
-    <rect x="16" y="11" width="140" height="22" rx="10" fill="#2e6b28"/>
+    <rect x="16" y="11" width="140" height="22" rx="10" fill="#3a8c3f"/>
     <text x="86" y="26" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">🗒 En cours</text>
     <text x="230" y="26" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.55)">📋 Historique</text>
-    <!-- Feuille de score -->
-    <rect x="12" y="42" width="296" height="82" rx="10" fill="#f5f2ea"/>
-    <text x="22" y="57" font-size="9" font-weight="800" fill="#888">MARIE &amp; PAUL vs ANNA &amp; LUC</text>
-    <line x1="22" x2="298" y1="62" y2="62" stroke="#e0ddd6" stroke-width="1"/>
-    <text x="22" y="74" font-size="9" fill="#aaa">#  Contrat   Pren.  Résult.  M&amp;P   A&amp;L</text>
-    <line x1="22" x2="298" y1="78" y2="78" stroke="#e0ddd6" stroke-width="1"/>
-    <text x="22" y="90" font-size="9" font-weight="700" fill="#1a1a1a">01  100 ♦   M&amp;P</text>
-    <rect x="148" y="82" width="28" height="12" rx="6" fill="#2e6b28"/>
-    <text x="162" y="92" text-anchor="middle" font-size="8" font-weight="800" fill="#fff">Fait</text>
-    <text x="210" y="90" font-size="9" font-weight="800" fill="#1a6b3c">230</text>
-    <text x="254" y="90" font-size="9" font-weight="800" fill="#cc2222">40</text>
-    <text x="288" y="90" font-size="10">✏️</text>
-    <line x1="22" x2="298" y1="95" y2="95" stroke="#e0ddd6" stroke-width="1"/>
-    <text x="22" y="108" font-size="9" font-weight="700" fill="#1a1a1a">Total manche</text>
-    <text x="210" y="108" font-size="9" font-weight="800" fill="#1a5295">230</text>
-    <text x="254" y="108" font-size="9" font-weight="800" fill="#1a5295">40</text>
-    <!-- Boutons -->
-    <rect x="12" y="130" width="140" height="18" rx="9" fill="#2e6b28"/>
-    <text x="82" y="143" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">📤 Partage texte</text>
-    <rect x="157" y="130" width="151" height="18" rx="9" fill="#c8960a"/>
-    <text x="232" y="143" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">📸 Partage image</text>
-    <rect x="12" y="152" width="296" height="10" rx="5" fill="rgba(255,255,255,0.15)" stroke="#111" stroke-width="1"/>
-    <text x="160" y="160" text-anchor="middle" font-size="7" font-weight="800" fill="#111">🏁 Terminer la partie</text>
+    <rect x="12" y="42" width="296" height="84" rx="10" fill="#f5f2ea"/>
+    <text x="22" y="56" font-size="8" font-weight="800" fill="#1a6b3c">MARIE &amp; PAUL</text>
+    <text x="84" y="56" font-size="7" fill="#888">vs</text>
+    <text x="96" y="56" font-size="8" font-weight="800" fill="#1a5295">ANNA &amp; LUC</text>
+    <text x="22" y="70" font-size="7.5" fill="#888">#</text><text x="36" y="70" font-size="7.5" fill="#888">Contrat</text>
+    <text x="100" y="70" text-anchor="middle" font-size="7.5" fill="#888">Pren.</text><text x="144" y="70" text-anchor="middle" font-size="7.5" fill="#888">Résult.</text>
+    <text x="214" y="70" text-anchor="end" font-size="7.5" font-weight="700" fill="#1a6b3c">Mar &amp; Pau</text><text x="258" y="70" text-anchor="end" font-size="7.5" font-weight="700" fill="#1a5295">Ann &amp; Luc</text>
+    <line x1="22" x2="298" y1="74" y2="74" stroke="#d8d3c8"/>
+    <text x="22" y="86" font-size="8" fill="#666">01</text><text x="36" y="86" font-size="8.5" font-weight="700" fill="#1a1a1a">100 <tspan fill="#cc2222">♥</tspan></text>
+    <text x="100" y="86" text-anchor="middle" font-size="7.5" font-weight="700" fill="#1a6b3c">Mar &amp; Pau</text>
+    <rect x="132" y="78" width="24" height="11" rx="3" fill="#2a7d2e"/><text x="144" y="86" text-anchor="middle" font-size="6.5" font-weight="800" fill="#fff">Fait</text>
+    <text x="214" y="86" text-anchor="end" font-size="9" font-weight="800" fill="#1a6b3c">230</text><text x="258" y="86" text-anchor="end" font-size="9" font-weight="800" fill="#1a5295">50</text>
+    <rect x="266" y="78" width="14" height="12" rx="3" fill="#e8e4dc"/><text x="273" y="87" text-anchor="middle" font-size="7">✏️</text>
+    <rect x="284" y="78" width="14" height="12" rx="3" fill="#fce8e8"/><text x="291" y="87" text-anchor="middle" font-size="7">🗑</text>
+    <text x="22" y="101" font-size="8" fill="#666">02</text><text x="36" y="101" font-size="8.5" font-weight="700" fill="#1a1a1a">90 ♠</text>
+    <text x="100" y="101" text-anchor="middle" font-size="7.5" font-weight="700" fill="#1a5295">Ann &amp; Luc</text>
+    <rect x="132" y="93" width="24" height="11" rx="3" fill="#cc1f1f"/><text x="144" y="101" text-anchor="middle" font-size="6.5" font-weight="800" fill="#fff">Chute</text>
+    <text x="214" y="101" text-anchor="end" font-size="9" font-weight="800" fill="#1a6b3c">250</text><text x="258" y="101" text-anchor="end" font-size="9" font-weight="800" fill="#aaa">0</text>
+    <rect x="266" y="93" width="14" height="12" rx="3" fill="#e8e4dc"/><text x="273" y="102" text-anchor="middle" font-size="7">✏️</text>
+    <rect x="284" y="93" width="14" height="12" rx="3" fill="#fce8e8"/><text x="291" y="102" text-anchor="middle" font-size="7">🗑</text>
+    <line x1="22" x2="298" y1="108" y2="108" stroke="#d8d3c8"/>
+    <text x="22" y="119" font-size="8.5" font-weight="800" fill="#1a1a1a">Total</text>
+    <text x="214" y="119" text-anchor="end" font-size="10" font-weight="900" fill="#1a6b3c">480</text><text x="258" y="119" text-anchor="end" font-size="10" font-weight="900" fill="#1a5295">50</text>
+    <rect x="12" y="132" width="144" height="16" rx="8" fill="#3a8c3f"/>
+    <text x="84" y="143" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fff">📤 Partage texte</text>
+    <rect x="164" y="132" width="144" height="16" rx="8" fill="#c8a84a"/>
+    <text x="236" y="143" text-anchor="middle" font-size="8.5" font-weight="700" fill="#2a1f14">📸 Partage image</text>
+    <rect x="12" y="151" width="296" height="12" rx="6" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.4)"/>
+    <text x="160" y="160" text-anchor="middle" font-size="7.5" font-weight="800" fill="#fff">🏁 Terminer la partie</text>
   </svg>`;
 
   const svgCorrection = `<svg viewBox="0 0 320 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
     <rect width="320" height="165" fill="#2e6b28"/>
     <rect x="18" y="14" width="284" height="62" rx="12" fill="#f5f2ea"/>
-    <text x="32" y="34" font-size="10" font-weight="900" fill="#888">DERNIERE DONNE</text>
+    <text x="32" y="34" font-size="10" font-weight="900" fill="#888">DERNIÈRE DONNE</text>
     <text x="32" y="50" font-size="12" font-weight="900" fill="#1a1a1a">Manche 2 · 100 ♥ · Contre x2</text>
-    <text x="32" y="65" font-size="10" fill="#555">Preneur : Anna &amp; Luc · Resultat : chute</text>
+    <text x="32" y="65" font-size="10" fill="#555">Preneur : Anna &amp; Luc · Résultat : chute</text>
     <rect x="18" y="88" width="136" height="54" rx="12" fill="#f5f2ea"/>
     <text x="86" y="108" text-anchor="middle" font-size="10" font-weight="900" fill="#1a1a1a">Modifier une donne</text>
     <text x="86" y="123" text-anchor="middle" font-size="9" fill="#555">✏️ depuis Parties</text>
-    <text x="86" y="136" text-anchor="middle" font-size="9" fill="#555">les scores suivants sont recalcules</text>
+    <text x="86" y="136" text-anchor="middle" font-size="9" fill="#555">scores suivants recalculés</text>
     <rect x="166" y="88" width="136" height="54" rx="12" fill="#f5f2ea"/>
     <text x="234" y="108" text-anchor="middle" font-size="10" font-weight="900" fill="#1a1a1a">Annuler</text>
-    <text x="234" y="123" text-anchor="middle" font-size="9" fill="#555">resume avant confirmation</text>
+    <text x="234" y="123" text-anchor="middle" font-size="9" fill="#555">résumé avant confirmation</text>
     <text x="234" y="136" text-anchor="middle" font-size="9" fill="#555">puis restauration du score</text>
   </svg>`;
 
@@ -8223,39 +8434,35 @@ function renderHelpContent() {
     <rect width="320" height="150" fill="#1a3318"/>
     <rect x="16" y="14" width="288" height="48" rx="12" fill="#f5f2ea"/>
     <text x="32" y="34" font-size="11" font-weight="900" fill="#1a1a1a">Application hors ligne</text>
-    <text x="32" y="50" font-size="10" fill="#555">Une mise a jour est proposee automatiquement</text>
+    <text x="32" y="50" font-size="10" fill="#555">Une mise à jour est proposée automatiquement</text>
     <rect x="16" y="76" width="288" height="54" rx="12" fill="#f5f2ea"/>
     <text x="32" y="96" font-size="11" font-weight="900" fill="#1a1a1a">Exporter / importer</text>
     <text x="32" y="112" font-size="10" fill="#555">Code texte, fichier JSON ou GitHub Gist</text>
-    <text x="32" y="126" font-size="10" fill="#555">Sauvegarde creee avant import</text>
+    <text x="32" y="126" font-size="10" fill="#555">Sauvegarde créée avant import</text>
   </svg>`;
 
-  const svgHistorique = `<svg viewBox="0 0 320 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+  const svgHistorique = `<svg viewBox="0 0 320 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" font-family="-apple-system,system-ui,sans-serif">
     <rect width="320" height="165" fill="#2e6b28"/>
-    <!-- Sous-onglets -->
     <rect x="12" y="8" width="296" height="28" rx="12" fill="rgba(0,0,0,0.2)"/>
     <text x="86" y="26" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.55)">🗒 En cours</text>
-    <rect x="158" y="11" width="146" height="22" rx="10" fill="#2e6b28"/>
-    <text x="231" y="26" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">📋 Historique</text>
-    <!-- Partie en cours -->
+    <rect x="164" y="11" width="140" height="22" rx="10" fill="#3a8c3f"/>
+    <text x="234" y="26" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">📋 Historique</text>
     <rect x="12" y="42" width="296" height="55" rx="10" fill="#f5f2ea"/>
-    <text x="22" y="56" font-size="9" font-weight="800" fill="#888">PARTIE EN COURS</text>
-    <text x="22" y="70" font-size="9" fill="#aaa">#  Contrat   Pren.  Résult.  M&amp;P  A&amp;L  ✏️ 🗑</text>
-    <line x1="22" x2="298" y1="74" y2="74" stroke="#e0ddd6" stroke-width="1"/>
-    <text x="22" y="86" font-size="9" font-weight="700" fill="#1a1a1a">01  100 ♦   M&amp;P</text>
-    <rect x="148" y="78" width="28" height="12" rx="6" fill="#2e6b28"/>
-    <text x="162" y="88" text-anchor="middle" font-size="8" fill="#fff">Fait</text>
-    <text x="200" y="86" font-size="9" font-weight="800" fill="#1a6b3c">230</text>
-    <text x="238" y="86" font-size="9" font-weight="800" fill="#cc2222">40</text>
-    <text x="268" y="86" font-size="10">✏️</text>
-    <text x="286" y="86" font-size="10">🗑</text>
-    <!-- Parties précédentes dépliables -->
+    <text x="22" y="56" font-size="8" font-weight="800" fill="#888">PARTIE EN COURS</text>
+    <text x="22" y="69" font-size="7.5" fill="#888">#   Contrat</text>
+    <text x="214" y="69" text-anchor="end" font-size="7.5" font-weight="700" fill="#1a6b3c">Mar &amp; Pau</text><text x="258" y="69" text-anchor="end" font-size="7.5" font-weight="700" fill="#1a5295">Ann &amp; Luc</text>
+    <line x1="22" x2="298" y1="73" y2="73" stroke="#d8d3c8"/>
+    <text x="22" y="86" font-size="8" fill="#666">01</text><text x="36" y="86" font-size="8.5" font-weight="700" fill="#1a1a1a">100 <tspan fill="#cc2222">♦</tspan></text>
+    <rect x="132" y="78" width="24" height="11" rx="3" fill="#2a7d2e"/><text x="144" y="86" text-anchor="middle" font-size="6.5" font-weight="800" fill="#fff">Fait</text>
+    <text x="214" y="86" text-anchor="end" font-size="9" font-weight="800" fill="#1a6b3c">230</text><text x="258" y="86" text-anchor="end" font-size="9" font-weight="800" fill="#1a5295">40</text>
+    <rect x="266" y="78" width="14" height="12" rx="3" fill="#e8e4dc"/><text x="273" y="87" text-anchor="middle" font-size="7">✏️</text>
+    <rect x="284" y="78" width="14" height="12" rx="3" fill="#fce8e8"/><text x="291" y="87" text-anchor="middle" font-size="7">🗑</text>
     <rect x="12" y="102" width="296" height="22" rx="8" fill="rgba(0,0,0,0.2)"/>
-    <text x="22" y="117" font-size="9" font-weight="800" fill="rgba(255,255,255,0.7)">📅 LUN. 12/05/2026 (2 PARTIES)</text>
+    <text x="22" y="117" font-size="9" font-weight="800" fill="rgba(255,255,255,0.75)">📅 DIM. 01/11/2026 (2 PARTIES)</text>
     <text x="290" y="117" text-anchor="middle" font-size="12" fill="rgba(255,255,255,0.6)">▼</text>
     <rect x="12" y="128" width="296" height="32" rx="8" fill="#fff"/>
-    <text x="22" y="142" font-size="10" font-weight="800" fill="#1a1a1a">🏆 Marie &amp; Paul</text>
-    <text x="22" y="154" font-size="9" fill="#888">Marie &amp; Paul 400 — Anna &amp; Luc 100 · 3 manches</text>
+    <text x="22" y="142" font-size="10" font-weight="800" fill="#1a6b3c">🏆 Marie &amp; Paul</text>
+    <text x="22" y="154" font-size="9" fill="#888">Marie &amp; Paul 2012 — Anna &amp; Luc 1480 · 14 manches</text>
     <text x="298" y="148" text-anchor="end" font-size="12" fill="#cc2222">✕</text>
   </svg>`;
 
@@ -8288,9 +8495,10 @@ function renderHelpContent() {
     section('⚙️', '1. Réglages — Avant de jouer', [
       step(1, 'Appuyez sur <strong>⚙️</strong> en haut à gauche pour ouvrir les Réglages.'),
       step(2, '<strong>Joueurs</strong> — ajoutez vos prénoms (mémorisés entre les parties). Dépliez/repliez la liste avec le bouton accordéon.'),
-      step(3, '<strong>Mode de fin de partie</strong> — choisissez <em>Points</em> (ex: 2001) ou <em>Manches</em> (ex: 10). Modifiable à tout moment avant de lancer.'),
-      step(4, '<strong>Version et mises à jour</strong> — la version est affichée en haut des Réglages. Si une nouvelle version existe, l\'application propose <strong>Mettre à jour</strong>.'),
-      step(5, '<strong>Thème du tapis</strong> — Vert, Bleu ou Rouge.'),
+      step(3, '<strong>Saisie pendant le jeu</strong> — <em>Classique</em> ou <em>Rapide</em> (voir la partie 5 bis), avec <strong>Garder l\'écran allumé</strong> et l\'affichage des points manquants et gagnés.'),
+      step(4, '<strong>Mode de fin de partie</strong> — choisissez <em>Points</em> (ex: 2001) ou <em>Manches</em> (ex: 10). Modifiable à tout moment avant de lancer.'),
+      step(5, '<strong>Version et mises à jour</strong> — la version est affichée en haut des Réglages. Si une nouvelle version existe, l\'application propose <strong>Mettre à jour</strong>.'),
+      step(6, '<strong>Thème du tapis</strong> — Vert, Bleu ou Rouge.'),
       tip('La synchronisation permet de transférer vos données par code texte, fichier JSON ou GitHub Gist. Avant un import, une sauvegarde locale de sécurité est créée.'),
     ].join(''), svgReglages) +
 
@@ -8304,7 +8512,7 @@ function renderHelpContent() {
 
     // ── 3. Table ──
     section('🃏', '3. Page Table — Pendant la partie', [
-      step(1, 'La table affiche les joueurs à leur place, le score des deux équipes, la manche en cours et le donneur.'),
+      step(1, 'La table affiche les joueurs à leur place, le donneur (pastille <strong>D</strong>), le contrat sur la carte centrale et le score des deux équipes.'),
       step(2, 'Sans contrat, la table propose <strong>Contrat</strong> et <strong>🤷 Tout le monde passe</strong> (aucun point, le joueur suivant distribue). Une fois le contrat confirmé, ce bouton devient <strong>Saisir score</strong>.'),
       step(3, '<strong>Annuler dernière donne</strong> reste visible : il est grisé si aucune donne ne peut être annulée.'),
       step(4, '<strong>Terminer la partie</strong> permet d\'arrêter manuellement la partie, même si l\'objectif n\'est pas atteint.'),
@@ -8321,11 +8529,19 @@ function renderHelpContent() {
       tip('La carte au centre de la table affiche le contrat. Appuyez dessus pour l\'agrandir avec tous les détails.'),
     ].join(''), svgContrat) +
 
+    // ── 4 bis. Manche en cours ──
+    section('🔎', '4 bis. Manche en cours', [
+      step(1, 'Touchez la carte au centre de la table : la grande carte affiche le contrat, l\'équipe preneuse, le <strong>donneur</strong> et le <strong>premier à jouer</strong>, avec les scores.'),
+      step(2, 'Une fois la donne jouée, <strong>📊 Saisir le score</strong> (sous la carte) ouvre directement l\'écran Résultat.'),
+      step(3, 'Touchez la carte pour revenir à la table.'),
+      note('En saisie rapide, cet écran s\'affiche tout seul dès que la couleur du contrat est choisie.'),
+    ].join(''), svgMancheEnCours) +
+
     // ── 5. Résultat ──
     section('📊', '5. Saisir le score (Résultat)', [
       step(1, 'Appuyez sur <strong>Résultat</strong> (grisé sans contrat).'),
       step(2, 'Entrez les points d\'une équipe (boutons ou clavier) — l\'autre se calcule automatiquement.'),
-      step(3, 'Utilisez le <strong>toggle 160/170</strong> pour ajuster le total, et <strong>−1 / +1</strong> pour compter au point près (dernière donne).'),
+      step(3, 'Utilisez le <strong>toggle 160/170</strong> pour ajuster le total, et <strong>−1 / +1</strong> pour compter au point près (dernière donne). Quand une équipe peut atteindre l\'objectif sur la donne, le bandeau <strong>🎯 Dernière donne : au point près</strong> le rappelle.'),
       step(4, 'Cochez <strong>Belote</strong> si annoncée (+20 pts).'),
       step(5, 'Appuyez sur <strong>Calculer &amp; Prévisualiser</strong> puis <strong>Valider</strong>. La donne est enregistrée directement.'),
       tip('Les scores rapides (80, 100, 120…) permettent une saisie en un tap. En cas d\'erreur, utilisez ensuite Modifier ou Annuler depuis les écrans prévus.'),
@@ -8334,14 +8550,14 @@ function renderHelpContent() {
     // ── 5 bis. Saisie rapide ──
     section('⚡', '5 bis. Saisie rapide (Réglages)', [
       step(1, 'Dans <strong>Réglages › Saisie pendant le jeu</strong>, choisissez <strong>Rapide</strong>. <strong>Classique</strong> remet la saisie habituelle à tout moment, sans rien perdre.'),
-      step(2, '<strong>Contrat</strong> : équipe, hauteur, contre s\'il y en a un, puis la <strong>couleur</strong> : toucher la couleur valide le contrat et affiche la grande carte <strong>Manche en cours</strong> (donneur, premier à jouer). Touchez la carte pour revenir à la table.'),
+      step(2, '<strong>Contrat</strong> : équipe, hauteur, contre s\'il y en a un, puis la <strong>couleur</strong> : toucher la couleur valide le contrat et affiche la grande carte <strong>Manche en cours</strong> (donneur, premier à jouer). <strong>Saisir le score</strong> ouvre ensuite le pavé ; toucher la carte ramène à la table.'),
       step(3, '<strong>Résultat</strong> : tapez les points sur le pavé (preneur par défaut, ou touchez l\'autre équipe pour saisir la défense). Le résultat FAIT / CHUTE s\'affiche en direct, puis un seul appui sur <strong>Valider</strong>.'),
       step(4, 'Un contre oublié se corrige en haut de l\'écran Résultat (Sans contre / Contre / Surcontre).'),
       step(5, 'Le bandeau du bas disparaît pendant la partie : <strong>📋 Parties</strong> et <strong>📈 Stats</strong> sont en haut à droite de la table, et <strong>← Retour</strong> ramène à la table.'),
       step(6, '<strong>Tout le monde passe</strong> et <strong>Annuler dernière donne</strong> agissent tout de suite : un message <strong>Annuler</strong> reste affiché quelques secondes en cas d\'erreur.'),
       step(7, 'Sur la table, après chaque donne, les points gagnés (<strong>+202</strong>, <strong>+80</strong>…) s\'affichent cinq secondes à côté des scores, et <strong>manque …</strong> indique les points restants pour gagner. Chacun se désactive dans les Réglages.'),
       tip('<strong>Garder l\'écran allumé</strong> (Réglages) empêche la mise en veille pendant la partie, sur les iPhone et iPad à jour.'),
-    ].join('')) +
+    ].join(''), svgSaisieRapide) +
 
     // ── 6. Parties ──
     section('📋', '6. Onglet Parties', [
@@ -8369,7 +8585,7 @@ function renderHelpContent() {
 
     // ── 9. Terminer la partie ──
     section('🏁', '9. Terminer la partie', [
-      step(1, 'Appuyez sur <strong>🏁 Terminer la partie</strong> (page Table ou onglet Score) pour arrêter la partie à tout moment, même sans atteindre l\'objectif.'),
+      step(1, 'Appuyez sur <strong>🏁 Terminer la partie</strong> (page Table ou onglet Parties) pour arrêter la partie à tout moment, même sans atteindre l\'objectif.'),
       step(2, 'La pop-up affiche le <strong>gagnant et le perdant</strong> avec leurs scores.'),
       step(3, '<strong>Confirmer 🎉</strong> — enregistre et repart avec les mêmes équipes.'),
       step(4, '<strong>Confirmer &amp; changer d\'équipe</strong> — enregistre et retourne à la configuration.'),

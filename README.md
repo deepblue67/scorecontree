@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261101_1620`.
+Version applicative actuellement documentée : `v20261101_1800`.
 
 ---
 
@@ -80,6 +80,7 @@ ScoreBelote/
     final-audit-regression.html
     iphone-table-actions-regression.html
     ameliorations-20261031-regression.html
+    ameliorations-20261101-regression.html
     saisie-rapide-regression.html
 ```
 
@@ -401,15 +402,18 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `game-state-regression.html` | état de partie, autosave, normalisation, annulation/modification donne et permutation des places | 54 |
 | `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats et zones joueurs interactives | 27 |
 | `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 45 |
-| `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage, ajustements iPhone résultat/contrat et écran Manche en cours | 62 |
+| `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage, ajustements iPhone résultat/contrat et écran Manche en cours ; coupure « Prénom & / Prénom » vérifiée indépendamment des polices (largeur forcée) | 63 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
 | `saisie-rapide-regression.html` | mode rapide : réglage, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, TABLE (points gagnés / manquants et leurs réglages, icônes, lisibilité, éclair), contrat → Manche en cours, bandeau du bas masqué (jeu, Réglages, Manche en cours), écran allumé, retour au classique | 69 |
 | `ameliorations-20261031-regression.html` | édition via écran Résultat, suppression de donne, passe sur la TABLE, annulation après passe, couleurs feuille, victoire, archive sans doublon, règle capot + belote, saisie clavier | 37 |
+| `ameliorations-20261101-regression.html` | bouton « Saisir le score » de Manche en cours (classique et rapide), points maximum d'une donne, alerte « dernière donne » (points, manches, contre, masquée en correction), tableaux agrandis en iPad portrait (cadre 834 × 1194), illustrations et textes de l'aide | 30 |
 
 Total des contrôles disponibles :
 
 ```text
-343 contrôles disponibles
+422 contrôles navigateur (13 pages de test)
++ 10 cas de score (scoring-regression.js)
++ 58 contrôles PWA (offline-pwa-regression.js)
 ```
 
 ### 7.2 Ce que les tests vérifient
@@ -1104,6 +1108,16 @@ Version `v20261101_1620`, **les deux modes de saisie**. Uniquement en paysage iP
 - `renderCurrentRoundRow` : équipe preneuse écrite en entier, mention de contre plus lisible, boutons ✏️ / 🗑 plus grands.
 - S'applique à la feuille « En cours », à l'historique de la partie et au détail des parties archivées (« Résultat »).
 
+### 8.36 Manche en cours, dernière donne, iPad portrait, aide et test de police
+
+Version `v20261101_1800`, **les deux modes de saisie** :
+
+- **Bouton « 📊 Saisir le score » sur Manche en cours** (`#mec-btn-saisie`, `mecSaisirScore()`) : sous la carte, ouvre directement l'écran Résultat (pavé en saisie rapide). La carte et son bouton sont regroupés dans `#mec-center`. En paysage (iPhone, iPad, PC), `showMancheEnCours()` retire la hauteur du bouton à celle de la carte et donne aux colonnes latérales la hauteur carte + bouton. Toucher la carte ramène toujours à la TABLE. Icône dessinée en saisie rapide (`FAST_BUTTON_HTML`).
+- **Alerte « 🎯 Dernière donne possible : comptez au point près »** : `maxDealPoints(contrat)` calcule, avec `calculateBeloteScore`, le maximum de chaque équipe sur la donne (contrat fait avec tous les plis ou chuté, belote comprise, capot seulement s'il est annoncé). `lastDealAlertInfo()` affiche l'alerte si une équipe peut atteindre l'objectif ; en mode manches, à la dernière manche (« Dernière manche »). Jamais pendant la correction d'une ancienne donne. Saisie classique : pastille à droite dans le rappel du contrat (aucune ligne ajoutée ; sélecteurs `#contract-reminder > div > div:nth-child(2)` au lieu de `:last-child`). Saisie rapide : ligne `#fast-last-deal` sous le rappel, texte court sur iPhone. Recalculée quand on change le contre sur l'écran Résultat rapide.
+- **iPad portrait** : `getTableSizes()` renvoie `wide` (noms complets, « Équipe preneuse », « Résultat ») et des tailles proches du paysage (contrat 18px, scores 20px, total 22px). Les règles `!important` de l'historique dans le bloc iPad portrait sont alignées ; le total utilise `tfoot td:nth-child(n)` pour passer devant les règles de colonnes.
+- **Aide** : illustrations redessinées (Réglages avec la saisie, TABLE actuelle, Contrat, Résultat avec l'alerte, feuille et historique aux couleurs des équipes) ; nouvelles illustrations « Manche en cours » (partie 4 bis) et « Saisie rapide » (5 bis) ; accents corrigés ; textes mis à jour.
+- **Test de police** : `iphone-table-actions-regression.html` ne dépend plus des polices installées. Il vérifie que le « & » ne commence jamais la seconde ligne, puis force une largeur réduite pour contrôler la coupure « Cynthia & / Eric ».
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1488,6 +1502,15 @@ Autres tests navigateur : 223 / 223, plus 10 cas de score
 iphone-table-actions-regression.html : même contrôle de police en échec que précédemment (environnement)
 ```
 
+Validation de la livraison `v20261101_1800` (Claude, Chromium Playwright, 5 contextes, deux modes) :
+
+```text
+Test PWA/cache/hors ligne : PASS 58
+13 pages de test navigateur : toutes PASS (422 contrôles), plus 10 cas de score
+ameliorations-20261101-regression.html : PASS 30 (nouveau)
+iphone-table-actions-regression.html : PASS 63 (test de police réparé)
+```
+
 ---
 
 ## 13. Notes pour Codex lors d'une reprise
@@ -1536,6 +1559,7 @@ Points d'attention :
 - backup avant import présent avec restauration depuis l'écran d'import ;
 - bandeau de correction rapide post-saisie retiré ; modification et annulation restent accessibles par les commandes habituelles ;
 - édition d'une donne par l'écran Résultat complet, couleurs sur la feuille, « Tout le monde passe » sur la TABLE, fin de partie en un écran (v20261031_2135) ;
+- saisie rapide optionnelle (Réglages), « Saisir le score » sur Manche en cours, alerte de dernière donne, aide illustrée à jour (v20261101_1800) ;
 - découpage en fichiers non recommandé à court terme ;
 - priorité aux évolutions ciblées et testées.
 
@@ -1564,9 +1588,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261031_2135` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261101_1800` |
 | Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 343 contrôles disponibles ; v20260701_1355 vérifiée sur PWA + test ciblé iPhone |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 422 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261101_1800 |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
@@ -1607,6 +1631,12 @@ Statuts utilisés :
 | Ajustements Contrat/Résultat iPhone | Forcer certains noms sur deux lignes en portrait, alléger les boutons `-1/+1`, réduire Belote en portrait et agrandir les boutons rapides en paysage. | Fait | Haute | Livré en `v20260701_1051`, précisé en `v20260701_1114`, corrigé jusqu'en `v20260701_1326` |
 | Résumé fin de partie enrichi | Ajouter nombre de donnes, contrats réussis/chutés, plus gros contrat, meilleure série. | Fait | Haute | Livré en `v20260618_1524` |
 | Statistiques joueur avancées | Contrats pris, taux de réussite, chutes, points moyens, partenaires, victoires. | Fait | Haute | Livré en `v20260618_1524` |
+| « Saisir le score » sur Manche en cours | Gros bouton sous la carte : un appui de moins par donne. | Fait | Haute | Livré en `v20261101_1800` |
+| Alerte dernière donne | « Dernière donne possible : comptez au point près » quand une équipe peut atteindre l'objectif. | Fait | Haute | Livré en `v20261101_1800` |
+| Tableaux iPad portrait | Noms complets et texte plus grand dans la feuille et l'historique. | Fait | Moyenne | Livré en `v20261101_1800` |
+| Illustrations de l'aide | Redessiner les illustrations selon le design actuel. | Fait | Moyenne | Livré en `v20261101_1800` |
+| Test de police instable | Rendre le contrôle « Cynthia & / Eric » indépendant des polices. | Fait | Moyenne | Corrigé en `v20261101_1800` |
+| Choix définitif du mode de saisie | Garder classique ou rapide, supprimer l'autre. | À préciser | Moyen terme | Après usage du mode rapide |
 | Aide contextuelle | Petits boutons `?` sur contrat, belote, capot, tournoi. | À faire | Moyen terme | Faible risque si ciblé |
 | Export résumé lisible | Générer un résumé texte/image de la partie à partager. | À faire | Moyen terme | Peut compléter l'export image actuel |
 | Amélioration tournoi | Continuer à enrichir appariements, saisie scores tournoi et historique tournoi. | À préciser | Moyen terme | Besoin de demandes plus concrètes |

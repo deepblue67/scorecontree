@@ -114,8 +114,26 @@
         const rightFirstTop = Math.round(textRect(rightPlain, 0, 'Christophe'.length).top);
         const rightAmpTop = Math.round(textRect(rightPlain, rightAmpStart, rightAmpEnd).top);
         const rightSecondTop = Math.round(textRect(rightPlain, rightSecondStart, rightPlain.textContent.length).top);
-        check(leftFirstTop === leftAmpTop && leftAmpTop < leftSecondTop, 'iPhone portrait : texte brut Cynthia & / Eric incorrect');
-        check(rightFirstTop === rightAmpTop && rightAmpTop < rightSecondTop, 'iPhone portrait : texte brut Christophe & / Daniel incorrect');
+        // Règle vérifiée : le « & » ne commence jamais la seconde ligne (il reste avec le premier prénom).
+        // Le passage à la ligne lui-même dépend des polices installées : tenir sur une ligne est accepté.
+        check(leftFirstTop === leftAmpTop && leftAmpTop <= leftSecondTop, 'iPhone portrait : texte brut Cynthia & / Eric incorrect');
+        check(rightFirstTop === rightAmpTop && rightAmpTop <= rightSecondTop, 'iPhone portrait : texte brut Christophe & / Daniel incorrect');
+        // Passage à la ligne forcé (largeur réduite) : indépendant de la police installée
+        {
+          const cs = doc.defaultView.getComputedStyle(leftPlain);
+          const pad = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+          const firstW = textRect(leftPlain, 0, leftAmpEnd).width;
+          const saved = leftPlain.getAttribute('style') || '';
+          leftPlain.style.setProperty('width', Math.ceil(firstW + pad + 4) + 'px', 'important');
+          leftPlain.style.setProperty('min-width', '0', 'important');
+          leftPlain.style.setProperty('max-width', 'none', 'important');
+          leftPlain.style.setProperty('flex', '0 0 auto', 'important');
+          const fFirst = Math.round(textRect(leftPlain, 0, 'Cynthia'.length).top);
+          const fAmp = Math.round(textRect(leftPlain, leftAmpStart, leftAmpEnd).top);
+          const fSecond = Math.round(textRect(leftPlain, leftSecondStart, leftPlain.textContent.length).top);
+          check(fFirst === fAmp && fAmp < fSecond, 'iPhone portrait : coupure forcée Cynthia & / Eric incorrecte');
+          leftPlain.setAttribute('style', saved);
+        }
         check(quickItems.length === 10, 'iPhone portrait : nombre de boutons contrat inattendu');
         const firstLineTop = Math.round(quickItems[0].getBoundingClientRect().top);
         const secondLineTop = Math.round(quickItems[5].getBoundingClientRect().top);
