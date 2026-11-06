@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests retour sur la configuration ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<!-- Cadre large (1194 × 834), hors écran : Ouest/Est sont placés par calcul à partir de 1025 px de large -->
+<iframe id="app" src="../index.html" style="position:absolute;left:-9999px;top:0;width:1194px;height:834px;border:0;"></iframe>
+<script>
+  // Couvre (v20261106_2359) : retour sur la configuration depuis Réglages, Aide, Tournoi et Aide à la marque
+  // après un défilement et un redimensionnement pendant l'absence : Ouest et Est restent au milieu de la table
+  // (ils se collaient en haut), la page revient en haut (elle gardait le décalage des Réglages).
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+    const check = (condition, message) => { checks += 1; if(!condition) failures.push(message); };
+    const el = id => doc.getElementById(id);
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const milieu = id => {
+      const t = el('setup-table-wrap').querySelector('svg').getBoundingClientRect();
+      const r = el(id).getBoundingClientRect();
+      return ((r.top + r.bottom) / 2 - t.top) / t.height * 100;
+    };
+
+    setTimeout(async () => {
+    try {
+      app.eval(`S.players = ['Fabrice','Chris','Aymeric','Florent']; savePlayers(); refreshSelects(); showScreen('setup');`);
+      await wait(600);
+      check(Math.abs(milieu('sel-est') - 49) < 5 && Math.abs(milieu('sel-ouest') - 49) < 5, 'Départ : Ouest/Est pas au milieu de la table');
+      const ecrans = [
+        ['Réglages', 'showSettingsScreen()', 'hideSettingsScreen()'],
+        ['Aide', 'showHelpScreen()', 'hideHelpScreen()'],
+        ['Tournoi', 'toggleTournoiMode(true); showTournoi()', 'hideTournoi()'],
+        ['Aide à la marque', 'showMarqueScreen()', 'hideMarqueScreen()'],
+      ];
+      for(const [nom, ouvrir, fermer] of ecrans) {
+        app.eval(ouvrir);
+        app.scrollTo(0, 500);
+        app.dispatchEvent(new app.Event('resize'));
+        await wait(600);
+        app.eval(fermer);
+        await wait(600);
+        check(app.getActiveScreenName() === 'setup', nom + ' : retour sur la configuration attendu');
+        const e = milieu('sel-est'), o = milieu('sel-ouest');
+        check(Math.abs(e - 49) < 5 && Math.abs(o - 49) < 5, nom + ' : Ouest/Est décalés au retour (' + Math.round(o) + ' % / ' + Math.round(e) + ' %)');
+        check(app.scrollY === 0, nom + ' : la page doit revenir en haut (' + app.scrollY + ')');
+      }
+      // Calcul demandé alors que la configuration est cachée : sans effet
+      app.showSettingsScreen();
+      const avant = el('setup-wrap-est').style.top;
+      app.fixEastWestPC();
+      check(el('setup-wrap-est').style.top === avant, 'Configuration cachée : Ouest/Est ne doivent pas être recalculés');
+      app.hideSettingsScreen();
+      // Les Réglages s'ouvrent en haut même si la page avait défilé avant
+      app.showSettingsScreen(); app.scrollTo(0, 400); app.hideSettingsScreen(); app.showSettingsScreen();
+      check(app.scrollY === 0, 'Réglages : doivent s’ouvrir en haut');
+      app.hideSettingsScreen();
+
+      app.toggleTournoiMode(false);
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message + ' ' + (error.stack||'').split('\n')[1];
+      result.dataset.status = 'error';
+    }
+    }, 300);
+  });
+</script>
+</body>
+</html>
