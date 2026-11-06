@@ -1576,7 +1576,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
       </div>
 
       <button id="setup-start-btn" class="btn btn-green btn-full" onclick="haptic('medium');bounce(this);startGame();" style="font-size:16px;padding:14px 16px;display:flex;flex-direction:column;align-items:center;gap:3px;">
-        <span>Commencer la partie ▶</span>
+        <span id="setup-start-label">Commencer la partie ▶</span>
         <span id="setup-mode-label" style="font-size:11px;font-weight:600;color:#111;opacity:0.85;"></span>
       </button>
 
@@ -1894,7 +1894,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261106_1500</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261106_1525</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -2104,6 +2104,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
       </div>
       <div id="w-summary" style="width:100%;max-width:460px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.16);border-radius:16px;padding:12px 14px;font-size:13px;line-height:1.55;text-align:left;"></div>
       <div class="winner-actions">
+        <button id="w-btn-tournoi" class="btn btn-gold btn-full" onclick="retourTournoiApresMatch()" style="font-size:16px;padding:15px;display:none;">🏆 Retour au tournoi</button>
         <button id="w-btn-replay" class="btn btn-gold btn-full" onclick="haptic('medium');confirmEndGame('same');" style="font-size:16px;padding:15px;">🔁 Nouvelle partie — mêmes équipes</button>
         <button id="w-btn-teams" class="btn btn-outline btn-full" onclick="haptic('medium');confirmEndGame('change');" style="font-size:15px;padding:13px;color:#fff;border-color:rgba(255,255,255,0.45);">👥 Changer les équipes</button>
         <button id="w-btn-sheet" class="btn btn-outline btn-full" onclick="goToScoreSheet()" style="font-size:14px;padding:11px;color:rgba(255,255,255,0.85);border-color:rgba(255,255,255,0.3);">📋 Voir la feuille de score</button>
@@ -2257,6 +2258,8 @@ function createInitialAppState() {
 
 let S = createInitialAppState();
 let pendingScore = null;
+// Match du tournoi à jouer sur cet appareil (« Jouer ici »), en attente du lancement de la partie
+let pendingTournoiMatch = null;
 // Couleurs de la feuille de score : une couleur par équipe (comme le graphique des stats)
 const TEAM_COLORS = { t1:'#1a6b3c', t2:'#1a5295' };
 const ZERO_PTS_COLOR = '#b3ada3';
@@ -2271,7 +2274,10 @@ function resetGameProgress() {
   S.form = createEmptyContractForm();
   S._gameSaved = false;
   S._savedGameId = null;
+  S.tournoiMatch = null; // partie reliée à un match du tournoi
+  pendingTournoiMatch = null;
   pendingScore = null;
+  updateSetupTournoiLabel();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2414,8 +2420,10 @@ function startGame() {
     showSetupAlert('⚠️ Chaque position doit avoir un joueur différent.');
     return;
   }
+  const lienTournoi = lienTournoiPourPartie(pendingTournoiMatch, [n,s], [e,o]);
   clearAutoSave();
   resetGameProgress();
+  S.tournoiMatch = lienTournoi;
   S.pos = {nord:n,sud:s,est:e,ouest:o};
   S.t1 = {name:n+' & '+s, players:[n,s]};
   S.t2 = {name:e+' & '+o, players:[e,o]};
@@ -2983,7 +2991,13 @@ function showWinner(team) {
   eid('w-n2').textContent = lTeam.name;
   eid('w-s2').textContent = S.score[team==='t1'?'t2':'t1'];
   const summary = eid('w-summary');
-  if(summary) summary.innerHTML = buildGameSummaryHtml();
+  if(summary) summary.innerHTML = tournoiWinnerNoteHtml() + buildGameSummaryHtml();
+  // Match du tournoi : retour direct au tournoi, en premier
+  const btnT = eid('w-btn-tournoi'), btnR = eid('w-btn-replay');
+  if(btnT) btnT.style.display = S.tournoiMatch ? '' : 'none';
+  if(btnR) btnR.className = 'btn btn-full ' + (S.tournoiMatch ? 'btn-outline' : 'btn-gold');
+  if(btnR) btnR.style.color = S.tournoiMatch ? '#fff' : '';
+  if(btnR) btnR.style.borderColor = S.tournoiMatch ? 'rgba(255,255,255,0.45)' : '';
   showScreen('winner');
 }
 
@@ -3316,6 +3330,7 @@ function autoSave() {
     gameMode: S.gameMode,
     winningPts: S.winningPts,
     winningManches: S.winningManches,
+    tournoiMatch: S.tournoiMatch || null,
     savedAt: new Date().toISOString()
   });
 }
@@ -3377,6 +3392,7 @@ function discardAutoSave() {
 function savePastGame() {
   // Sauvegarde la partie en cours dans l'historique persistant
   if(!S.history.length) return;
+  S._tournoiReporte = reporterScoreTournoi(); // match du tournoi : score recopié dans le tour
   try {
     const past = storageReadJSON('belote_history', [], Array.isArray);
     const now = new Date();
@@ -4072,6 +4088,7 @@ function demarrerTournoi() {
   const calendrier = rr ? genererCalendrierToutesRondes(equipes) : null;
 
   T = {
+    id: Date.now(),
     status: 'running',
     nom,
     date,
@@ -4241,13 +4258,16 @@ function renderTournoiTour() {
 
     ${app.exemptee ? `
     <div style="background:rgba(200,150,10,0.15);border:1px solid rgba(200,150,10,0.3);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#fff;">
-      😴 <strong>${escapeHtml(app.exemptee)}</strong> est exempté ce tour
+      😴 <strong>${escapeHtml(app.exemptee)}</strong> est exempté ce tour <span style="opacity:0.75;">(ni victoire ni points)</span>
     </div>` : ''}
 
     <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px;" id="t-matchs-list">
       ${app.matchs.map((m,i) => `
       <div class="card" style="padding:16px;">
-        <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:10px;">Table ${i+1}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;">Table ${i+1}</div>
+          ${boutonJouerIciHtml(i)}
+        </div>
         <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;">
           <div style="text-align:center;">
             <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">${escapeHtml(m.eq1)}</div>
@@ -4289,6 +4309,124 @@ function saveTourDrafts() {
     if(m.draft1 !== a.value || m.draft2 !== b.value) { m.draft1 = a.value; m.draft2 = b.value; changed = true; }
   });
   if(changed) saveTournoi();
+}
+
+// ── « JOUER ICI » : un match du tournoi joué avec la saisie de l'application ──
+// Les deux joueurs d'une équipe (« Sophie & Marc »), s'ils existent
+function joueursEquipeTournoi(nom) {
+  const j = String(nom || '').split(' & ');
+  return j.length === 2 && j[0] && j[1] ? j : null;
+}
+
+// Partie en cours sur cet appareil reliée à ce match du tour actuel
+function matchTournoiEnCours(i) {
+  const l = S.tournoiMatch;
+  return !!(l && T && l.tournoiId === T.id && l.numTour === T.tourActuel && l.idx === i
+    && S.t1 && S.t1.name && !S._gameSaved);
+}
+
+function boutonJouerIciHtml(i) {
+  const enCours = matchTournoiEnCours(i);
+  return `<button type="button" class="t-jouer-ici" onclick="jouerMatchIci(${i})" style="background:${enCours ? 'var(--gold, #c8a84a)' : 'var(--green)'};color:#fff;border:none;border-radius:99px;padding:6px 12px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;">${enCours ? '▶ Reprendre la partie' : '▶ Jouer ici'}</button>`;
+}
+
+function jouerMatchIci(i) {
+  if(!T || T.status !== 'running' || !T.appariements) return;
+  saveTourDrafts();
+  if(matchTournoiEnCours(i)) {
+    // Retour à la partie déjà commencée pour ce match
+    secondaryScreenOrigins.delete('tournoi');
+    showScreen('game');
+    showTab('enjeu');
+    return;
+  }
+  const m = T.appariements.matchs[i];
+  const j1 = joueursEquipeTournoi(m && m.eq1), j2 = joueursEquipeTournoi(m && m.eq2);
+  if(!j1 || !j2) { showToast('⚠️ Joueurs de l’équipe introuvables'); return; }
+  if(!T.id) { T.id = Date.now(); saveTournoi(); }
+  const lancer = () => preparerMatchTournoi(i, m, j1, j2);
+  const partieEnCours = S.t1 && S.t1.name && !S._gameSaved && (S.history.length > 0 || S.contract);
+  if(partieEnCours) {
+    askConfirm(`Une partie est en cours (${S.t1.name} ${S.score.t1} – ${S.score.t2} ${S.t2.name}).\nElle sera abandonnée pour jouer ce match.`, 'Jouer ce match', lancer);
+  } else {
+    lancer();
+  }
+}
+
+// Écran de configuration prêt : équipe 1 en Nord / Sud, équipe 2 en Est / Ouest, partie en points.
+// Les places et le donneur restent modifiables avant « Commencer le match ».
+function preparerMatchTournoi(i, m, j1, j2) {
+  const absents = [...j1, ...j2].filter(p => !S.players.includes(p));
+  if(absents.length) { S.players.push(...absents); savePlayers(); renderPlayerChips(); }
+  clearAutoSave();
+  resetGameProgress();
+  refreshSelects();
+  const place = { nord:j1[0], sud:j1[1], est:j2[0], ouest:j2[1] };
+  Object.keys(place).forEach(pos => { const sel = eid('sel-' + pos); if(sel) sel.value = place[pos]; });
+  setGameMode('points');
+  refreshTeamPreview();
+  const fd = eid('sel-first-dealer');
+  if(fd) fd.value = 'random';
+  pendingTournoiMatch = { tournoiId: T.id, numTour: T.tourActuel, idx: i, eq1: m.eq1, eq2: m.eq2 };
+  updateSetupTournoiLabel();
+  secondaryScreenOrigins.delete('tournoi');
+  showScreen('setup');
+}
+
+// Lien gardé seulement si les 4 joueurs placés forment bien les deux équipes du match
+function lienTournoiPourPartie(p, ns, eo) {
+  if(!p) return null;
+  const meme = (nom, paire) => { const j = joueursEquipeTournoi(nom); return !!j && j.slice().sort().join('|') === paire.slice().sort().join('|'); };
+  let side = null;
+  if(meme(p.eq1, ns) && meme(p.eq2, eo)) side = 't1';
+  else if(meme(p.eq1, eo) && meme(p.eq2, ns)) side = 't2';
+  if(!side) { showToast('Équipes différentes du match du tournoi : partie non reliée'); return null; }
+  return { ...p, eq1Side: side };
+}
+
+function updateSetupTournoiLabel() {
+  const p = typeof pendingTournoiMatch !== 'undefined' ? pendingTournoiMatch : null;
+  const sub = document.querySelector('#setup-header .sub');
+  if(sub) sub.textContent = p ? `🏆 Tournoi · Tour ${p.numTour} · Table ${p.idx + 1}` : 'Configuration de la partie';
+  const lbl = eid('setup-start-label');
+  if(lbl) lbl.textContent = p ? 'Commencer le match ▶' : 'Commencer la partie ▶';
+}
+
+// Recopie le score de la partie dans le match du tournoi (scores à valider avec le tour)
+function reporterScoreTournoi() {
+  const l = S.tournoiMatch;
+  if(!l) return false;
+  const t = normalizeTournoiState(storageReadJSON('belote_tournoi', null, isPlainObject));
+  if(!t || t.status !== 'running' || t.id !== l.tournoiId || t.tourActuel !== l.numTour || !t.appariements) return false;
+  const m = t.appariements.matchs[l.idx];
+  if(!m || m.eq1 !== l.eq1 || m.eq2 !== l.eq2) return false;
+  const s1 = l.eq1Side === 't2' ? S.score.t2 : S.score.t1;
+  const s2 = l.eq1Side === 't2' ? S.score.t1 : S.score.t2;
+  m.draft1 = String(s1);
+  m.draft2 = String(s2);
+  storageWriteJSON('belote_tournoi', t);
+  T = t;
+  return true;
+}
+
+function tournoiWinnerNoteHtml() {
+  const l = S.tournoiMatch;
+  if(!l) return '';
+  const ok = S._tournoiReporte;
+  return `<div style="font-weight:700;text-align:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.16);">${ok
+    ? `🏆 Reporté dans le tournoi · Tour ${l.numTour} · Table ${l.idx + 1}`
+    : `⚠️ Score non reporté : le tour ${l.numTour} du tournoi a changé. Saisis-le à la main.`}</div>`;
+}
+
+// Fin d'un match du tournoi : partie archivée, retour à l'écran du tour (scores pré-remplis)
+function retourTournoiApresMatch() {
+  haptic('medium');
+  if(!S._gameSaved && S.history.length > 0) savePastGame();
+  clearAutoSave();
+  resetGameProgress();
+  refreshTeamPreview();
+  showScreen('setup');
+  showTournoi();
 }
 
 // Recalcule victoires, goal average, points et rencontres à partir des tours validés
@@ -6573,6 +6711,7 @@ function applyAutosaveSnapshot(value) {
   S.gameMode = snap.gameMode;
   S.winningPts = snap.winningPts;
   S.winningManches = snap.winningManches;
+  S.tournoiMatch = isPlainObject(snap.tournoiMatch) ? snap.tournoiMatch : null;
   S._gameSaved = false;
   pendingScore = null;
   return true;
@@ -7818,10 +7957,11 @@ function renderHelpContent() {
       step(1, 'Activez <strong>Afficher le bouton Tournoi</strong> dans les Réglages : le bouton <strong>🏆 Mode Tournoi</strong> apparaît sur l\'écran de configuration.'),
       step(2, 'Donnez un nom, formez au moins 3 équipes de deux joueurs et choisissez la formule : <strong>3 à 6 tours</strong> (adversaires choisis selon le classement) ou <strong>🔁 Tous contre tous</strong> (chaque équipe rencontre toutes les autres une fois ; nombre de tours calculé, calendrier fixé au départ). Puis <strong>Démarrer le tournoi</strong>.'),
       step(3, 'À chaque tour, saisissez le score final de chaque table puis <strong>Valider le tour</strong>. Les scores déjà tapés restent en place si vous consultez le récapitulatif ou quittez l\'écran.'),
-      step(4, '<strong>📋 Récap & classement</strong> montre le classement à jour et tous les matchs du tournoi : joués (scores, écart), en cours et à venir.'),
-      step(5, 'Une erreur sur un tour validé ? <strong>↩ Corriger le tour</strong> rouvre le dernier tour avec ses scores (même après la fin du tournoi).'),
-      step(6, 'Pendant un tournoi, <strong>Saisir scores du tournoi</strong> apparaît aussi sur la table d\'une partie. Les tournois terminés sont dans <strong>📋 Parties › Tournois</strong>.'),
-      note('Classement : victoires, puis goal average (différence de points), puis points marqués. Avec un nombre impair d\'équipes, une équipe est exemptée à chaque tour.'),
+      step(4, 'Pour jouer un match sur cet appareil, touchez <strong>▶ Jouer ici</strong> sur sa table : les quatre joueurs sont placés (places et donneur modifiables), puis <strong>Commencer le match</strong>. À la fin de la partie, le score est recopié dans le tour ; <strong>🏆 Retour au tournoi</strong> y ramène. <strong>▶ Reprendre la partie</strong> revient à un match commencé.'),
+      step(5, '<strong>📋 Récap & classement</strong> montre le classement à jour et tous les matchs du tournoi : joués (scores, écart), en cours et à venir.'),
+      step(6, 'Une erreur sur un tour validé ? <strong>↩ Corriger le tour</strong> rouvre le dernier tour avec ses scores (même après la fin du tournoi).'),
+      step(7, 'Pendant un tournoi, <strong>Saisir scores du tournoi</strong> apparaît aussi sur la table d\'une partie. Les tournois terminés sont dans <strong>📋 Parties › Tournois</strong>.'),
+      note('Classement : victoires, puis goal average (différence de points), puis points marqués. Avec un nombre impair d\'équipes, une équipe est exemptée à chaque tour : elle ne marque ni victoire ni points.'),
     ].join('')) +
 
     // ── Footer ──

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests tournoi « Jouer ici » ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  // Couvre : bouton « Jouer ici » sur chaque table, configuration pré-remplie (places, donneur, points),
+  // partie reliée au match, score recopié dans le tour à la fin (équipe du match en Nord/Sud ou en Est/Ouest),
+  // « Retour au tournoi », « Reprendre la partie », partie en cours abandonnée après confirmation,
+  // lien perdu si les joueurs changent ou si le tour a changé, lien conservé par la sauvegarde automatique,
+  // équipe exemptée sans victoire.
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+    const check = (condition, message) => { checks += 1; if(!condition) failures.push(message); };
+    const el = id => doc.getElementById(id);
+    const T = () => app.eval('T');
+    const stored = () => JSON.parse(app.localStorage.getItem('belote_tournoi'));
+    const screen = () => app.getActiveScreenName();
+    const winRound = team => app.eval(`showTab('contrat'); updateContractForm(); fastPickTeam('${team}'); fastPickValue(100); selectSuit('♥','h','red',true); confirmContract();
+      showTab('saisie'); updateSaisieForm(); fastKey('1'); fastKey('1'); fastKey('0'); fastValidate();`);
+
+    setTimeout(() => {
+    try {
+      let nativeDialogs = 0;
+      app.confirm = () => { nativeDialogs++; return true; };
+      app.alert = () => { nativeDialogs++; };
+      ['belote_tournoi','belote_tournois_history','belote_autosave','belote_history'].forEach(k => app.localStorage.removeItem(k));
+      app.eval(`S.players = ['A','B','C','D','E','F','G','H','I','J']; savePlayers(); refreshSelects();`);
+      app.toggleTournoiMode(true);
+      app.showTournoi();
+      app.eval(`_tSetup = { nbTours: 'rr', equipes: ['A & B','C & D','E & F','G & H','I & J'] }; renderTournoiSetup();`);
+      app.demarrerTournoi();
+      check(!!T().id, 'Le tournoi doit avoir un identifiant dès le départ');
+      const boutons = el('tournoi-body').querySelectorAll('.t-jouer-ici');
+      check(boutons.length === 2 && /Jouer ici/.test(boutons[0].textContent), 'Un bouton « Jouer ici » par table attendu (' + boutons.length + ')');
+
+      // ── Préparation du match de la table 1 ──
+      const m0 = T().appariements.matchs[0];
+      const [a1, a2] = m0.eq1.split(' & '), [b1, b2] = m0.eq2.split(' & ');
+      boutons[0].click();
+      check(screen() === 'setup', 'Jouer ici : écran de configuration attendu');
+      check(el('sel-nord').value === a1 && el('sel-sud').value === a2 && el('sel-est').value === b1 && el('sel-ouest').value === b2, 'Jouer ici : joueurs non placés');
+      check(el('sel-first-dealer').value === 'random', 'Jouer ici : donneur « tirage aléatoire » attendu');
+      check(el('mode-btn-points').dataset.active === '1', 'Jouer ici : partie en points attendue');
+      check(/Tour 1 · Table 1/.test(doc.querySelector('#setup-header .sub').textContent), 'Configuration : sous-titre du match absent');
+      check(el('setup-start-label').textContent === 'Commencer le match ▶', 'Configuration : libellé « Commencer le match » absent');
+      el('sel-first-dealer').value = a1;
+      app.startGame();
+      const lien = app.eval('S.tournoiMatch');
+      check(lien && lien.eq1Side === 't1' && lien.idx === 0 && lien.numTour === 1, 'Partie non reliée au match : ' + JSON.stringify(lien));
+      check(app.eval('S.pos[S.dealerOrder[S.dealerIdx]]') === a1, 'Le donneur choisi doit être conservé');
+      check(doc.querySelector('#setup-header .sub').textContent === 'Configuration de la partie', 'Sous-titre de configuration non remis');
+
+      // Sauvegarde automatique : le lien survit à une reprise
+      winRound('t1');
+      const snap = JSON.parse(app.localStorage.getItem('belote_autosave'));
+      check(snap.tournoiMatch && snap.tournoiMatch.idx === 0, 'Sauvegarde automatique : lien absent');
+      app.eval(`S.tournoiMatch = null; applyAutosaveSnapshot(readAutosaveSnapshot());`);
+      check(app.eval('S.tournoiMatch && S.tournoiMatch.eq1Side') === 't1', 'Reprise : lien perdu');
+
+      // Reprendre la partie depuis le tournoi
+      app.showTournoi();
+      const b0 = el('tournoi-body').querySelector('.t-jouer-ici');
+      check(/Reprendre la partie/.test(b0.textContent), 'Match commencé : « Reprendre la partie » attendu');
+      b0.click();
+      check(screen() === 'game' && app.eval('S.history.length') === 1, 'Reprendre : la partie doit continuer sans remise à zéro');
+
+      // Victoire : score recopié, retour au tournoi
+      app.eval('S.score = {t1:1950, t2:700}');
+      winRound('t1');
+      check(screen() === 'winner', 'Victoire attendue');
+      check(el('w-btn-tournoi').style.display !== 'none', 'Écran de victoire : bouton « Retour au tournoi » absent');
+      check(/Reporté dans le tournoi · Tour 1 · Table 1/.test(el('w-summary').textContent), 'Écran de victoire : mention du report absente');
+      const fin = app.eval('({t1:S.score.t1, t2:S.score.t2})');
+      check(stored().appariements.matchs[0].draft1 === String(fin.t1) && stored().appariements.matchs[0].draft2 === String(fin.t2), 'Score non recopié dans le tour');
+      el('w-btn-tournoi').click();
+      check(screen() === 'tournoi', 'Retour au tournoi : écran du tournoi attendu');
+      check(el('t-score-0-1').value === String(fin.t1) && el('t-score-0-2').value === String(fin.t2), 'Tour : scores pré-remplis absents');
+      check(/gagne/.test(el('t-result-0').textContent), 'Tour : vainqueur du match non affiché');
+      check(JSON.parse(app.localStorage.getItem('belote_history')).length === 1, 'La partie doit être dans l’historique');
+      check(!app.localStorage.getItem('belote_autosave'), 'Partie terminée : sauvegarde automatique non effacée');
+
+      // ── Table 2 : équipe du match placée en Est/Ouest ──
+      const m1 = T().appariements.matchs[1];
+      app.jouerMatchIci(1);
+      const [c1, c2] = m1.eq1.split(' & '), [d1, d2] = m1.eq2.split(' & ');
+      el('sel-nord').value = d1; el('sel-sud').value = d2; el('sel-est').value = c1; el('sel-ouest').value = c2;
+      app.startGame();
+      check(app.eval('S.tournoiMatch.eq1Side') === 't2', 'Équipes inversées : côté non détecté');
+      app.eval('S.score = {t1:600, t2:1950}');
+      winRound('t2');
+      const fin2 = app.eval('({t1:S.score.t1, t2:S.score.t2})');
+      check(stored().appariements.matchs[1].draft1 === String(fin2.t2) && stored().appariements.matchs[1].draft2 === String(fin2.t1), 'Équipes inversées : scores mal recopiés');
+      app.retourTournoiApresMatch();
+      app.validerTour();
+      check(T().tourActuel === 2 && T().tours[0].matchs[1].score1 === fin2.t2, 'Tour 1 non validé avec les scores reportés');
+
+      // Équipe exemptée : aucune victoire
+      const exempt = T().tours[0].exemptee;
+      check(T().equipes.find(e => e.name === exempt).victoires === 0, 'L’équipe exemptée ne doit pas gagner de victoire');
+      check(/ni victoire ni points/.test(el('tournoi-body').textContent), 'Exemption : précision absente de l’écran du tour');
+
+      // ── Partie en cours abandonnée après confirmation ──
+      app.jouerMatchIci(0); app.startGame(); winRound('t1');
+      app.showTournoi();
+      app.jouerMatchIci(1);
+      check(el('confirm-modal').style.display === 'flex' && /abandonnée/.test(el('confirm-msg').textContent), 'Partie en cours : confirmation attendue');
+      el('confirm-ok').click();
+      check(screen() === 'setup' && app.eval('S.history.length') === 0, 'Après confirmation : nouvelle configuration attendue');
+
+      // ── Joueurs changés : lien perdu ──
+      el('sel-nord').value = 'J'; el('sel-sud').value = 'I';
+      const m2 = T().appariements.matchs[1];
+      if([m2.eq1, m2.eq2].some(e => e.includes('J') || e.includes('I'))) { el('sel-nord').value = 'A'; el('sel-sud').value = 'C'; }
+      app.startGame();
+      check(app.eval('S.tournoiMatch') === null, 'Joueurs changés : la partie ne doit pas être reliée');
+
+      // ── Tour changé avant la fin : score non reporté ──
+      app.showTournoi();
+      app.jouerMatchIci(0); el('confirm-ok').click();
+      app.startGame();
+      app.showTournoi();
+      T().appariements.matchs.forEach((m, i) => { el(`t-score-${i}-1`).value = '2001'; el(`t-score-${i}-2`).value = '1000'; });
+      app.validerTour();
+      app.eval('S.score = {t1:1950, t2:700}');
+      winRound('t1');
+      check(/Score non reporté/.test(el('w-summary').textContent), 'Tour changé : avertissement « non reporté » attendu');
+
+      // Partie normale : pas de bouton tournoi
+      app.eval(`confirmEndGame('same')`);
+      check(app.eval('S.tournoiMatch') === null, 'Fin de partie : lien non effacé');
+      app.startGame(); app.eval('S.score = {t1:1950, t2:700}'); winRound('t1');
+      check(el('w-btn-tournoi').style.display === 'none' && el('w-btn-replay').classList.contains('btn-gold'), 'Partie normale : écran de victoire inchangé attendu');
+
+      check(nativeDialogs === 0, 'Fenêtres du système utilisées (' + nativeDialogs + ')');
+      app.toggleTournoiMode(false);
+      ['belote_tournoi','belote_tournois_history','belote_autosave','belote_history'].forEach(k => app.localStorage.removeItem(k));
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message + ' ' + (error.stack||'').split('\n')[1];
+      result.dataset.status = 'error';
+    }
+    }, 300);
+  });
+</script>
+</body>
+</html>

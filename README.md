@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261106_1500`.
+Version applicative actuellement documentée : `v20261106_1525`.
 
 ---
 
@@ -414,12 +414,13 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `tournoi-toutes-rondes-regression.html` | calendrier tous contre tous de 3 à 12 équipes (chaque paire une fois, une équipe par tour, une exemption par équipe en impair), bouton et information dans la configuration, déroulé complet, correction d'un tour, page récapitulative (10 matchs annoncés, scores et écarts, en cours / à jouer, classement avec J), état relu, formule « selon le classement » inchangée | 63 |
 | `tournoi-correctifs-regression.html` | scores du tour conservés (Classement, sortie), correction du dernier tour (y compris après la fin, historique mis à jour), historique des tournois sans plafond, nom du tournoi protégé, « Retour à l’accueil », « Nouveau tournoi » sans confirmation après la fin, raccourci tournoi seulement pendant un tournoi, aucune fenêtre du système, graphique des stats recréé | 30 |
 | `historique-regression.html` | plus de plafond de 50 parties (sauvegarde et import fusionné), avertissement « mémoire presque pleine » une fois par session, « mémoire pleine » sans rien effacer, libellé du bouton de confirmation rétabli ; import par code « Ajouter à mes données » (fusion sans doublon, version de l'appareil prioritaire, joueurs complétés, thème conservé, deux imports sans doublon) | 18 |
+| `tournoi-jouer-ici-regression.html` | « Jouer ici » : un bouton par table, configuration pré-remplie (places, donneur, points), partie reliée (équipe du match en Nord/Sud ou Est/Ouest), score recopié dans le tour à la victoire, « Retour au tournoi », « Reprendre la partie », partie en cours abandonnée après confirmation, lien perdu si les joueurs changent ou si le tour a changé (avertissement), lien gardé par la sauvegarde automatique, équipe exemptée sans victoire, écran de victoire inchangé hors tournoi | 36 |
 | `pc-table-regression.html` | icône de l'onglet (favicon PNG) ; TABLE sur PC (cadre 1440 × 900, souris) : table et colonne de droite centrées ensemble, colonne éloignée du bord, pas de fond commun entre les cases d'équipes, nom au-dessus du score et centré | 11 |
 
 Total des contrôles disponibles :
 
 ```text
-521 contrôles navigateur (17 pages de test)
+557 contrôles navigateur (18 pages de test)
 + 10 cas de score (scoring-regression.js)
 + 58 contrôles PWA (offline-pwa-regression.js)
 ```
@@ -1195,6 +1196,17 @@ Version `v20261106_1500`. Demandé par l'utilisateur : proposer « chaque équip
 - **Affichage** : `#tournoi-body > * { flex-shrink:0 }` — dans le corps en colonne flex, les cartes de classement (overflow:hidden) s'écrasaient à zéro quand la page débordait.
 - **Aide** (partie 11) : les deux formules et le récapitulatif.
 
+### 8.44 Tournoi : « Jouer ici » et exemption sans victoire
+
+Version `v20261106_1525`. Demandé par l'utilisateur : jouer un match du tournoi avec la saisie de l'application et récupérer le score sans le recopier ; une équipe exemptée ne gagne pas de victoire.
+
+- **Exemption** : déjà sans victoire ni points dans `appliquerResultatsTournoi` (seul `exemptions` augmente) ; c'est maintenant écrit sur l'écran du tour (« ni victoire ni points ») et dans l'aide.
+- **Bouton par table** (`boutonJouerIciHtml(i)`, classe `.t-jouer-ici`) : « ▶ Jouer ici », ou « ▶ Reprendre la partie » (doré) quand la partie de cet appareil est reliée à ce match du tour actuel (`matchTournoiEnCours`).
+- **Préparation** (`jouerMatchIci` → `preparerMatchTournoi`) : confirmation si une autre partie est en cours (elle est abandonnée) ; joueurs absents de la liste remis ; équipe 1 en Nord/Sud, équipe 2 en Est/Ouest, partie en points, donneur « tirage aléatoire » ; écran de configuration avec sous-titre « 🏆 Tournoi · Tour N · Table N » et « Commencer le match ▶ » (`updateSetupTournoiLabel`). Places et donneur restent modifiables. Lien en attente : `pendingTournoiMatch`.
+- **Lien** : `startGame` le transforme en `S.tournoiMatch` (`lienTournoiPourPartie`) si les 4 joueurs forment bien les deux équipes, dans un sens ou dans l'autre (`eq1Side`) ; sinon message et partie normale. `T.id` est attribué dès la création du tournoi (ou au premier « Jouer ici » pour un tournoi plus ancien). Le lien est enregistré dans la sauvegarde automatique et effacé par `resetGameProgress`.
+- **Report** : `savePastGame` appelle `reporterScoreTournoi()` qui écrit le score dans les brouillons du match (`draft1/draft2`) si le tournoi, le tour et les équipes n'ont pas changé ; les scores restent à valider avec le tour. Écran de victoire : mention « Reporté dans le tournoi » ou « Score non reporté » (`tournoiWinnerNoteHtml`), bouton « 🏆 Retour au tournoi » en premier (`retourTournoiApresMatch`) ; « Nouvelle partie — mêmes équipes » passe en bouton secondaire seulement dans ce cas.
+- **Aide** (partie 11) : étape « Jouer ici » ajoutée.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1683,9 +1695,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261106_1500` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261106_1525` |
 | Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 521 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261106_1500 |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 557 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261106_1525 |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
@@ -1738,7 +1750,7 @@ Statuts utilisés :
 | Import par code en fusion | Bouton « Ajouter à mes données » qui fusionne au lieu de remplacer. | Fait | Haute | Livré en `v20261101_2140` |
 | Passe générale, lot 1 | Bandeau du bas supprimé, défauts et incohérences du tournoi et de la table corrigés. | Fait | Haute | Livré en `v20261106_1340` |
 | Tournoi « Tous contre tous » et récapitulatif | Calendrier toutes-rondes, page de tous les matchs avec scores, écarts et classement. | Fait | Haute | Livré en `v20261106_1500` |
-| Tournoi, règles et lien avec les parties | Exemption (victoire ou non) ; bouton « Jouer ce match ici » reportant le score. | À préciser | Moyen terme | En attente des réponses de l'utilisateur |
+| Tournoi, règles et lien avec les parties | Exemption sans victoire ; bouton « Jouer ici » reportant le score. | Fait | Moyen terme | Livré en `v20261106_1525` |
 | Simplification CSS progressive | Retirer le préfixe `body.fast-input`, réduire les blocs par appareil au profit de tailles fluides. | À faire | Moyen terme | Écran par écran, en commençant par Manche en cours |
 | Choix définitif du mode de saisie | Garder classique ou rapide, supprimer l'autre. | Fait | Moyen terme | Saisie rapide conservée en `v20261101_2045` |
 | Aide contextuelle | Petits boutons `?` sur contrat, belote, capot, tournoi. | À faire | Moyen terme | Faible risque si ciblé |
