@@ -9,9 +9,11 @@
 <!-- Cadre large (1194 × 834), hors écran : Ouest/Est sont placés par calcul à partir de 1025 px de large -->
 <iframe id="app" src="../index.html" style="position:absolute;left:-9999px;top:0;width:1194px;height:834px;border:0;"></iframe>
 <script>
-  // Couvre (v20261106_2359) : retour sur la configuration depuis Réglages, Aide, Tournoi et Aide à la marque
+  // Couvre (v20261107_0050) : retour sur la configuration depuis Réglages, Aide, Tournoi et Aide à la marque
   // après un défilement et un redimensionnement pendant l'absence : Ouest et Est restent au milieu de la table
   // (ils se collaient en haut), la page revient en haut (elle gardait le décalage des Réglages).
+  // Rotations (le cadre passe de 1194 × 834 à 834 × 1194 et inversement) : Ouest/Est reviennent au milieu en
+  // portrait, graphique des Stats redessiné à la bonne largeur au retour, Manche en cours sans reste du paysage.
   document.getElementById('app').addEventListener('load', function() {
     const result = document.getElementById('result');
     const app = this.contentWindow;
@@ -60,6 +62,38 @@
       app.showSettingsScreen(); app.scrollTo(0, 400); app.hideSettingsScreen(); app.showSettingsScreen();
       check(app.scrollY === 0, 'Réglages : doivent s’ouvrir en haut');
       app.hideSettingsScreen();
+
+      // ── Rotations ──
+      const frame = document.getElementById('app');
+      const tourner = async (w, h) => { frame.style.width = w + 'px'; frame.style.height = h + 'px'; await wait(900); };
+      // Paysage → portrait sur la configuration : Ouest/Est ne gardent pas la position calculée en paysage
+      await tourner(834, 1194);
+      check(Math.abs(milieu('sel-est') - 49) < 5 && Math.abs(milieu('sel-ouest') - 49) < 5, 'Portrait après rotation : Ouest/Est pas au milieu (' + Math.round(milieu('sel-ouest')) + ' % / ' + Math.round(milieu('sel-est')) + ' %)');
+      await tourner(1194, 834);
+      check(Math.abs(milieu('sel-est') - 49) < 5, 'Paysage après rotation : Ouest/Est pas au milieu');
+
+      // Graphique des Stats : rotation pendant qu'un autre écran est ouvert
+      app.eval(`['nord','sud','est','ouest'].forEach((p,i)=>document.getElementById('sel-'+p).value=['Fabrice','Chris','Aymeric','Florent'][i]); document.getElementById('sel-first-dealer').value='Fabrice'; startGame();
+        showTab('contrat'); updateContractForm(); fastPickTeam('t1'); fastPickValue(100); selectSuit('♥','h','red',true); confirmContract();
+        showTab('saisie'); updateSaisieForm(); fastKey('1'); fastKey('1'); fastKey('0'); fastValidate(); showTab('stats');`);
+      await wait(300);
+      app.showHelpScreen();
+      await tourner(834, 1194);
+      app.hideHelpScreen();
+      await wait(400);
+      const canvas = el('stats-chart');
+      check(canvas && canvas.width === canvas.offsetWidth, 'Stats : graphique non redessiné à la bonne largeur (' + (canvas && canvas.width) + ' / ' + (canvas && canvas.offsetWidth) + ')');
+
+      // Manche en cours : paysage → portrait, plus de reste du paysage dans les boîtes de score
+      await tourner(1194, 834);
+      app.eval(`showTab('enjeu'); showTab('contrat'); updateContractForm(); fastPickTeam('t2'); fastPickValue(90); selectSuit('♠','s','dark',true); confirmContract(); showMancheEnCours();`);
+      await wait(500);
+      check(el('mec-scores').style.height !== '', 'Manche en cours paysage : mise en page en colonnes attendue');
+      await tourner(834, 1194);
+      check(el('mec-scores').style.height === '' && el('mec-st1').style.padding === '' && el('mec-st1').style.flex === '', 'Manche en cours portrait : reste du paysage dans les scores');
+      check(el('mec-st1').style.borderColor !== '' , 'Manche en cours portrait : mise en avant de l’équipe en tête perdue');
+      await tourner(1194, 834);
+      app.eval(`showScreen('game'); showTab('enjeu'); localStorage.removeItem('belote_autosave');`);
 
       app.toggleTournoiMode(false);
       result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;

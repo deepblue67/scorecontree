@@ -1895,7 +1895,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261106_2359</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261107_0050</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -5389,7 +5389,9 @@ function renderStatsChart() {
     wrap.innerHTML = '<canvas id="stats-chart" style="width:100%;height:180px;display:block;"></canvas>';
     canvas = eid('stats-chart');
   }
-  const W = canvas.offsetWidth || 300;
+  // Onglet caché (rotation pendant qu'un autre écran est ouvert) : rien à mesurer, on redessine au retour
+  if(!canvas.offsetWidth) return;
+  const W = canvas.offsetWidth;
   const H = 180;
   canvas.width = W;
   canvas.height = H;
@@ -6062,6 +6064,15 @@ function showMancheEnCours() {
     eid('mec-btn-saisie').style.cssText = '';
     eid('mec-card-hint').style.cssText = '';
     eid('mec-scores').style.cssText = '';
+    // Boîtes de score : retirer le style du paysage (après une rotation), garder la mise en avant de l'équipe en tête
+    const lead = S.score.t1 >= S.score.t2 ? 'mec-st1' : 'mec-st2';
+    ['mec-st1','mec-st2'].forEach(id => {
+      const el = eid(id);
+      if(!el) return;
+      el.style.cssText = '';
+      el.style.borderColor = id === lead ? 'var(--green)' : 'rgba(255,255,255,0.12)';
+      el.style.background  = id === lead ? 'rgba(58,140,63,0.25)' : 'rgba(0,0,0,0.25)';
+    });
     document.querySelectorAll('.mec-team-name').forEach(el => { el.style.cssText = ''; });
     document.querySelectorAll('.mec-team-score').forEach(el => { el.style.cssText = ''; });
   }
@@ -6573,6 +6584,14 @@ function activateAppScreen(name) {
       setTimeout(fixEastWestPC, 120);
       setTimeout(fixEastWestPC, 400);
     }
+    // Manche en cours : mise en page calculée d'après l'écran actuel (au cas où il a tourné entre-temps)
+    if(name === 'mancheencours' && S.contract) {
+      requestAnimationFrame(() => { if(eid('screen-mancheencours').classList.contains('active')) showMancheEnCours(); });
+    }
+    // Retour sur la partie avec l'onglet Stats ouvert : graphique redessiné à la bonne largeur
+    if(name === 'game' && typeof currentGameTab !== 'undefined' && currentGameTab === 'stats') {
+      requestAnimationFrame(() => { try { renderStatsChart(); } catch(e) {} });
+    }
   }
   return true;
 }
@@ -6832,8 +6851,17 @@ refreshTeamPreview();
 checkAutoSave();
 
 // Fix iPad paysage : taille calculée dynamiquement depuis le DOM réel
+// Position d'origine (HTML) d'Ouest/Est : au milieu de la table, à 8 % du bord
+function resetEastWestPosition() {
+  const ouest = eid('setup-wrap-ouest'), est = eid('setup-wrap-est');
+  if(ouest) Object.assign(ouest.style, { left:'8%', right:'auto', top:'50%', transform:'translateY(-50%)' });
+  if(est)   Object.assign(est.style,   { right:'8%', left:'auto', top:'50%', transform:'translateY(-50%)' });
+}
+
 function fixEastWestPC() {
-  if(window.innerWidth < 1025) return;
+  // Moins de 1025 px (iPad portrait, iPhone) : position d'origine. Sinon, après une rotation
+  // depuis l'iPad paysage, Ouest/Est gardaient la position calculée pour le paysage.
+  if(window.innerWidth < 1025) { resetEastWestPosition(); return; }
   const wrap = eid('setup-table-wrap');
   const svg = wrap ? wrap.querySelector('svg') : null;
   if(!svg) return;
@@ -6930,6 +6958,11 @@ function handleViewportChange() {
   if (document.getElementById('screen-mancheencours') &&
       document.getElementById('screen-mancheencours').classList.contains('active') && S.contract) {
     showMancheEnCours();
+    // Rotation : les dimensions finales arrivent parfois après l'événement (Safari) → second calcul
+    clearTimeout(window._mecRelayout);
+    window._mecRelayout = setTimeout(() => {
+      if(eid('screen-mancheencours').classList.contains('active') && S.contract) showMancheEnCours();
+    }, 350);
   }
 
   const newOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';

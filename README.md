@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261106_2359`.
+Version applicative actuellement documentée : `v20261107_0050`.
 
 ---
 
@@ -415,13 +415,13 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `tournoi-correctifs-regression.html` | scores du tour conservés (Classement, sortie), correction du dernier tour (y compris après la fin, historique mis à jour), historique des tournois sans plafond, nom du tournoi protégé, « Retour à l’accueil », « Nouveau tournoi » sans confirmation après la fin, raccourci tournoi seulement pendant un tournoi, aucune fenêtre du système, graphique des stats recréé | 30 |
 | `historique-regression.html` | plus de plafond de 50 parties (sauvegarde et import fusionné), avertissement « mémoire presque pleine » une fois par session, « mémoire pleine » sans rien effacer, libellé du bouton de confirmation rétabli ; import par code « Ajouter à mes données » (fusion sans doublon, version de l'appareil prioritaire, joueurs complétés, thème conservé, deux imports sans doublon) | 18 |
 | `tournoi-jouer-ici-regression.html` | « Jouer ici » : un bouton par table, configuration pré-remplie (places, donneur, points), partie reliée (équipe du match en Nord/Sud ou Est/Ouest), score recopié dans le tour à la victoire, « Retour au tournoi », « Reprendre la partie », partie en cours abandonnée après confirmation, lien perdu si les joueurs changent ou si le tour a changé (avertissement), lien gardé par la sauvegarde automatique, équipe exemptée sans victoire, écran de victoire inchangé hors tournoi ; cadre iPad paysage (1194 × 834) : victoire, tournoi, récapitulatif et aide défilent même si un onglet était ouvert, la table reste bloquée sur l'écran de jeu | 42 |
-| `retour-configuration-regression.html` | Cadre 1194 × 834 : retour sur la configuration depuis Réglages, Aide, Tournoi et Aide à la marque après défilement et redimensionnement — Ouest/Est au milieu de la table, page en haut ; placement Ouest/Est ignoré quand la configuration est cachée ; Réglages ouverts en haut | 15 |
+| `retour-configuration-regression.html` | Cadre 1194 × 834 : retour sur la configuration depuis Réglages, Aide, Tournoi et Aide à la marque après défilement et redimensionnement — Ouest/Est au milieu de la table, page en haut ; placement Ouest/Est ignoré quand la configuration est cachée ; Réglages ouverts en haut ; rotations du cadre (1194 × 834 ↔ 834 × 1194) : Ouest/Est au milieu en portrait, graphique Stats redessiné au retour, Manche en cours sans reste du paysage | 21 |
 | `pc-table-regression.html` | icône de l'onglet (favicon PNG) ; TABLE sur PC (cadre 1440 × 900, souris) : table et colonne de droite centrées ensemble, colonne éloignée du bord, pas de fond commun entre les cases d'équipes, nom au-dessus du score et centré | 11 |
 
 Total des contrôles disponibles :
 
 ```text
-578 contrôles navigateur (19 pages de test)
+584 contrôles navigateur (19 pages de test)
 + 10 cas de score (scoring-regression.js)
 + 58 contrôles PWA (offline-pwa-regression.js)
 ```
@@ -1218,11 +1218,21 @@ Version `v20261106_1555`. Signalé par l'utilisateur (capture iPad paysage) : im
 
 ### 8.46 Retour sur la configuration : Ouest/Est en haut et page décalée
 
-Version `v20261106_2359`. Signalé par l'utilisateur (capture iPad paysage, retour des Réglages) : Ouest et Est collés en haut de la table, coupés par l'en-tête, et page décalée vers le haut (en-tête estompé par iOS).
+Versions `v20261106_2359` et `v20261107_0050`. Signalé par l'utilisateur (capture iPad paysage, retour des Réglages) : Ouest et Est collés en haut de la table, coupés par l'en-tête, et page décalée vers le haut (en-tête estompé par iOS).
 
 - **Ouest/Est** : à partir de 1025 px de large (iPad paysage, PC), `fixEastWestPC` place Ouest/Est d'après la taille réelle de la table. Un redimensionnement pendant que la configuration était cachée (Réglages, Aide, Tournoi, Aide à la marque) les plaçait d'après une table de 0 px, donc tout en haut, et rien ne les replaçait au retour. Correction : calcul ignoré si la configuration n'est pas affichée ; nouveau calcul à chaque retour sur la configuration (`activateAppScreen`).
 - **Page décalée** : les Réglages défilent avec toute la page et aucun changement d'écran ne remettait la page en haut. Correction : `resetPageScroll()` à chaque changement d'écran (avec une seconde remise à zéro pour Safari). En iPad paysage, la configuration dépassait aussi l'écran de 5 px avec la barre d'état iOS (marge basse de 80 px héritée de l'ancien bandeau) : hauteur ramenée à l'écran moins l'en-tête et marge basse à 70 px (table et colonne de droite décalées de 5 px, rien d'autre ne bouge).
 - **Vérification** : sur les 5 formats, aller-retour vers les 4 écrans avec défilement et redimensionnement entre-temps (Ouest/Est restent au milieu ; l'ancienne version les collait en haut en iPad paysage et sur PC) ; zones de sécurité iOS simulées (24 px en haut, 20 px en bas) : la configuration ne dépasse plus et la page revient en haut ; glissés au doigt de la section 8.45 toujours bons ; géométrie de la configuration inchangée hors iPad paysage.
+
+**Audit des autres écrans (`v20261107_0050`)**, à la demande de l'utilisateur (« ce genre de problème ne va-t-il pas se produire avec d'autres pages ? ») :
+
+- **Méthode** : tous les calculs de mise en page faits en JavaScript d'après la taille réelle des éléments ou de la fenêtre ont été relevés (Ouest/Est de la configuration, Manche en cours, graphique des Stats, graphique d'une partie passée, table de jeu, noms d'équipes). Puis, pour chaque rotation (iPhone et iPad, portrait ↔ paysage) et chaque écran (configuration, table, Manche en cours, Feuille, Stats, Parties, Résultat, Tournoi, Réglages, table après fermeture d'un onglet), comparaison de la position de tous les éléments avec un chargement direct dans la nouvelle orientation, en tournant sur l'écran et en tournant pendant qu'un autre écran est ouvert.
+- **Trouvé et corrigé** :
+  - Configuration, iPad paysage → portrait : Ouest/Est gardaient la position calculée pour le paysage (environ 50 px trop haut) ; en dessous de 1025 px, ils reprennent leur position d'origine (`resetEastWestPosition`).
+  - Graphique des Stats dessiné pendant qu'il était caché (rotation avec un autre écran ouvert) : largeur de secours de 300 px, graphique étiré et flou. Il n'est plus dessiné caché et il est redessiné au retour sur la partie.
+  - Manche en cours, paysage → portrait : les boîtes de score gardaient le style du paysage (plus hautes). Remise à zéro complète en portrait, avec la mise en avant de l'équipe en tête ; second calcul 350 ms après une rotation (Safari donne parfois les dimensions finales en retard) ; nouveau calcul à chaque affichage.
+- **Sans écart** après correction (hors l'animation de la carte de Manche en cours) : tous les écrans, toutes les rotations, sur place et en revenant d'un autre écran. Les seuls écarts restants concernent la table cachée derrière un onglet ouvert, invisible et recalculée dès qu'on ferme l'onglet.
+- **Non couvert** : le graphique de la fiche d'une partie passée (fenêtre) n'est pas redessiné si on tourne l'appareil pendant qu'elle est ouverte ; il l'est à la réouverture.
 
 ---
 
@@ -1712,9 +1722,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261106_2359` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261107_0050` |
 | Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 578 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261106_2359 |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 584 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261107_0050 |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
