@@ -411,6 +411,8 @@ body.fast-input #tab-saisie > :not(#fast-saisie) { display:none !important; }
 }
 /* Tournoi : titres en blanc sur le tapis ; colonne centrée et texte plus grand sur iPad paysage et PC */
 #tournoi-body .t-title { color:#fff; }
+/* Le corps est en colonne flex : sans cela, les cartes à overflow:hidden (classements) s'écrasaient quand la page déborde */
+#tournoi-body > * { flex-shrink:0; }
 @media (min-width: 900px) and (min-height: 600px) {
   #tournoi-body > *, .tournoi-hist-list { width:100%; max-width:820px; margin-left:auto !important; margin-right:auto !important; box-sizing:border-box; }
   #tournoi-body table { font-size:16px !important; }
@@ -1892,7 +1894,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261106_1340</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261106_1500</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -3794,8 +3796,12 @@ function normalizeTournoiState(value) {
   const tourActuel = Number(value.tourActuel);
   if(!Number.isFinite(nbTours) || nbTours < 1 || !Number.isFinite(tourActuel) || tourActuel < 1) return null;
 
+  const calendrierOk = value.format === 'rr' && Array.isArray(value.calendrier) && value.calendrier.length === nbTours
+    && value.calendrier.every(t => isPlainObject(t) && Array.isArray(t.matchs));
   return {
     ...value,
+    format: calendrierOk ? 'rr' : 'suisse',
+    calendrier: calendrierOk ? value.calendrier : null,
     nbTours,
     tourActuel,
     equipes,
@@ -3913,6 +3919,8 @@ function renderTournoiSetup() {
         <div style="display:flex;gap:8px;">
           ${[3,4,5,6].map(n => `<button class="chip ${n===(_tSetup.nbTours||5)?'selected-green':''}" id="tours-chip-${n}" onclick="selectNbTours(${n})" style="flex:1;padding:10px 4px;font-size:15px;font-weight:700;">${n}</button>`).join('')}
         </div>
+        <button class="chip ${_tSetup.nbTours==='rr'?'selected-green':''}" id="tours-chip-rr" onclick="selectNbTours('rr')" style="width:100%;margin-top:8px;padding:10px 4px;font-size:15px;font-weight:700;">🔁 Tous contre tous</button>
+        <div id="t-rr-info" style="display:none;font-size:12px;color:var(--text2);margin-top:6px;text-align:center;"></div>
       </div>
 
       <div style="margin-bottom:14px;">
@@ -3943,11 +3951,9 @@ function renderTournoiSetup() {
     <button class="btn btn-green btn-full" onclick="demarrerTournoi()" style="font-size:16px;padding:14px;">🏆 Démarrer le tournoi</button>
   `;
 
-  // Initialiser l'état setup temporaire
-  if(!window._tSetup) window._tSetup = { nbTours: 5, equipes: [] };
+  // État de configuration en cours (_tSetup) : le choix de formule est conservé
   renderTEqList();
-  // Sélectionner le bon chip
-  selectNbTours(window._tSetup.nbTours, true);
+  selectNbTours(_tSetup.nbTours || 5, true);
   // Peupler les selects avec les joueurs disponibles
   refreshTournoiSelects();
 }
@@ -3966,12 +3972,54 @@ function refreshTournoiSelects() {
 
 let _tSetup = { nbTours: 5, equipes: [], nom: '', date: '' };
 
+// n : 3 à 6 tours (adversaires selon le classement) ou 'rr' (tous contre tous, calendrier fixé au départ)
 function selectNbTours(n, silent) {
   _tSetup.nbTours = n;
-  [3,4,5,6].forEach(k => {
+  [3,4,5,6,'rr'].forEach(k => {
     const c = eid('tours-chip-'+k);
     if(c) c.className = 'chip' + (k===n ? ' selected-green' : '');
   });
+  updateRrInfo();
+}
+
+// Nombre de tours du tous contre tous : n−1 (pair) ou n (impair, chaque équipe exemptée une fois)
+function nbToursToutesRondes(n) { return n % 2 ? n : n - 1; }
+
+function updateRrInfo() {
+  const info = eid('t-rr-info');
+  if(!info) return;
+  if(_tSetup.nbTours !== 'rr') { info.style.display = 'none'; return; }
+  const n = _tSetup.equipes.length;
+  info.style.display = 'block';
+  info.textContent = n < 3
+    ? 'Chaque équipe rencontre toutes les autres une fois — ajoutez au moins 3 équipes'
+    : `${n} équipes → ${nbToursToutesRondes(n)} tours` + (n % 2 ? ', chaque équipe exemptée une fois' : '') + ' · chaque équipe rencontre toutes les autres une fois';
+}
+
+// Calendrier « tous contre tous » (méthode du cercle) : chaque paire se rencontre une seule fois
+function genererCalendrierToutesRondes(noms) {
+  const liste = [...noms];
+  if(liste.length % 2) liste.push(null); // null = exemption
+  const n = liste.length, tours = [];
+  let rot = liste.slice(1);
+  for(let r = 0; r < n - 1; r++) {
+    const ordre = [liste[0], ...rot];
+    const matchs = []; let exemptee = null;
+    for(let i = 0; i < n / 2; i++) {
+      const a = ordre[i], b = ordre[n - 1 - i];
+      if(a === null || b === null) { exemptee = a === null ? b : a; continue; }
+      // alterner l'ordre d'affichage pour ne pas toujours mettre la même équipe à gauche
+      matchs.push(r % 2 ? { eq1:b, eq2:a } : { eq1:a, eq2:b });
+    }
+    tours.push({ numTour: r + 1, matchs, exemptee });
+    rot = [rot[rot.length - 1], ...rot.slice(0, -1)];
+  }
+  return tours;
+}
+
+function appariementsDepuisCalendrier(t, numTour) {
+  const c = t.calendrier[numTour - 1];
+  return { numTour, exemptee: c.exemptee || null, matchs: c.matchs.map(m => ({ eq1:m.eq1, eq2:m.eq2, score1:null, score2:null })) };
 }
 
 function addTournoiEquipe() {
@@ -3999,6 +4047,7 @@ function renderTEqList() {
   const cnt = eid('t-eq-count');
   if(!el) return;
   if(cnt) cnt.textContent = _tSetup.equipes.length + ' équipe(s)';
+  updateRrInfo();
   if(!_tSetup.equipes.length) {
     el.innerHTML = '<div style="font-size:13px;color:var(--text2);text-align:center;padding:8px;">Aucune équipe ajoutée</div>';
     return;
@@ -4019,19 +4068,23 @@ function demarrerTournoi() {
 
   const equipes = [..._tSetup.equipes];
   shuffle(equipes);
+  const rr = _tSetup.nbTours === 'rr';
+  const calendrier = rr ? genererCalendrierToutesRondes(equipes) : null;
 
   T = {
     status: 'running',
     nom,
     date,
-    nbTours: _tSetup.nbTours,
+    format: rr ? 'rr' : 'suisse',
+    nbTours: rr ? calendrier.length : _tSetup.nbTours,
+    calendrier,
     tourActuel: 1,
     equipes: equipes.map(name => ({ name, victoires: 0, goalAvg: 0, scoreTotal: 0, exemptions: 0, rencontres: [] })),
     tours: [],
     appariements: null
   };
 
-  T.appariements = genererAppariements(T, 1, true);
+  T.appariements = rr ? appariementsDepuisCalendrier(T, 1) : genererAppariements(T, 1, true);
   saveTournoi();
   updateTournoiShortcut();
   renderTournoiTour();
@@ -4179,8 +4232,11 @@ function renderTournoiTour() {
 
   body.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div class="t-title" style="font-size:20px;font-weight:800;">Tour ${T.tourActuel} / ${T.nbTours}</div>
-      <button onclick="saveTourDrafts();renderTournoiClassement()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:99px;padding:7px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">📊 Classement</button>
+      <div>
+        <div class="t-title" style="font-size:20px;font-weight:800;">Tour ${T.tourActuel} / ${T.nbTours}</div>
+        ${T.format === 'rr' ? '<div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">🔁 Tous contre tous</div>' : ''}
+      </div>
+      <button onclick="saveTourDrafts();renderTournoiRecap()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:99px;padding:7px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">📋 Récap & classement</button>
     </div>
 
     ${app.exemptee ? `
@@ -4312,7 +4368,7 @@ function validerTour() {
   // Tour suivant ou fin
   if(T.tourActuel < T.nbTours) {
     T.tourActuel++;
-    T.appariements = genererAppariements(T, T.tourActuel, false);
+    T.appariements = T.format === 'rr' ? appariementsDepuisCalendrier(T, T.tourActuel) : genererAppariements(T, T.tourActuel, false);
     saveTournoi();
     renderTournoiTour();
   } else {
@@ -4330,22 +4386,16 @@ function getClassement() {
   return classerEquipesTournoi(T.equipes);
 }
 
-function renderTournoiClassement() {
-  const body = eid('tournoi-body');
-  const cl   = getClassement();
 
-  body.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div class="t-title" style="font-size:20px;font-weight:800;">📊 Classement</div>
-      <button onclick="renderTournoiTour()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:99px;padding:7px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">← Tour en cours</button>
-    </div>
-
+function classementTournoiHtml(cl) {
+  return `
     <div class="card" style="overflow:hidden;padding:0;">
       <table style="width:100%;border-collapse:collapse;font-size:13px;">
         <thead>
           <tr style="background:rgba(0,0,0,0.06);border-bottom:2px solid rgba(0,0,0,0.1);">
             <th style="padding:10px 12px;text-align:left;font-size:11px;color:var(--text2);text-transform:uppercase;">#</th>
             <th style="padding:10px 12px;text-align:left;font-size:11px;color:var(--text2);text-transform:uppercase;">Équipe</th>
+            <th style="padding:10px 12px;text-align:center;font-size:11px;color:var(--text2);">J</th>
             <th style="padding:10px 12px;text-align:center;font-size:11px;color:var(--text2);">V</th>
             <th style="padding:10px 12px;text-align:center;font-size:11px;color:var(--text2);">G.A.</th>
             <th style="padding:10px 12px;text-align:center;font-size:11px;color:var(--text2);">Pts</th>
@@ -4354,10 +4404,9 @@ function renderTournoiClassement() {
         <tbody>
           ${cl.map((eq, i) => `
           <tr style="border-bottom:1px solid rgba(0,0,0,0.06);${i===0?'background:rgba(200,150,10,0.08);':''}">
-            <td style="padding:10px 12px;font-weight:800;color:${i===0?'#c8960a':i===1?'#888':i===2?'#b87333':'var(--text2)'};">
-              ${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}
-            </td>
+            <td style="padding:10px 12px;font-weight:800;color:${i===0?'#c8960a':i===1?'#888':i===2?'#b87333':'var(--text2)'};">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td>
             <td style="padding:10px 12px;font-weight:700;color:var(--text);">${escapeHtml(eq.name)}</td>
+            <td style="padding:10px 12px;text-align:center;color:var(--text2);">${(eq.rencontres || []).length}</td>
             <td style="padding:10px 12px;text-align:center;font-weight:700;color:var(--green);">${eq.victoires}</td>
             <td style="padding:10px 12px;text-align:center;color:${eq.goalAvg>=0?'var(--green)':'#cc2222'};font-weight:700;">${eq.goalAvg>0?'+':''}${eq.goalAvg}</td>
             <td style="padding:10px 12px;text-align:center;color:var(--text2);">${eq.scoreTotal}</td>
@@ -4365,9 +4414,69 @@ function renderTournoiClassement() {
         </tbody>
       </table>
     </div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.7);text-align:center;margin:8px 0 18px;">J = Matchs joués · V = Victoires · G.A. = Goal Average · Pts = Points totaux</div>`;
+}
 
-    <div style="font-size:12px;color:rgba(255,255,255,0.7);text-align:center;margin-top:10px;">V = Victoires · G.A. = Goal Average · Pts = Points totaux</div>
+// Une ligne de match : joué (scores, écart, gagnant en gras) ou à jouer
+function recapMatchHtml(m, etat) {
+  const joue = etat === 'joue';
+  const w1 = joue && m.score1 > m.score2, w2 = joue && m.score2 > m.score1;
+  const ecart = joue ? Math.abs(m.score1 - m.score2) : 0;
+  const nom = (n, w, align) => `<span style="font-size:13px;font-weight:${w?'900':'600'};color:${w?'var(--green)':'var(--text)'};text-align:${align};overflow-wrap:anywhere;">${w?'✓ ':''}${escapeHtml(n)}</span>`;
+  const milieu = joue
+    ? `<span style="font-size:15px;font-weight:900;color:var(--text);white-space:nowrap;">${m.score1} – ${m.score2}</span>`
+    : `<span style="font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;">${etat === 'encours' ? 'en cours' : etat === 'nonjoue' ? 'non joué' : 'vs'}</span>`;
+  const delta = joue ? `<span style="font-size:12px;font-weight:800;color:${ecart?'var(--green)':'var(--text2)'};white-space:nowrap;">${ecart ? '+' + ecart : '='}</span>` : '<span></span>';
+  return `<div class="t-recap-row" style="display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) 44px;gap:8px;align-items:center;padding:8px 0;border-top:1px solid rgba(0,0,0,0.06);${etat==='nonjoue'?'opacity:0.5;':''}">
+    ${nom(m.eq1, w1, 'right')}${milieu}${nom(m.eq2, w2, 'left')}${delta}
+  </div>`;
+}
+
+function recapTourHtml(num, matchs, exemptee, etat) {
+  const badge = { joue:'✓ joué', encours:'en cours', ajouer:'à jouer', nonjoue:'non joué' }[etat];
+  const couleur = { joue:'var(--green)', encours:'#c8960a', ajouer:'var(--text2)', nonjoue:'var(--text2)' }[etat];
+  return `<div class="card" style="padding:12px 14px;margin-bottom:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <div style="font-size:14px;font-weight:800;color:var(--text);">Tour ${num}</div>
+      <div style="font-size:11px;font-weight:800;color:${couleur};text-transform:uppercase;">${badge}</div>
+    </div>
+    ${matchs.map(m => recapMatchHtml(m, etat)).join('')}
+    ${exemptee ? `<div style="font-size:12px;color:var(--text2);padding-top:6px;border-top:1px solid rgba(0,0,0,0.06);">😴 ${escapeHtml(exemptee)} exempté</div>` : ''}
+  </div>`;
+}
+
+// Page récapitulative : classement à jour + tous les matchs du tournoi
+function renderTournoiRecap() {
+  const body = eid('tournoi-body');
+  const running = T.status === 'running';
+  const tours = [];
+  for(let k = 1; k <= T.nbTours; k++) {
+    const joue = T.tours.find(t => t.numTour === k);
+    if(joue) { tours.push(recapTourHtml(k, joue.matchs, joue.exemptee, 'joue')); continue; }
+    if(running && k === T.tourActuel && T.appariements) { tours.push(recapTourHtml(k, T.appariements.matchs, T.appariements.exemptee, 'encours')); continue; }
+    if(T.format === 'rr' && T.calendrier && T.calendrier[k - 1]) {
+      const c = T.calendrier[k - 1];
+      tours.push(recapTourHtml(k, c.matchs, c.exemptee, running ? 'ajouer' : 'nonjoue'));
+      continue;
+    }
+    if(running) {
+      tours.push(`<div class="card" style="padding:12px 14px;margin-bottom:10px;font-size:13px;color:var(--text2);text-align:center;">Tour${k < T.nbTours ? 's ' + k + ' à ' + T.nbTours : ' ' + k} : adversaires choisis selon le classement après chaque tour</div>`);
+    }
+    break;
+  }
+  const joues = T.tours.length;
+  body.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;">
+      <div class="t-title" style="font-size:20px;font-weight:800;">📋 Récapitulatif</div>
+      <button onclick="${running ? 'renderTournoiTour()' : 'renderTournoiResultat()'}" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:99px;padding:7px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">${running ? '← Tour en cours' : '← Résultats'}</button>
+    </div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-bottom:14px;">${T.format === 'rr' ? '🔁 Tous contre tous' : 'Adversaires selon le classement'} · ${joues} / ${T.nbTours} tour${T.nbTours > 1 ? 's' : ''} joué${joues > 1 ? 's' : ''}</div>
+    <div class="t-title" style="font-size:15px;font-weight:800;margin-bottom:8px;">Classement${running ? ' (tours validés)' : ''}</div>
+    ${classementTournoiHtml(getClassement())}
+    <div class="t-title" style="font-size:15px;font-weight:800;margin-bottom:8px;">Matchs</div>
+    ${tours.join('')}
   `;
+  body.scrollTop = 0;
 }
 
 // ── RÉSULTAT FINAL ────────────────────────────────────────────
@@ -4447,6 +4556,7 @@ function renderTournoiResultat() {
       <button class="btn btn-green" onclick="resetTournoi()" style="font-size:14px;padding:13px;">🏆 Nouveau tournoi</button>
       <button class="btn btn-outline" onclick="partageTournoi()" style="font-size:14px;padding:13px;">📷 Partager résultats</button>
     </div>
+    <button class="btn btn-outline btn-full" onclick="renderTournoiRecap()" style="font-size:14px;padding:12px;margin-bottom:8px;">📋 Récapitulatif des matchs</button>
     <button class="btn btn-outline btn-full" onclick="hideTournoi()" style="font-size:14px;padding:12px;margin-bottom:8px;">${S.t1 && S.t1.name ? '← Retour à la partie' : '← Retour à l’accueil'}</button>
     ${T.tours.length ? `<button class="btn btn-outline btn-full" onclick="corrigerDernierTour()" style="font-size:13px;padding:10px;margin-bottom:8px;opacity:0.85;">↩ Corriger le tour ${T.tours.length}</button>` : ''}
   `;
@@ -7706,10 +7816,11 @@ function renderHelpContent() {
     // ── 11. Mode tournoi ──
     section('🏆', '11. Mode tournoi', [
       step(1, 'Activez <strong>Afficher le bouton Tournoi</strong> dans les Réglages : le bouton <strong>🏆 Mode Tournoi</strong> apparaît sur l\'écran de configuration.'),
-      step(2, 'Donnez un nom, choisissez le <strong>nombre de tours</strong> (3 à 6) et formez au moins 3 équipes de deux joueurs, puis <strong>Démarrer le tournoi</strong>.'),
-      step(3, 'À chaque tour, saisissez le score final de chaque table puis <strong>Valider le tour</strong>. Les scores déjà tapés restent en place si vous consultez le <strong>Classement</strong> ou quittez l\'écran.'),
-      step(4, 'Une erreur sur un tour validé ? <strong>↩ Corriger le tour</strong> rouvre le dernier tour avec ses scores (même après la fin du tournoi).'),
-      step(5, 'Pendant un tournoi, <strong>Saisir scores du tournoi</strong> apparaît aussi sur la table d\'une partie. Les tournois terminés sont dans <strong>📋 Parties › Tournois</strong>.'),
+      step(2, 'Donnez un nom, formez au moins 3 équipes de deux joueurs et choisissez la formule : <strong>3 à 6 tours</strong> (adversaires choisis selon le classement) ou <strong>🔁 Tous contre tous</strong> (chaque équipe rencontre toutes les autres une fois ; nombre de tours calculé, calendrier fixé au départ). Puis <strong>Démarrer le tournoi</strong>.'),
+      step(3, 'À chaque tour, saisissez le score final de chaque table puis <strong>Valider le tour</strong>. Les scores déjà tapés restent en place si vous consultez le récapitulatif ou quittez l\'écran.'),
+      step(4, '<strong>📋 Récap & classement</strong> montre le classement à jour et tous les matchs du tournoi : joués (scores, écart), en cours et à venir.'),
+      step(5, 'Une erreur sur un tour validé ? <strong>↩ Corriger le tour</strong> rouvre le dernier tour avec ses scores (même après la fin du tournoi).'),
+      step(6, 'Pendant un tournoi, <strong>Saisir scores du tournoi</strong> apparaît aussi sur la table d\'une partie. Les tournois terminés sont dans <strong>📋 Parties › Tournois</strong>.'),
       note('Classement : victoires, puis goal average (différence de points), puis points marqués. Avec un nombre impair d\'équipes, une équipe est exemptée à chaque tour.'),
     ].join('')) +
 

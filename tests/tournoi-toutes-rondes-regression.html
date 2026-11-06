@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests tournoi « Tous contre tous » ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  // Couvre : calendrier « tous contre tous » (3 à 12 équipes : chaque paire une seule fois, une seule
+  // exemption par équipe en impair), choix dans la configuration, déroulé complet, correction d'un tour,
+  // page récapitulative (classement, matchs joués avec scores et écarts, en cours, à jouer), formule
+  // « selon le classement » inchangée, état enregistré relu.
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+    const check = (condition, message) => { checks += 1; if(!condition) failures.push(message); };
+    const el = id => doc.getElementById(id);
+    const T = () => app.eval('T');
+    const pairKey = (a, b) => [a, b].sort().join(' | ');
+
+    setTimeout(() => {
+    try {
+      app.confirm = () => true;
+      // ── Calendrier : 3 à 12 équipes ──
+      for(let n = 3; n <= 12; n++) {
+        const noms = Array.from({length:n}, (_, i) => 'E' + i);
+        const cal = app.genererCalendrierToutesRondes(noms);
+        const attendu = n % 2 ? n : n - 1;
+        check(cal.length === attendu && app.nbToursToutesRondes(n) === attendu, n + ' équipes : ' + attendu + ' tours attendus (' + cal.length + ')');
+        const paires = new Set(); let doublon = false; let parTour = true;
+        const exempt = {};
+        cal.forEach(t => {
+          const vus = new Set();
+          t.matchs.forEach(m => {
+            const k = pairKey(m.eq1, m.eq2);
+            if(paires.has(k)) doublon = true;
+            paires.add(k);
+            if(vus.has(m.eq1) || vus.has(m.eq2)) parTour = false;
+            vus.add(m.eq1); vus.add(m.eq2);
+          });
+          if(t.exemptee) { exempt[t.exemptee] = (exempt[t.exemptee] || 0) + 1; if(vus.has(t.exemptee)) parTour = false; }
+        });
+        check(!doublon && paires.size === n * (n - 1) / 2, n + ' équipes : chaque paire doit se rencontrer une seule fois');
+        check(parTour, n + ' équipes : une équipe joue deux fois dans le même tour');
+        if(n % 2) check(Object.keys(exempt).length === n && Object.values(exempt).every(v => v === 1), n + ' équipes : chaque équipe doit être exemptée une fois');
+        else check(Object.keys(exempt).length === 0, n + ' équipes : aucune exemption attendue');
+      }
+
+      // ── Configuration ──
+      app.localStorage.removeItem('belote_tournoi');
+      app.eval(`S.players = ['A','B','C','D','E','F','G','H','I','J']; savePlayers();`);
+      app.toggleTournoiMode(true);
+      app.showTournoi();
+      check(!!el('tours-chip-rr') && /Tous contre tous/.test(el('tours-chip-rr').textContent), 'Bouton « Tous contre tous » absent');
+      app.selectNbTours('rr');
+      check(el('tours-chip-rr').classList.contains('selected-green') && !el('tours-chip-5').classList.contains('selected-green'), '« Tous contre tous » non sélectionné');
+      app.eval(`_tSetup.equipes = ['A & B','C & D','E & F','G & H','I & J']; renderTEqList();`);
+      check(/5 équipes → 5 tours, chaque équipe exemptée une fois/.test(el('t-rr-info').textContent), 'Information du nombre de tours absente : ' + el('t-rr-info').textContent);
+      app.demarrerTournoi();
+      check(T().format === 'rr' && T().nbTours === 5 && T().calendrier.length === 5, 'Tournoi tous contre tous non créé');
+      check(JSON.stringify(T().appariements.matchs.map(m => [m.eq1, m.eq2])) === JSON.stringify(T().calendrier[0].matchs.map(m => [m.eq1, m.eq2])), 'Tour 1 : appariements différents du calendrier');
+      check(/Tous contre tous/.test(el('tournoi-body').textContent), 'Écran du tour : formule non indiquée');
+
+      // ── Récapitulatif avant tout match ──
+      app.renderTournoiRecap();
+      let rows = el('tournoi-body').querySelectorAll('.t-recap-row');
+      check(rows.length === 10, 'Récap : les 10 matchs du tournoi doivent être annoncés (' + rows.length + ')');
+      check(/en cours/i.test(el('tournoi-body').textContent) && /à jouer/i.test(el('tournoi-body').textContent), 'Récap : tour en cours et tours à jouer attendus');
+      check(!!el('tournoi-body').querySelector('table') && /J = Matchs joués/.test(el('tournoi-body').textContent), 'Récap : classement absent');
+      app.renderTournoiTour();
+
+      // ── Déroulé : scores, récap, correction ──
+      const jouerTour = (base) => { T().appariements.matchs.forEach((m, i) => { el(`t-score-${i}-1`).value = String(2001 + base + i); el(`t-score-${i}-2`).value = String(1500 - base); }); app.validerTour(); };
+      jouerTour(0);
+      app.renderTournoiRecap();
+      const txt = el('tournoi-body').textContent;
+      check(/2001 – 1500/.test(txt) && /\+501/.test(txt), 'Récap : score et écart du tour 1 absents');
+      check(/✓ joué/i.test(txt), 'Récap : tour 1 non marqué joué');
+      check(el('tournoi-body').querySelector('tbody td:nth-child(3)').textContent.trim() !== '', 'Récap : colonne J vide');
+      app.renderTournoiTour();
+      jouerTour(10);
+      const tour2 = JSON.stringify(T().tours[1].matchs.map(m => [m.eq1, m.eq2]));
+      app.corrigerDernierTour(); el('confirm-ok').click();
+      check(T().tourActuel === 2 && JSON.stringify(T().appariements.matchs.map(m => [m.eq1, m.eq2])) === tour2, 'Correction : le tour 2 doit revenir avec ses appariements');
+      app.validerTour();
+      check(JSON.stringify(T().appariements.matchs.map(m => [m.eq1, m.eq2])) === JSON.stringify(T().calendrier[2].matchs.map(m => [m.eq1, m.eq2])), 'Après correction : le tour 3 doit suivre le calendrier');
+      jouerTour(20); jouerTour(30); jouerTour(40);
+      check(T().status === 'done' && T().tours.length === 5, 'Tournoi tous contre tous non terminé après 5 tours');
+      check(T().equipes.every(e => new Set(e.rencontres).size === 4 && e.rencontres.length === 4 && e.exemptions === 1), 'Chaque équipe doit avoir rencontré les 4 autres une fois et être exemptée une fois');
+      check(!!el('tournoi-body').querySelector('button[onclick="renderTournoiRecap()"]'), 'Résultat : bouton « Récapitulatif des matchs » absent');
+      app.renderTournoiRecap();
+      check(el('tournoi-body').querySelectorAll('.t-recap-row').length === 10 && /← Résultats/.test(el('tournoi-body').textContent), 'Récap final : 10 matchs et retour aux résultats attendus');
+
+      // ── État enregistré relu ──
+      app.eval('loadTournoi()');
+      check(T().format === 'rr' && T().calendrier.length === 5, 'État relu : formule tous contre tous perdue');
+      check(app.normalizeTournoiState({ ...T(), calendrier: [{}] }).format === 'suisse', 'Calendrier invalide : retour à la formule selon le classement attendu');
+
+      // ── Formule « selon le classement » inchangée ──
+      app.eval(`T = null; localStorage.removeItem('belote_tournoi'); _tSetup = { nbTours: 4, equipes: ['A & B','C & D','E & F','G & H'] };`);
+      app.renderTournoiSetup();
+      check(el('t-rr-info').style.display === 'none', 'Information tous contre tous affichée hors de cette formule');
+      app.demarrerTournoi();
+      check(T().format === 'suisse' && T().nbTours === 4 && !T().calendrier, 'Formule 4 tours : état incorrect');
+      app.renderTournoiRecap();
+      check(/selon le classement/.test(el('tournoi-body').textContent), 'Récap formule classement : message des tours suivants absent');
+
+      app.toggleTournoiMode(false);
+      ['belote_tournoi','belote_tournois_history'].forEach(k => app.localStorage.removeItem(k));
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message + ' ' + (error.stack||'').split('\n')[1];
+      result.dataset.status = 'error';
+    }
+    }, 300);
+  });
+</script>
+</body>
+</html>

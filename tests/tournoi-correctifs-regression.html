@@ -46,7 +46,7 @@
 
       // Scores conservés après Classement et après sortie de l'écran
       type(0, 2010, 1500);
-      el('tournoi-body').querySelector('button[onclick*="renderTournoiClassement"]').click();
+      el('tournoi-body').querySelector('button[onclick*="renderTournoiRecap"]').click();
       app.renderTournoiTour();
       check(el('t-score-0-1').value === '2010' && el('t-score-0-2').value === '1500', 'Scores perdus après le Classement');
       check(el('t-result-0').textContent.includes('gagne'), 'Résultat du match non réaffiché');

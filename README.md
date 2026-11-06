@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261106_1340`.
+Version applicative actuellement documentée : `v20261106_1500`.
 
 ---
 
@@ -84,6 +84,7 @@ ScoreBelote/
     pc-table-regression.html
     historique-regression.html
     tournoi-correctifs-regression.html
+    tournoi-toutes-rondes-regression.html
     saisie-rapide-regression.html
 ```
 
@@ -410,6 +411,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `saisie-rapide-regression.html` | saisie (seul mode) : écrans classiques et choix du mode absents, ancien réglage nettoyé, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, TABLE (points gagnés / manquants et leurs réglages, icônes, lisibilité, éclair), contrat → Manche en cours, bandeau du bas masqué (jeu, Réglages, Manche en cours), écran allumé, retour au classique | 65 |
 | `ameliorations-20261031-regression.html` | édition via écran Résultat, suppression de donne, passe sur la TABLE, annulation après passe, couleurs feuille, victoire, archive sans doublon, règle capot + belote, saisie clavier | 38 |
 | `ameliorations-20261101-regression.html` | bouton « Saisir le score » de Manche en cours, points maximum d'une donne, alerte « dernière donne » (points, manches, contre, masquée en correction), tableaux agrandis en iPad portrait (cadre 834 × 1194), illustrations et textes de l'aide | 28 |
+| `tournoi-toutes-rondes-regression.html` | calendrier tous contre tous de 3 à 12 équipes (chaque paire une fois, une équipe par tour, une exemption par équipe en impair), bouton et information dans la configuration, déroulé complet, correction d'un tour, page récapitulative (10 matchs annoncés, scores et écarts, en cours / à jouer, classement avec J), état relu, formule « selon le classement » inchangée | 63 |
 | `tournoi-correctifs-regression.html` | scores du tour conservés (Classement, sortie), correction du dernier tour (y compris après la fin, historique mis à jour), historique des tournois sans plafond, nom du tournoi protégé, « Retour à l’accueil », « Nouveau tournoi » sans confirmation après la fin, raccourci tournoi seulement pendant un tournoi, aucune fenêtre du système, graphique des stats recréé | 30 |
 | `historique-regression.html` | plus de plafond de 50 parties (sauvegarde et import fusionné), avertissement « mémoire presque pleine » une fois par session, « mémoire pleine » sans rien effacer, libellé du bouton de confirmation rétabli ; import par code « Ajouter à mes données » (fusion sans doublon, version de l'appareil prioritaire, joueurs complétés, thème conservé, deux imports sans doublon) | 18 |
 | `pc-table-regression.html` | icône de l'onglet (favicon PNG) ; TABLE sur PC (cadre 1440 × 900, souris) : table et colonne de droite centrées ensemble, colonne éloignée du bord, pas de fond commun entre les cases d'équipes, nom au-dessus du score et centré | 11 |
@@ -417,7 +419,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 Total des contrôles disponibles :
 
 ```text
-458 contrôles navigateur (16 pages de test)
+521 contrôles navigateur (17 pages de test)
 + 10 cas de score (scoring-regression.js)
 + 58 contrôles PWA (offline-pwa-regression.js)
 ```
@@ -1183,6 +1185,16 @@ Version `v20261106_1340`. Premier lot de la passe générale du 6 novembre (règ
 - **Aide** : note de la configuration (icônes en haut) ; nouvelle partie 11 « Mode tournoi ».
 - **Vérification** : géométrie des écrans de jeu comparée à `v20261101_2140` sur 5 formats : seules différences voulues (grille 2 × 2 en début de partie sur iPad/PC, noms sur deux lignes en iPhone portrait).
 
+### 8.43 Tournoi : « Tous contre tous » et page récapitulative
+
+Version `v20261106_1500`. Demandé par l'utilisateur : proposer « chaque équipe se rencontre une fois » à la place d'un nombre de tours ; une page qui annonce tous les matchs avec scores, écarts et classement à jour ; pas de limite d'équipes (on peut terminer avant la fin).
+
+- **Configuration** : bouton « 🔁 Tous contre tous » sous 3 / 4 / 5 / 6 (`selectNbTours('rr')`), information `#t-rr-info` (« 5 équipes → 5 tours, chaque équipe exemptée une fois… ») mise à jour à chaque ajout d'équipe (`updateRrInfo`). Corrigé au passage : le choix de formule revenait à 5 à chaque réaffichage (confusion `window._tSetup` / `_tSetup`).
+- **Calendrier** : `genererCalendrierToutesRondes(noms)` (méthode du cercle ; équipe fictive pour l'exemption en impair) produit `nbToursToutesRondes(n)` tours (n−1 en pair, n en impair). `T.format = 'rr'`, `T.calendrier` enregistré ; `appariementsDepuisCalendrier(T, numTour)` donne chaque tour (au départ et dans `validerTour`). La formule historique (`T.format = 'suisse'`, adversaires selon le classement) est inchangée. `normalizeTournoiState` revient à « suisse » si le calendrier enregistré est invalide.
+- **Récapitulatif** (`renderTournoiRecap`, bouton « 📋 Récap & classement » sur l'écran du tour, « 📋 Récapitulatif des matchs » sur le résultat) : classement à jour (`classementTournoiHtml`, colonne J = matchs joués) puis chaque tour : joué (scores, gagnant ✓ en vert, écart « +N »), en cours, à jouer (calendrier) ou non joué (tournoi arrêté avant la fin) ; en formule classement, les tours suivants sont annoncés « selon le classement ». L'ancienne page Classement (`renderTournoiClassement`) est remplacée.
+- **Affichage** : `#tournoi-body > * { flex-shrink:0 }` — dans le corps en colonne flex, les cartes de classement (overflow:hidden) s'écrasaient à zéro quand la page débordait.
+- **Aide** (partie 11) : les deux formules et le récapitulatif.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1671,9 +1683,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261106_1340` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261106_1500` |
 | Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 458 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261106_1340 |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 521 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261106_1500 |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
@@ -1725,6 +1737,7 @@ Statuts utilisés :
 | Historique sans plafond | Ne plus effacer les parties au-delà de 50 ; prévenir quand la mémoire se remplit. | Fait | Haute | Livré en `v20261101_2120` |
 | Import par code en fusion | Bouton « Ajouter à mes données » qui fusionne au lieu de remplacer. | Fait | Haute | Livré en `v20261101_2140` |
 | Passe générale, lot 1 | Bandeau du bas supprimé, défauts et incohérences du tournoi et de la table corrigés. | Fait | Haute | Livré en `v20261106_1340` |
+| Tournoi « Tous contre tous » et récapitulatif | Calendrier toutes-rondes, page de tous les matchs avec scores, écarts et classement. | Fait | Haute | Livré en `v20261106_1500` |
 | Tournoi, règles et lien avec les parties | Exemption (victoire ou non) ; bouton « Jouer ce match ici » reportant le score. | À préciser | Moyen terme | En attente des réponses de l'utilisateur |
 | Simplification CSS progressive | Retirer le préfixe `body.fast-input`, réduire les blocs par appareil au profit de tailles fluides. | À faire | Moyen terme | Écran par écran, en commençant par Manche en cours |
 | Choix définitif du mode de saisie | Garder classique ou rapide, supprimer l'autre. | Fait | Moyen terme | Saisie rapide conservée en `v20261101_2045` |
