@@ -409,27 +409,40 @@ body.fast-input #tab-saisie > :not(#fast-saisie) { display:none !important; }
 @media (min-width: 768px) and (min-height: 700px) and (orientation: landscape) {
   .fast-panel { max-width:1180px; }
 }
-/* Saisie rapide : pas de bandeau du bas sur l'écran de jeu (Parties / Stats en haut à droite) */
+/* Tournoi : titres en blanc sur le tapis ; colonne centrée et texte plus grand sur iPad paysage et PC */
+#tournoi-body .t-title { color:#fff; }
+@media (min-width: 900px) and (min-height: 600px) {
+  #tournoi-body > *, .tournoi-hist-list { width:100%; max-width:820px; margin-left:auto !important; margin-right:auto !important; box-sizing:border-box; }
+  #tournoi-body table { font-size:16px !important; }
+  #tournoi-body th { font-size:13px !important; padding:12px !important; }
+  #tournoi-body td { padding:12px !important; }
+  #t-matchs-list .card > div:first-child { font-size:13px !important; }
+  #t-matchs-list .card div[style*="font-size:14px"] { font-size:17px !important; }
+  #tournoi-body .btn { font-size:17px !important; }
+}
+/* Pas de bandeau du bas : Parties / Stats en haut à droite (configuration et table) */
 .fast-hdr { display:none; }
 body.fast-input .fast-hdr.is-shown { display:flex; }
-#game-header .fast-hdr-right { position:absolute; right:14px; top:50%; transform:translateY(-50%); gap:8px; }
-#game-header .fast-hdr-icon { min-height:0; color:#fff; background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.5); border-radius:50%; width:44px; height:44px; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; touch-action:manipulation; padding:0; }
+#game-header .fast-hdr-right, #setup-header .fast-hdr-right { position:absolute; right:14px; top:50%; transform:translateY(-50%); gap:8px; }
+#game-header .fast-hdr-icon, #setup-header .fast-hdr-icon { min-height:0; color:#fff; background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.5); border-radius:50%; width:44px; height:44px; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; touch-action:manipulation; padding:0; }
 #game-header .fast-hdr-back { position:absolute; left:14px; top:50%; transform:translateY(-50%); align-items:center; min-height:40px; padding:0 16px; border-radius:99px; background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.5); color:#fff; font-size:15px; font-weight:800; font-family:inherit; cursor:pointer; touch-action:manipulation; }
-body.fast-input.on-game-screen #bottom-nav, body.fast-input.screen-not-setup #bottom-nav { display:none !important; }
+
 @media (min-width: 600px) and (orientation: portrait), (min-width: 1025px) and (orientation: landscape) and (pointer: coarse) {
   /* iPad : l'en-tête inclut la barre d'état iOS, on centre les boutons sous celle-ci */
-  #game-header .fast-hdr-right, #game-header .fast-hdr-back { top:calc(50% + env(safe-area-inset-top, 0px) / 2); }
+  #game-header .fast-hdr-right, #game-header .fast-hdr-back, #setup-header .fast-hdr-right { top:calc(50% + env(safe-area-inset-top, 0px) / 2); }
 }
 @media (max-width: 599px) and (orientation: portrait) {
   /* iPhone portrait : boutons un peu réduits pour laisser respirer le titre */
-  #game-header .fast-hdr-right { right:12px; gap:6px; }
-  #game-header .fast-hdr-icon { width:38px; height:38px; font-size:17px; }
+  #game-header .fast-hdr-right, #setup-header .fast-hdr-right { right:12px; gap:6px; }
+  #game-header .fast-hdr-icon, #setup-header .fast-hdr-icon { width:38px; height:38px; font-size:17px; }
   #game-header .fast-hdr-back { left:12px; min-height:34px; padding:0 12px; font-size:13px; }
+  /* Noms d'équipes sur deux lignes au lieu de « CHRISTOPHE & CYN… » */
+  body.fast-input.on-game-screen #ej-score-wrap .score-team .t-name { white-space:normal !important; overflow:visible !important; text-overflow:clip !important; line-height:1.25 !important; word-break:keep-all !important; overflow-wrap:anywhere; min-height:2.5em; display:flex; align-items:center; justify-content:center; }
 }
 @media (max-width: 899px) and (orientation: landscape) {
   /* iPhone paysage : en-tête de 44px, boutons réduits et hors de l'encoche */
-  #game-header .fast-hdr-right { right:max(10px, env(safe-area-inset-right, 0px)); gap:6px; }
-  #game-header .fast-hdr-icon { width:34px; height:34px; font-size:16px; border-width:1.5px; }
+  #game-header .fast-hdr-right, #setup-header .fast-hdr-right { right:max(10px, env(safe-area-inset-right, 0px)); gap:6px; }
+  #game-header .fast-hdr-icon, #setup-header .fast-hdr-icon { width:34px; height:34px; font-size:16px; border-width:1.5px; }
   #game-header .fast-hdr-back { left:max(10px, env(safe-area-inset-left, 0px)); min-height:32px; padding:0 12px; font-size:13px; }
 }
 body.fast-input.on-game-screen #screen-game .body { bottom:0 !important; padding-bottom:calc(16px + env(safe-area-inset-bottom, 0px)) !important; scroll-padding-bottom:16px !important; }
@@ -450,10 +463,11 @@ body.fast-input button.is-flash { background:#c8a84a !important; border-color:#c
 body.fast-input #btn-undo-last-round, body.fast-input #btn-end-game-table, body.fast-input button[onclick="askEndGame()"] { color:#fff !important; border-color:rgba(255,255,255,0.55) !important; background:rgba(255,255,255,0.12) !important; }
 /* 5 bis · boutons de la TABLE en grille 2 × 2 sur tous les écrans */
 body.fast-input #ej-action-grid #btn-undo-last-round, body.fast-input #ej-action-grid #btn-end-game-table { grid-column:auto !important; grid-row:auto !important; }
+body.fast-input #ej-action-grid #btn-undo-last-round:disabled { opacity:0.38 !important; filter:grayscale(1); cursor:not-allowed !important; box-shadow:none !important; }
 /* 6 · icônes dessinées */
 .fast-ico { width:1.2em; height:1.2em; flex-shrink:0; }
 .gear-ico { width:22px; height:22px; }
-#game-header .fast-hdr-icon svg { width:52%; height:52%; }
+#game-header .fast-hdr-icon svg, #setup-header .fast-hdr-icon svg { width:52%; height:52%; }
 /* 7 · iPhone paysage : la table prend la hauteur, scores et boutons remplissent la colonne */
 @media (max-width: 899px) and (orientation: landscape) {
   body.fast-input.on-game-screen #tab-enjeu { display:grid !important; grid-template-columns:auto minmax(0,1fr) !important; grid-template-rows:minmax(0,1fr) auto !important; column-gap:14px !important; row-gap:8px !important; padding:8px max(14px, env(safe-area-inset-right, 0px)) 10px max(10px, env(safe-area-inset-left, 0px)) !important; height:calc(100dvh - 44px) !important; box-sizing:border-box !important; align-items:stretch !important; overflow:hidden !important; }
@@ -500,8 +514,6 @@ body.fast-input #ej-action-grid #btn-undo-last-round, body.fast-input #ej-action
   body.fast-input.on-game-screen #ej-action-grid { flex:0 0 auto !important; gap:12px !important; }
   body.fast-input.on-game-screen #ej-action-grid .btn { min-height:64px !important; padding:0 12px !important; font-size:17px !important; }
   /* Sans donne à annuler, « Terminer la partie » prend toute la largeur */
-  body.fast-input #ej-action-grid #btn-undo-last-round[style*="display: none"] + #btn-end-game-table,
-  body.fast-input #ej-action-grid #btn-undo-last-round[style*="display:none"] + #btn-end-game-table { grid-column:1 / -1 !important; }
   .gain-badge { top:auto; bottom:14px; right:20px; font-size:22px; padding:4px 14px; }
 }
 /* iPad paysage uniquement (même requête que les blocs iPad paysage A/B) :
@@ -583,14 +595,7 @@ body.fast-input #ej-action-grid #btn-undo-last-round, body.fast-input #ej-action
 .marque-table td:first-child { color:var(--text2); }
 .marque-table .pts-good { color:#2a7d2e; font-weight:700; text-align:center; }
 .marque-table .pts-zero { color:var(--red); font-weight:700; text-align:center; }
-.bottom-nav { background:var(--panel); display:grid; position:fixed !important; bottom:0 !important; left:0 !important; right:0 !important; width:100% !important; z-index:9999 !important; }
-.bottom-nav.nav4 { grid-template-columns:repeat(4,1fr); }
-.bottom-nav.nav5 { grid-template-columns:repeat(5,1fr); }
-.bottom-nav.nav6 { grid-template-columns:repeat(6,1fr); }
-.bottom-nav.nav3 { grid-template-columns:repeat(3,1fr); }
-.nav-item { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; border:none; background:transparent; color:rgba(255,255,255,0.35); font-weight:700; text-transform:uppercase; letter-spacing:0.04em; font-family:inherit; transition:color 0.15s; touch-action:manipulation; -webkit-tap-highlight-color:transparent; user-select:none; box-sizing:border-box; }
-.nav-item .ni-icon { line-height:1; }
-.nav-item.active { color:#7ddd82; }
+
 .mec-score-box { background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.12); border-radius:var(--radius); display:flex; align-items:center; justify-content:space-between; }
 .mec-team-name { font-weight:700; color:rgba(255,255,255,0.75); text-transform:uppercase; letter-spacing:.06em; }
 .mec-team-score { font-weight:800; color:#fff; line-height:1; }
@@ -632,11 +637,11 @@ body.fast-input #ej-action-grid #btn-undo-last-round, body.fast-input #ej-action
 .pos-EO { background:#bbdefb; color:#0d47a1; }
 
 /* Touch targets min 44px */
-button, .btn, .chip, .nav-item, input[type="checkbox"], .chip-group > div, [onclick], .history-item button, .setup-sel { min-height:44px; position:relative; }
+button, .btn, .chip, input[type="checkbox"], .chip-group > div, [onclick], .history-item button, .setup-sel { min-height:44px; position:relative; }
 
 input[type="checkbox"] { min-width:44px; min-height:44px; cursor:pointer; }
 .stepper button { min-width:44px; min-height:44px; }
-.btn:active, .chip:active, .nav-item:active, .history-item button:active { transform:scale(0.93); transition:transform 0.07s ease; opacity:0.85; }
+.btn:active, .chip:active, .history-item button:active { transform:scale(0.93); transition:transform 0.07s ease; opacity:0.85; }
 
 /* Splash */
 #splash { position:fixed; inset:0; z-index:99999; background:#2e6b28; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; transition:opacity 0.5s ease; }
@@ -704,11 +709,6 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   .marque-table th { font-size:10px; padding:6px 4px; }
   .marque-table td { padding:7px 4px; }
   .marque-table td:first-child { font-size:10px; }
-
-  /* Bottom nav */
-  .bottom-nav { padding-bottom:env(safe-area-inset-bottom,0px); height:44px; }
-  .nav-item { padding:0 2px; height:44px; font-size:7px; }
-  .nav-item .ni-icon { font-size:14px; }
 
   /* Manche en cours */
   #screen-mancheencours { background:var(--bg); flex-direction:column; min-height:100vh; }
@@ -852,11 +852,6 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   .marque-table th { font-size:9px; padding:4px 3px; }
   .marque-table td { padding:4px 3px; }
 
-  /* Bottom nav 48px */
-  .bottom-nav { padding-bottom:0; height:48px; }
-  .nav-item { padding:3px 2px 2px; font-size:7px; height:48px; gap:0; box-sizing:border-box; }
-  .nav-item .ni-icon { font-size:15px; display:block; line-height:1.1; margin-bottom:2px; }
-
   /* Tabs overlay fixed */
   #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties {
     position:fixed !important; top:44px !important; left:0 !important; right:0 !important; bottom:48px !important;
@@ -900,12 +895,13 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 
   /* Page CONFIG */
   #screen-setup .body { display:grid !important; grid-template-columns:1fr 260px; gap:6px; padding:6px 8px !important; align-items:start; }
-  #setup-table-wrap { grid-column:1; grid-row:1 / 3; max-width:100% !important; height:calc(100vh - 90px) !important; width:calc(100vh - 90px) !important; }
+  #setup-table-wrap { grid-column:1; grid-row:1 / 5; max-width:100% !important; height:calc(100vh - 90px) !important; width:calc(100vh - 90px) !important; }
   #setup-table-wrap svg { width:100% !important; height:auto !important; max-height:calc(100vh - 100px) !important; }
   #setup-donneur-wrap { grid-column:2; grid-row:1; justify-content:flex-start !important; }
   #setup-donneur-wrap > div { width:100%; font-size:13px !important; }
   #setup-start-btn { grid-column:2; grid-row:2; font-size:14px !important; }
   #setup-mode-label { grid-column:2; grid-row:3; display:block !important; }
+  #setup-tournoi-btn { grid-column:2; grid-row:3; margin-top:0 !important; width:100%; }
 
   /* Manche en cours */
   #screen-mancheencours { background:var(--bg); flex-direction:column; min-height:100vh; }
@@ -1006,11 +1002,6 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   .marque-table { font-size:15px; }
   .marque-table th { padding:10px 6px; }
   .marque-table td { padding:10px 6px; }
-
-  /* Bottom nav 70px */
-  .bottom-nav { height:70px; padding-bottom:env(safe-area-inset-bottom,0px); }
-  .nav-item { height:70px; padding:8px 8px 10px; font-size:11px; gap:3px; }
-  .nav-item .ni-icon { font-size:36px; }
 
   /* Tabs overlay fixed */
   #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties {
@@ -1122,11 +1113,6 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   .score-team .t-name { font-size:13px; line-height:1.3; white-space:normal; word-break:keep-all; }
   .score-team .t-score { font-size:72px; }
 
-  /* Bottom nav 68px */
-  .bottom-nav { height:68px; padding-bottom:env(safe-area-inset-bottom,0px); display:flex; align-items:stretch; }
-  .nav-item { flex:1; height:68px; padding:8px 0 0; gap:2px; font-size:11px; }
-  .nav-item .ni-icon { font-size:26px; }
-
   /* Tabs overlay fixed */
   #tab-contrat, #tab-saisie, #tab-history, #tab-stats, #tab-marque, #tab-feuille, #tab-parties {
     position:fixed !important; top:calc(60px + env(safe-area-inset-top, 0px)) !important; left:0 !important; right:0 !important; bottom:68px !important;
@@ -1153,8 +1139,13 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   #setup-donneur-wrap { grid-column:2 !important; grid-row:2 !important; align-self:end !important; justify-content:flex-start !important; }
   #setup-donneur-wrap > div { width:100%; }
   #setup-start-btn { grid-column:2 !important; grid-row:3 !important; align-self:start !important; }
-  #setup-tournoi-btn { grid-column:2 !important; grid-row:4 !important; align-self:start !important; width:auto !important; }
+  #setup-tournoi-btn { grid-column:2 !important; grid-row:4 !important; align-self:start !important; width:auto !important; font-size:16px !important; padding:12px 20px !important; }
   #setup-mode-label { display:none !important; }
+  /* Donneur et « Commencer » à l'échelle de l'écran (ils paraissaient minuscules à côté de la table) */
+  #setup-donneur-inner { padding:18px 24px !important; }
+  #setup-donneur-label { font-size:14px !important; margin-bottom:12px !important; }
+  #sel-first-dealer { font-size:18px !important; padding:12px 16px !important; }
+  #setup-start-btn { font-size:20px !important; min-height:64px !important; }
   .setup-dir-label { font-size:14px; letter-spacing:3px; }
   .setup-sel { font-size:17px !important; padding:11px 12px !important; }
 
@@ -1243,11 +1234,6 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   .score-team .t-name { font-size:12px; }
   .score-team .t-score { font-size:60px; }
 
-  /* Bottom nav */
-  .bottom-nav { height:60px; padding-bottom:0; }
-  .nav-item { padding:8px 24px 6px; font-size:11px; height:60px; }
-  .nav-item .ni-icon { font-size:20px; }
-
   /* Tabs overlay fixed plein écran */
   #tab-contrat[style*="display: none"], #tab-saisie[style*="display: none"], #tab-history[style*="display: none"],
   #tab-stats[style*="display: none"], #tab-marque[style*="display: none"], #tab-feuille[style*="display: none"],
@@ -1286,13 +1272,18 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   #ej-score-wrap { max-width:none !important; margin:0 !important; }
 
   /* Page SETUP */
-  #screen-setup .body { display:grid !important; grid-template-columns:1fr 420px !important; grid-template-rows:auto auto auto !important; column-gap:48px !important; row-gap:20px !important; align-items:center !important; padding:20px 48px !important; min-height:calc(100vh - 130px); }
-  #setup-table-wrap { grid-column:1 !important; grid-row:1 / 3 !important; align-self:center !important; min-height:0 !important; height:calc(100vh - 170px) !important; max-height:calc(100vh - 170px) !important; overflow:hidden !important; display:flex !important; align-items:center !important; justify-content:center !important; }
+  #screen-setup .body { display:grid !important; grid-template-columns:1fr 420px !important; grid-template-rows:1fr auto auto 1fr !important; column-gap:48px !important; row-gap:20px !important; align-items:center !important; padding:20px 48px !important; min-height:calc(100vh - 130px); }
+  #setup-table-wrap { grid-column:1 !important; grid-row:1 / 5 !important; align-self:center !important; min-height:0 !important; height:calc(100vh - 170px) !important; max-height:calc(100vh - 170px) !important; overflow:hidden !important; display:flex !important; align-items:center !important; justify-content:center !important; }
   #setup-table-wrap svg { width:auto !important; height:100% !important; max-height:calc(100vh - 170px) !important; max-width:100% !important; display:block !important; }
   #setup-donneur-wrap { grid-column:2 !important; grid-row:1 !important; justify-content:flex-start !important; }
   #setup-donneur-wrap > div { width:100%; }
-  #setup-start-btn { grid-column:2 !important; grid-row:2 !important; }
+  #setup-start-btn { grid-column:2 !important; grid-row:2 !important; font-size:20px !important; min-height:64px !important; }
   #setup-mode-label { grid-column:2 !important; grid-row:3 !important; display:block !important; }
+  #setup-tournoi-btn { grid-column:2 !important; grid-row:3 !important; align-self:start !important; margin-top:0 !important; font-size:16px !important; padding:12px 20px !important; }
+  /* Donneur à l'échelle de l'écran */
+  #setup-donneur-inner { display:block !important; padding:18px 24px !important; }
+  #setup-donneur-label { font-size:14px !important; margin-bottom:12px !important; }
+  #sel-first-dealer { font-size:18px !important; padding:12px 16px !important; }
   .setup-dir-label { font-size:14px; letter-spacing:3px; }
   .setup-sel { font-size:17px !important; padding:11px 12px !important; }
 
@@ -1470,7 +1461,12 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 
   <!-- ════════════════════════════════ SCREEN: SETUP ════════════════════════════════ -->
   <div id="screen-setup" class="screen active">
-    <div class="header" style="padding:12px 16px;justify-content:center;position:relative;">
+    <div class="header" id="setup-header" style="padding:12px 16px;justify-content:center;position:relative;">
+      <!-- Parties / Stats (le bandeau du bas a été supprimé) -->
+      <div id="setup-hdr-right" class="fast-hdr fast-hdr-right is-shown">
+        <button type="button" class="fast-hdr-icon" onclick="openFromSetup('parties')" aria-label="Parties" title="Parties"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></svg></button>
+        <button type="button" class="fast-hdr-icon" onclick="openFromSetup('stats')" aria-label="Statistiques" title="Statistiques"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></button>
+      </div>
       <!-- Icône groupe joueurs haut-gauche — clignotant -->
       <button id="setup-settings-btn" onclick="showSettingsScreen()" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;animation:pulse-btn 2.5s ease infinite;" title="Réglages">⚙️</button>
       <!-- Tooltip onboarding -->
@@ -1592,8 +1588,8 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   <div id="screen-game" class="screen">
     <div class="header" id="game-header" style="padding:12px 16px;justify-content:center;position:relative;">
       <button id="game-settings-btn" onclick="showSettingsScreen()" style="position:absolute;left:14px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;" title="Réglages">⚙️</button>
-      <!-- Saisie rapide : bandeau du bas masqué, accès Parties / Stats en haut -->
-      <button type="button" id="fast-hdr-back" class="fast-hdr fast-hdr-back" onclick="showTab('enjeu')">← Retour</button>
+      <!-- Accès Parties / Stats en haut (pas de bandeau du bas) -->
+      <button type="button" id="fast-hdr-back" class="fast-hdr fast-hdr-back" onclick="fastHeaderBack()">← Retour</button>
       <div id="fast-hdr-right" class="fast-hdr fast-hdr-right">
         <button type="button" class="fast-hdr-icon" onclick="showTab('parties')" aria-label="Parties" title="Parties"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></svg></button>
         <button type="button" class="fast-hdr-icon" onclick="showTab('stats')" aria-label="Statistiques" title="Statistiques"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></button>
@@ -1896,7 +1892,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261101_2140</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261106_1340</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -2204,7 +2200,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
     </div>
   </div>
 
-  <div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;padding:20px 20px calc(20px + env(safe-area-inset-bottom, 0px));">
+  <div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10010;align-items:center;justify-content:center;padding:20px 20px calc(20px + env(safe-area-inset-bottom, 0px));">
     <div style="background:#1a2e1a;border-radius:var(--radius);padding:22px;width:100%;max-width:420px;border:1px solid rgba(255,255,255,0.15);">
       <div id="confirm-msg" style="font-size:16px;font-weight:600;color:#fff;text-align:center;margin-bottom:20px;"></div>
       <div style="display:flex;gap:10px;">
@@ -2212,25 +2208,6 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
         <button class="btn btn-outline" onclick="closeConfirm()" style="flex:1;font-size:15px;color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.3);">Annuler</button>
       </div>
     </div>
-  </div>
-
-  <!-- BOTTOM NAV — directement dans #app, fixed bottom -->
-  <div class="bottom-nav nav5" id="bottom-nav">
-    <button class="nav-item active" id="nav-table" onclick="showTab('enjeu')">
-      <span class="ni-icon">🎯</span>Table
-    </button>
-    <button class="nav-item" id="nav-contrat" onclick="showTab('contrat')">
-      <span class="ni-icon">🃏</span>Contrat
-    </button>
-    <button class="nav-item" id="nav-score" onclick="if(this.dataset.blocked)return;showTab('saisie');updateSaisieForm();">
-      <span class="ni-icon">🏆</span>Résultat
-    </button>
-    <button class="nav-item" id="nav-parties" onclick="showTab('parties')">
-      <span class="ni-icon">📋</span>Parties
-    </button>
-    <button class="nav-item" id="nav-stats" onclick="showTab('stats')">
-      <span class="ni-icon">📈</span>Stats
-    </button>
   </div>
 
 </div>
@@ -2425,6 +2402,7 @@ function updateSetupModeLabel() {
 }
 
 function startGame() {
+  returnToSetup = false;
   const n=v('sel-nord'), s=v('sel-sud'), e=v('sel-est'), o=v('sel-ouest');
   if(!n||!s||!e||!o) {
     showSetupAlert('⚠️ Merci de choisir un joueur pour chaque position (Nord, Sud, Est, Ouest).');
@@ -2481,7 +2459,6 @@ function updatePulseButtons() {
   const btnContrat = eid('btn-action-contrat');
   const btnSaisie  = eid('btn-action-saisie');
   const btnUndo    = eid('btn-undo-last-round');
-  const navScore = eid('nav-score');
   if(btnContrat) btnContrat.classList.toggle('btn-pulse', !c);
   if(btnSaisie) {
     btnSaisie.classList.toggle('btn-pulse', !!c);
@@ -2497,13 +2474,9 @@ function updatePulseButtons() {
   }
   if(btnUndo) {
     const canUndo = S.history.length > 0;
-    btnUndo.style.display = canUndo ? '' : 'none';
+    btnUndo.style.display = ''; // toujours visible (grisé si rien à annuler) : grille 2 × 2 identique sur tous les appareils
     btnUndo.disabled = !canUndo;
     btnUndo.setAttribute('aria-disabled', canUndo ? 'false' : 'true');
-  }
-  if(navScore) {
-    navScore.style.opacity = c ? '1' : '0.35';
-    navScore.dataset.blocked = c ? '' : '1';
   }
 }
 
@@ -2598,16 +2571,6 @@ function showTab(tab) {
   syncGameOverlayLock(isOverlay);
 
 
-  ['table','contrat','score','parties','stats'].forEach(t=>{
-    const nav = document.getElementById('nav-'+t);
-    if(nav) nav.classList.toggle('active',
-      (t==='table' && tab==='enjeu') ||
-      (t==='contrat' && tab==='contrat') ||
-      (t==='score' && tab==='saisie') ||
-      (t==='parties' && tab==='parties') ||
-      (t==='stats' && tab==='stats')
-    );
-  });
   if(tab==='enjeu') {
     // Si pas de partie démarrée, retourner sur setup
     if(!S.t1.name) { showScreen('setup'); return; }
@@ -3064,6 +3027,16 @@ function askChangeTeams() {
   eid('confirm-ok').onclick = () => { closeConfirm(); changeTeams(); };
   openModal('confirm-modal');
 }
+// Fenêtre de confirmation de l'application (remplace confirm() du système)
+function askConfirm(message, okLabel, onOk) {
+  const msg = eid('confirm-msg'), ok = eid('confirm-ok');
+  if(!msg || !ok) { if(window.confirm(message)) onOk(); return; }
+  msg.innerHTML = escapeHtml(message).replace(/\n/g, '<br>');
+  ok.textContent = okLabel || 'Confirmer';
+  ok.onclick = () => { closeConfirm(); onOk(); };
+  openModal('confirm-modal');
+}
+
 function closeConfirm() {
   closeModal('confirm-modal');
   const ok = eid('confirm-ok');
@@ -3598,18 +3571,16 @@ function applyBackupData(data) {
   return true;
 }
 
-function restorePreImportBackup() {
+function restorePreImportBackup(onDone) {
   const backup = getPreImportBackup();
-  if(!backup) { showToast('Aucune sauvegarde pré-import disponible'); return false; }
+  if(!backup) { showToast('Aucune sauvegarde pré-import disponible'); return; }
   const date = new Date(backup.created);
   const dateStr = Number.isNaN(date.getTime()) ? backup.created : date.toLocaleString('fr-FR');
-  if(!confirm('Restaurer les données sauvegardées avant import du ' + dateStr + ' ?')) return false;
-  if(!applyBackupData(backup.data)) {
-    showToast('❌ Restauration impossible');
-    return false;
-  }
-  showToast('✅ Données restaurées');
-  return true;
+  askConfirm('Restaurer les données sauvegardées avant import du ' + dateStr + ' ?', 'Restaurer', () => {
+    if(!applyBackupData(backup.data)) { showToast('❌ Restauration impossible'); return; }
+    showToast('✅ Données restaurées');
+    if(onDone) onDone();
+  });
 }
 
 async function gistUpload() {
@@ -3837,8 +3808,7 @@ function toggleTournoiMode(on) {
   localStorage.setItem('tournoi_mode', on ? '1' : '0');
   const btn = eid('setup-tournoi-btn');
   if(btn) btn.style.display = on ? '' : 'none';
-  const shortcut = eid('btn-tournoi-shortcut');
-  if(shortcut) shortcut.style.display = on ? 'block' : 'none';
+  updateTournoiShortcut();
   // Mettre à jour le toggle visuel
   const track = eid('toggle-tournoi-track');
   const thumb = eid('toggle-tournoi-thumb');
@@ -3846,6 +3816,15 @@ function toggleTournoiMode(on) {
   if(thumb) thumb.style.transform  = on ? 'translateX(20px)' : '';
   // Afficher/masquer l'onglet Tournois dans la page Parties
   updateTournoiTabVisibility();
+}
+
+// Le raccourci de la table n'apparaît que si un tournoi est en cours
+function updateTournoiShortcut() {
+  const shortcut = eid('btn-tournoi-shortcut');
+  if(!shortcut) return;
+  const on = localStorage.getItem('tournoi_mode') === '1';
+  const state = T || normalizeTournoiState(storageReadJSON('belote_tournoi', null, isPlainObject));
+  shortcut.style.display = (on && state && state.status === 'running') ? 'block' : 'none';
 }
 
 function initTournoiToggle() {
@@ -3864,11 +3843,10 @@ function showTournoi() {
 }
 
 function hideTournoi() {
+  saveTourDrafts();
+  updateTournoiShortcut();
   const target = closeSecondaryScreen('tournoi', S.t1 && S.t1.name ? 'game' : 'setup');
 
-  // Restaurer la nav du bas
-  const nav = document.querySelector('.bottom-nav');
-  if(nav) { nav.style.pointerEvents = ''; nav.style.opacity = ''; }
   // Arrêter le clignotement
   const backBtn = eid('settings-back-btn-tournoi');
   if(backBtn) backBtn.style.animation = '';
@@ -4055,30 +4033,36 @@ function demarrerTournoi() {
 
   T.appariements = genererAppariements(T, 1, true);
   saveTournoi();
+  updateTournoiShortcut();
   renderTournoiTour();
 }
 
 function confirmerTerminerTournoi() {
-  if(!confirm('Terminer le tournoi maintenant ?\nLe classement sera établi sur les tours joués.')) return;
-  T.status = 'done';
-  T.id = T.id || Date.now();
-  saveTournoi();
-  saveTournoiHistorique();
-  renderTournoiResultat();
+  saveTourDrafts();
+  askConfirm('Terminer le tournoi maintenant ?\nLe classement sera établi sur les tours déjà validés.', 'Terminer', () => {
+    T.status = 'done';
+    T.id = T.id || Date.now();
+    saveTournoi();
+    saveTournoiHistorique();
+    updateTournoiShortcut();
+    renderTournoiResultat();
+  });
 }
 
 
 function resetTournoi() {
-  if(!confirm('Abandonner le tournoi en cours ?')) return;
-  T = null;
-  localStorage.removeItem('belote_tournoi');
-  _tSetup = { nbTours: 5, equipes: [] };
-  // Restaurer la nav
-  const nav = document.querySelector('.bottom-nav');
-  if(nav) { nav.style.pointerEvents = ''; nav.style.opacity = ''; }
-  const backBtn = eid('settings-back-btn-tournoi');
-  if(backBtn) backBtn.style.animation = '';
-  renderTournoiSetup();
+  const doReset = () => {
+    T = null;
+    localStorage.removeItem('belote_tournoi');
+    _tSetup = { nbTours: 5, equipes: [] };
+    const backBtn = eid('settings-back-btn-tournoi');
+    if(backBtn) backBtn.style.animation = '';
+    updateTournoiShortcut();
+    renderTournoiSetup();
+  };
+  // Un tournoi terminé est déjà dans l'historique : rien à abandonner
+  if(T && T.status === 'done') { doReset(); return; }
+  askConfirm('Abandonner le tournoi en cours ?\nLes tours déjà joués seront perdus.', 'Abandonner', doReset);
 }
 
 // ── APPARIEMENTS ──────────────────────────────────────────────
@@ -4195,12 +4179,12 @@ function renderTournoiTour() {
 
   body.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div style="font-size:20px;font-weight:800;color:var(--text);">Tour ${T.tourActuel} / ${T.nbTours}</div>
-      <button onclick="renderTournoiClassement()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:99px;padding:7px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">📊 Classement</button>
+      <div class="t-title" style="font-size:20px;font-weight:800;">Tour ${T.tourActuel} / ${T.nbTours}</div>
+      <button onclick="saveTourDrafts();renderTournoiClassement()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:99px;padding:7px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">📊 Classement</button>
     </div>
 
     ${app.exemptee ? `
-    <div style="background:rgba(200,150,10,0.15);border:1px solid rgba(200,150,10,0.3);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--text);">
+    <div style="background:rgba(200,150,10,0.15);border:1px solid rgba(200,150,10,0.3);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#fff;">
       😴 <strong>${escapeHtml(app.exemptee)}</strong> est exempté ce tour
     </div>` : ''}
 
@@ -4211,14 +4195,14 @@ function renderTournoiTour() {
         <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;">
           <div style="text-align:center;">
             <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">${escapeHtml(m.eq1)}</div>
-            <input type="number" id="t-score-${i}-1" min="0" max="3000" placeholder="Score" inputmode="numeric"
+            <input type="number" id="t-score-${i}-1" min="0" max="3000" placeholder="Score" inputmode="numeric" value="${escapeHtml(m.draft1 || '')}"
               style="width:100%;text-align:center;font-size:24px;font-weight:900;padding:8px;border:2px solid #ccc;border-radius:10px;box-sizing:border-box;"
               oninput="onTScoreInput(${i})">
           </div>
           <div style="font-size:18px;color:var(--text2);font-weight:700;">vs</div>
           <div style="text-align:center;">
             <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">${escapeHtml(m.eq2)}</div>
-            <input type="number" id="t-score-${i}-2" min="0" max="3000" placeholder="Score" inputmode="numeric"
+            <input type="number" id="t-score-${i}-2" min="0" max="3000" placeholder="Score" inputmode="numeric" value="${escapeHtml(m.draft2 || '')}"
               style="width:100%;text-align:center;font-size:24px;font-weight:900;padding:8px;border:2px solid #ccc;border-radius:10px;box-sizing:border-box;"
               oninput="onTScoreInput(${i})">
           </div>
@@ -4233,10 +4217,63 @@ function renderTournoiTour() {
     <button class="btn btn-outline btn-full" onclick="confirmerTerminerTournoi()" style="font-size:14px;padding:12px;">
       🏁 Terminer le tournoi maintenant
     </button>
+    ${T.tours.length ? `<button class="btn btn-outline btn-full" onclick="corrigerDernierTour()" style="font-size:14px;padding:12px;margin-top:10px;">↩ Corriger le tour ${T.tours.length}</button>` : ''}
   `;
+  // Afficher le résultat des scores déjà tapés (conservés)
+  app.matchs.forEach((m, i) => { if(m.draft1 || m.draft2) onTScoreInput(i); });
+}
+
+// Scores tapés mais pas encore validés : gardés avec le tour (Classement, retour, fermeture)
+function saveTourDrafts() {
+  if(!T || T.status !== 'running' || !T.appariements) return;
+  let changed = false;
+  T.appariements.matchs.forEach((m, i) => {
+    const a = eid(`t-score-${i}-1`), b = eid(`t-score-${i}-2`);
+    if(!a || !b) return;
+    if(m.draft1 !== a.value || m.draft2 !== b.value) { m.draft1 = a.value; m.draft2 = b.value; changed = true; }
+  });
+  if(changed) saveTournoi();
+}
+
+// Recalcule victoires, goal average, points et rencontres à partir des tours validés
+function recalculerEquipesTournoi() {
+  let equipes = T.equipes.map(e => ({ name:e.name, victoires:0, goalAvg:0, scoreTotal:0, exemptions:0, rencontres:[] }));
+  T.tours.forEach(tour => { equipes = appliquerResultatsTournoi(equipes, tour); });
+  return equipes;
+}
+
+// Rouvre le dernier tour validé avec ses scores (le tour suivant sera regénéré à la validation)
+function corrigerDernierTour() {
+  if(!T || !T.tours.length) return;
+  const last = T.tours[T.tours.length - 1];
+  const suite = T.status === 'running' && T.tourActuel > last.numTour
+    ? '\nLes appariements du tour ' + T.tourActuel + ' seront refaits après validation.' : '';
+  askConfirm('Corriger les scores du tour ' + last.numTour + ' ?' + suite, 'Corriger', () => {
+    T.tours.pop();
+    T.tourActuel = last.numTour;
+    T.appariements = {
+      numTour: last.numTour,
+      exemptee: last.exemptee || null,
+      matchs: last.matchs.map(m => ({ eq1:m.eq1, eq2:m.eq2, score1:null, score2:null, draft1:String(m.score1), draft2:String(m.score2) }))
+    };
+    T.equipes = recalculerEquipesTournoi();
+    if(T.status === 'done') {
+      // Le tournoi repart : on le retire de l'historique, il y reviendra une fois terminé
+      T.status = 'running';
+      const hist = storageReadJSON('belote_tournois_history', [], Array.isArray).filter(t => t.id !== T.id);
+      storageWriteJSON('belote_tournois_history', hist);
+      const backBtn = eid('settings-back-btn-tournoi');
+      if(backBtn) backBtn.style.animation = '';
+    }
+    saveTournoi();
+    updateTournoiShortcut();
+    renderTournoiTour();
+  });
 }
 
 function onTScoreInput(i) {
+  const m = T && T.appariements && T.appariements.matchs[i];
+  if(m) { m.draft1 = eid(`t-score-${i}-1`)?.value || ''; m.draft2 = eid(`t-score-${i}-2`)?.value || ''; saveTournoi(); }
   const s1 = parseInt(eid(`t-score-${i}-1`)?.value) || 0;
   const s2 = parseInt(eid(`t-score-${i}-2`)?.value) || 0;
   const res = eid(`t-result-${i}`);
@@ -4266,8 +4303,8 @@ function validerTour() {
     app.matchs[i].score2 = s2;
   }
 
-  // Enregistrer les résultats
-  T.tours.push({ ...app });
+  // Enregistrer les résultats (sans les brouillons de saisie)
+  T.tours.push({ numTour: app.numTour, exemptee: app.exemptee || null, matchs: app.matchs.map(m => ({ eq1:m.eq1, eq2:m.eq2, score1:m.score1, score2:m.score2 })) });
 
   // Mettre à jour les statistiques sans modifier les appariements enregistrés.
   T.equipes = appliquerResultatsTournoi(T.equipes, app);
@@ -4283,6 +4320,7 @@ function validerTour() {
     T.id = T.id || Date.now();
     saveTournoi();
     saveTournoiHistorique();
+    updateTournoiShortcut();
     renderTournoiResultat();
   }
 }
@@ -4298,7 +4336,7 @@ function renderTournoiClassement() {
 
   body.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div style="font-size:20px;font-weight:800;color:var(--text);">📊 Classement</div>
+      <div class="t-title" style="font-size:20px;font-weight:800;">📊 Classement</div>
       <button onclick="renderTournoiTour()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:99px;padding:7px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">← Tour en cours</button>
     </div>
 
@@ -4328,7 +4366,7 @@ function renderTournoiClassement() {
       </table>
     </div>
 
-    <div style="font-size:11px;color:var(--text2);text-align:center;margin-top:10px;">V = Victoires · G.A. = Goal Average · Pts = Points totaux</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.7);text-align:center;margin-top:10px;">V = Victoires · G.A. = Goal Average · Pts = Points totaux</div>
   `;
 }
 
@@ -4338,9 +4376,6 @@ function renderTournoiResultat() {
   const cl   = getClassement();
   const top3 = cl.slice(0, 3);
 
-  // Bloquer la nav du bas
-  const nav = document.querySelector('.bottom-nav');
-  if(nav) { nav.style.pointerEvents = 'none'; nav.style.opacity = '0.35'; }
   // Faire clignoter le bouton retour
   setTimeout(() => {
     const backBtn = eid('settings-back-btn-tournoi');
@@ -4351,8 +4386,8 @@ function renderTournoiResultat() {
     <!-- En-tête compact -->
     <div style="text-align:center;margin-bottom:12px;">
       <div style="font-size:36px;">🏆</div>
-      <div style="font-size:22px;font-weight:900;color:var(--text);margin-top:4px;">${T.nom || 'Tournoi terminé !'}</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:4px;">${T.date} · ${T.tours.length} tours joués · ${T.equipes.length} équipes</div>
+      <div class="t-title" style="font-size:22px;font-weight:900;margin-top:4px;">${escapeHtml(T.nom || 'Tournoi terminé !')}</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:4px;">${escapeHtml(T.date || '')} · ${T.tours.length} tours joués · ${T.equipes.length} équipes</div>
     </div>
 
     <!-- Podium compact -->
@@ -4412,7 +4447,8 @@ function renderTournoiResultat() {
       <button class="btn btn-green" onclick="resetTournoi()" style="font-size:14px;padding:13px;">🏆 Nouveau tournoi</button>
       <button class="btn btn-outline" onclick="partageTournoi()" style="font-size:14px;padding:13px;">📷 Partager résultats</button>
     </div>
-    <button class="btn btn-outline btn-full" onclick="hideTournoi()" style="font-size:14px;padding:12px;margin-bottom:8px;">← Retour à la partie</button>
+    <button class="btn btn-outline btn-full" onclick="hideTournoi()" style="font-size:14px;padding:12px;margin-bottom:8px;">${S.t1 && S.t1.name ? '← Retour à la partie' : '← Retour à l’accueil'}</button>
+    ${T.tours.length ? `<button class="btn btn-outline btn-full" onclick="corrigerDernierTour()" style="font-size:13px;padding:10px;margin-bottom:8px;opacity:0.85;">↩ Corriger le tour ${T.tours.length}</button>` : ''}
   `;
 }
 
@@ -4509,7 +4545,7 @@ function saveTournoiHistorique() {
     const idx = hist.findIndex(t => t.id === id);
     if(idx >= 0) hist[idx] = T;
     else hist.unshift(T);
-    storageWriteJSON('belote_tournois_history', hist.slice(0, 20));
+    storageWriteJSON('belote_tournois_history', hist); // plus de plafond (les plus anciens étaient effacés au-delà de 20)
   } catch(e) {}
 }
 
@@ -4526,8 +4562,8 @@ function renderTournoiHistoriqueInline(container) {
     return;
   }
 
-  container.innerHTML = hist.map(t => {
-    const cl = [...(t.equipes||[])].sort((a,b) => b.victoires-a.victoires||b.goalAvg-a.goalAvg);
+  container.innerHTML = '<div class="tournoi-hist-list">' + hist.map(t => {
+    const cl = classerEquipesTournoi(t.equipes || []); // même ordre que le classement du tournoi
     return `
     <div class="card" style="margin-bottom:12px;padding:14px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
@@ -4548,7 +4584,7 @@ function renderTournoiHistoriqueInline(container) {
         ${cl.length > 3 ? `<div style="font-size:11px;color:var(--text2);margin-top:2px;">+ ${cl.length-3} autre(s) équipe(s)</div>` : ''}
       </div>
     </div>`;
-  }).join('');
+  }).join('') + '</div>';
 }
 
 function updateTournoiTabVisibility() {
@@ -4558,13 +4594,14 @@ function updateTournoiTabVisibility() {
 }
 
 function deleteTournoiHistorique(id) {
-  if(!confirm('Supprimer ce tournoi ?')) return;
-  try {
-    let hist = storageReadJSON('belote_tournois_history', [], Array.isArray);
-    hist = hist.filter(t => t.id !== id);
-    storageWriteJSON('belote_tournois_history', hist);
-    showSubTab('tournois');
-  } catch(e) {}
+  askConfirm('Supprimer ce tournoi de l’historique ?', 'Supprimer', () => {
+    try {
+      let hist = storageReadJSON('belote_tournois_history', [], Array.isArray);
+      hist = hist.filter(t => t.id !== id);
+      storageWriteJSON('belote_tournois_history', hist);
+      showSubTab('tournois');
+    } catch(e) {}
+  });
 }
 
 function showPastGameStats(id) {
@@ -5088,12 +5125,18 @@ function statBox(label, icon, val, color) {
 }
 
 function renderStatsChart() {
-  const canvas = eid('stats-chart');
-  if(!canvas) return;
+  const wrap = eid('stats-chart-wrap');
+  if(!wrap) return;
   const h = S.history;
   if(!h.length) {
-    eid('stats-chart-wrap').innerHTML = renderEmptyState('Pas encore de données', {padding:'20px'});
+    wrap.innerHTML = renderEmptyState('Pas encore de données', {padding:'20px'});
     return;
+  }
+  // Le message « Pas encore de données » remplace le canevas : on le recrée dès qu'il y a des donnes
+  let canvas = eid('stats-chart');
+  if(!canvas) {
+    wrap.innerHTML = '<canvas id="stats-chart" style="width:100%;height:180px;display:block;"></canvas>';
+    canvas = eid('stats-chart');
   }
   const W = canvas.offsetWidth || 300;
   const H = 180;
@@ -6257,7 +6300,6 @@ function activateAppScreen(name) {
   if(name === 'tournoi') target.style.display = 'flex';
   target.classList.add('active');
   document.body.classList.toggle('on-game-screen', name === 'game');
-  document.body.classList.toggle('screen-not-setup', name !== 'setup');
   return true;
 }
 
@@ -6862,6 +6904,17 @@ document.addEventListener('pointerdown', e => {
   b.classList.add('is-flash');
   setTimeout(() => b.classList.remove('is-flash'), 200);
 }, { passive:true });
+
+// Parties / Stats ouverts depuis la configuration : « Retour » y ramène
+var returnToSetup = false; // var : lisible même avant cette ligne (reprise automatique)
+function openFromSetup(tab) {
+  returnToSetup = true;
+  showTab(tab);
+}
+function fastHeaderBack() {
+  if(returnToSetup) { returnToSetup = false; showScreen('setup'); return; }
+  showTab('enjeu');
+}
 
 // En-tête en saisie rapide : Parties / Stats sur la TABLE, « Retour » sur Parties et Stats
 function updateFastHeader(tab) {
@@ -7567,7 +7620,7 @@ function renderHelpContent() {
       step(1, 'Choisissez un joueur pour chaque position : <strong>Nord, Sud, Est, Ouest</strong>.'),
       step(2, 'Nord joue avec Sud · Est joue avec Ouest.'),
       step(3, 'Le bouton <strong>Commencer la partie</strong> affiche le mode choisi (ex: "La partie se joue en 2001 points").'),
-      note('Avant de lancer, vous pouvez consulter <strong>Parties</strong> et <strong>Stats</strong> depuis la barre du bas. Pendant la partie, cette barre disparaît.'),
+      note('Avant de lancer, <strong>📋 Parties</strong> et <strong>📈 Stats</strong> sont accessibles par les icônes en haut à droite ; <strong>← Retour</strong> ramène à la configuration.'),
     ].join(''), svgConfig) +
 
     // ── 3. Table ──
@@ -7649,6 +7702,16 @@ function renderHelpContent() {
       step(4, 'Avant un import, une sauvegarde locale est créée pour permettre une restauration si le contenu importé n\'est pas le bon.'),
       note('Le QR Code a été supprimé car les historiques volumineux dépassaient facilement sa capacité.'),
     ].join(''), svgSync) +
+
+    // ── 11. Mode tournoi ──
+    section('🏆', '11. Mode tournoi', [
+      step(1, 'Activez <strong>Afficher le bouton Tournoi</strong> dans les Réglages : le bouton <strong>🏆 Mode Tournoi</strong> apparaît sur l\'écran de configuration.'),
+      step(2, 'Donnez un nom, choisissez le <strong>nombre de tours</strong> (3 à 6) et formez au moins 3 équipes de deux joueurs, puis <strong>Démarrer le tournoi</strong>.'),
+      step(3, 'À chaque tour, saisissez le score final de chaque table puis <strong>Valider le tour</strong>. Les scores déjà tapés restent en place si vous consultez le <strong>Classement</strong> ou quittez l\'écran.'),
+      step(4, 'Une erreur sur un tour validé ? <strong>↩ Corriger le tour</strong> rouvre le dernier tour avec ses scores (même après la fin du tournoi).'),
+      step(5, 'Pendant un tournoi, <strong>Saisir scores du tournoi</strong> apparaît aussi sur la table d\'une partie. Les tournois terminés sont dans <strong>📋 Parties › Tournois</strong>.'),
+      note('Classement : victoires, puis goal average (différence de points), puis points marqués. Avec un nombre impair d\'équipes, une équipe est exemptée à chaque tour.'),
+    ].join('')) +
 
     // ── Footer ──
     '<div style="background:rgba(200,150,10,0.12);border:1px solid rgba(200,150,10,0.3);border-radius:14px;padding:16px;margin-bottom:14px;text-align:center;">' +
@@ -7795,7 +7858,7 @@ function showSyncImport() {
     restoreBtn.textContent = 'Restaurer cette sauvegarde';
     restoreBtn.className = 'btn btn-outline-dark btn-full';
     restoreBtn.onclick = () => {
-      if(restorePreImportBackup()) closeModal(modal);
+      restorePreImportBackup(() => closeModal(modal));
     };
     restoreWrap.appendChild(restoreBtn);
     content.appendChild(restoreWrap);
@@ -7845,21 +7908,22 @@ function showSyncImport() {
     if(!data) return;
     try {
       const msg = `Remplacer par ${data.players.length} joueur(s) et ${(data.history||[]).length} partie(s) ? Vos données actuelles seront effacées.`;
-      if(!confirm(msg)) return;
-      if(!createPreImportBackup('code-import')) {
-        errDiv.textContent = 'Import annulé : impossible de créer la sauvegarde de sécurité.';
-        return;
-      }
-      S.players = data.players || [];
-      savePlayers();
-      if(data.history) storageWriteJSON('belote_history', data.history);
-      if(data.tournois_history) storageWriteJSON('belote_tournois_history', data.tournois_history);
-      if(data.autosave) storageWriteJSON('belote_autosave', data.autosave);
-      if(data.last_config) storageWriteJSON('belote_last_config', data.last_config);
-      if(data.theme) { localStorage.setItem('bct_theme', data.theme); applyTheme(data.theme); }
-      refreshSelects();
-      closeModal(modal);
-      showToast('✅ Import réussi !');
+      askConfirm(msg, 'Remplacer', () => {
+        if(!createPreImportBackup('code-import')) {
+          errDiv.textContent = 'Import annulé : impossible de créer la sauvegarde de sécurité.';
+          return;
+        }
+        S.players = data.players || [];
+        savePlayers();
+        if(data.history) storageWriteJSON('belote_history', data.history);
+        if(data.tournois_history) storageWriteJSON('belote_tournois_history', data.tournois_history);
+        if(data.autosave) storageWriteJSON('belote_autosave', data.autosave);
+        if(data.last_config) storageWriteJSON('belote_last_config', data.last_config);
+        if(data.theme) { localStorage.setItem('bct_theme', data.theme); applyTheme(data.theme); }
+        refreshSelects();
+        closeModal(modal);
+        showToast('✅ Import réussi !');
+      });
     } catch(e) {
       errDiv.textContent = 'Erreur : ' + e.message;
     }
@@ -7888,12 +7952,6 @@ function showSettingsScreen() {
   } catch(e) {}
   openSecondaryScreen('settings', 'setup');
 
-  // Bloquer la nav du bas
-  const nav = document.querySelector('.bottom-nav');
-  if(nav) {
-    nav.style.pointerEvents = 'none';
-    nav.style.opacity = '0.35';
-  }
   // Faire clignoter le bouton ← Retour des réglages
   const backBtn = eid('settings-back-btn');
   if(backBtn) backBtn.style.animation = 'pulse-btn 2s ease infinite';
@@ -7904,12 +7962,6 @@ function closeSettings() { hideSettingsScreen(); }
 function hideSettingsScreen() {
   closeSecondaryScreen('settings', 'setup');
 
-  // Restaurer la nav du bas
-  const nav = document.querySelector('.bottom-nav');
-  if(nav) {
-    nav.style.pointerEvents = '';
-    nav.style.opacity = '';
-  }
   // Arrêter le clignotement du bouton ← Retour
   const backBtn = eid('settings-back-btn');
   if(backBtn) backBtn.style.animation = '';

@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261101_2140`.
+Version applicative actuellement documentée : `v20261106_1340`.
 
 ---
 
@@ -83,6 +83,7 @@ ScoreBelote/
     ameliorations-20261101-regression.html
     pc-table-regression.html
     historique-regression.html
+    tournoi-correctifs-regression.html
     saisie-rapide-regression.html
 ```
 
@@ -400,22 +401,23 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `storage-regression.html` | localStorage, import/export, formats invalides, sauvegarde pré-import | 15 |
 | `tournament-regression.html` | appariements, classement, résultats tournoi | 16 |
 | `navigation-regression.html` | navigation, onglets, rotation, écran actif | 15 |
-| `screen-modal-regression.html` | écrans secondaires, modales, réglages, aide, export et boutons Retour clignotants | 37 |
+| `screen-modal-regression.html` | écrans secondaires, modales, réglages, aide, export et boutons Retour clignotants | 35 |
 | `game-state-regression.html` | état de partie, autosave, normalisation, annulation immédiate avec « Annuler » / modification donne et permutation des places | 52 |
 | `rendering-regression.html` | rendu HTML, sécurité, table, historique, feuille, stats et zones joueurs interactives | 27 |
 | `final-audit-regression.html` | audit final structurel, emplacement de la version et actions TABLE | 45 |
-| `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage, ajustements iPhone résultat/contrat et écran Manche en cours ; coupure « Prénom & / Prénom » vérifiée indépendamment des polices (largeur forcée) | 46 |
+| `iphone-table-actions-regression.html` | actions TABLE, lisibilité de la modale d'édition, scroll saisie score iPhone paysage, ajustements iPhone résultat/contrat et écran Manche en cours ; coupure « Prénom & / Prénom » vérifiée indépendamment des polices (largeur forcée) | 49 |
 | `offline-pwa-regression.js` | cohérence PWA, cache, version, dépendances hors ligne et cycle de mise à jour | 58 |
 | `saisie-rapide-regression.html` | saisie (seul mode) : écrans classiques et choix du mode absents, ancien réglage nettoyé, contrat validé par la couleur, pavé, calcul en direct, contre rattrapé, capot, édition, actions avec Annuler, TABLE (points gagnés / manquants et leurs réglages, icônes, lisibilité, éclair), contrat → Manche en cours, bandeau du bas masqué (jeu, Réglages, Manche en cours), écran allumé, retour au classique | 65 |
 | `ameliorations-20261031-regression.html` | édition via écran Résultat, suppression de donne, passe sur la TABLE, annulation après passe, couleurs feuille, victoire, archive sans doublon, règle capot + belote, saisie clavier | 38 |
 | `ameliorations-20261101-regression.html` | bouton « Saisir le score » de Manche en cours, points maximum d'une donne, alerte « dernière donne » (points, manches, contre, masquée en correction), tableaux agrandis en iPad portrait (cadre 834 × 1194), illustrations et textes de l'aide | 28 |
+| `tournoi-correctifs-regression.html` | scores du tour conservés (Classement, sortie), correction du dernier tour (y compris après la fin, historique mis à jour), historique des tournois sans plafond, nom du tournoi protégé, « Retour à l’accueil », « Nouveau tournoi » sans confirmation après la fin, raccourci tournoi seulement pendant un tournoi, aucune fenêtre du système, graphique des stats recréé | 30 |
 | `historique-regression.html` | plus de plafond de 50 parties (sauvegarde et import fusionné), avertissement « mémoire presque pleine » une fois par session, « mémoire pleine » sans rien effacer, libellé du bouton de confirmation rétabli ; import par code « Ajouter à mes données » (fusion sans doublon, version de l'appareil prioritaire, joueurs complétés, thème conservé, deux imports sans doublon) | 18 |
 | `pc-table-regression.html` | icône de l'onglet (favicon PNG) ; TABLE sur PC (cadre 1440 × 900, souris) : table et colonne de droite centrées ensemble, colonne éloignée du bord, pas de fond commun entre les cases d'équipes, nom au-dessus du score et centré | 11 |
 
 Total des contrôles disponibles :
 
 ```text
-427 contrôles navigateur (15 pages de test)
+458 contrôles navigateur (16 pages de test)
 + 10 cas de score (scoring-regression.js)
 + 58 contrôles PWA (offline-pwa-regression.js)
 ```
@@ -1168,6 +1170,19 @@ Version `v20261101_2140`. Pour remettre les parties d'un ancien export (6 juin 2
 - **Aide** (partie 10) : explication des deux boutons.
 - Vérifié avec le vrai export de l'utilisateur (34 joueurs, 16 parties) sur un historique simulé : 16 parties ajoutées, un second import n'ajoute rien.
 
+### 8.42 Passe générale : bandeau du bas supprimé, tournoi fiabilisé
+
+Version `v20261106_1340`. Premier lot de la passe générale du 6 novembre (règles du tournoi inchangées).
+
+- **Bandeau du bas supprimé** (il ne restait que sur la configuration, où Table/Contrat/Résultat ne faisaient rien et où il cachait « Mode Tournoi » sur PC et iPhone paysage) : HTML, 24 règles CSS (`.bottom-nav`, `.nav-item`…), surlignage dans `showTab`, `nav-score` dans `updatePulseButtons`, assombrissement par les Réglages et le tournoi, classe `screen-not-setup`. La configuration a ses icônes 📋 Parties / 📈 Stats en haut à droite (`#setup-header #setup-hdr-right`, mêmes règles que `#game-header`) ; `openFromSetup(tab)` + `fastHeaderBack()` : « ← Retour » ramène à la configuration quand on venait de là (`returnToSetup`, remis à zéro par `startGame`).
+- **Configuration** : « Mode Tournoi » dans la colonne de droite sur iPhone paysage et PC (la table couvre 4 lignes de grille) ; donneur et « Commencer » agrandis sur iPad paysage et PC.
+- **Table** : « Annuler la donne » reste toujours visible (grisé sans donne) : même grille 2 × 2 sur tous les appareils (avant : trou sur iPad, « Terminer » étiré sur PC). iPhone portrait : noms d'équipes sur deux lignes au lieu de « CHRISTOPHE & CYN… », cases alignées (`min-height:2.5em`).
+- **Stats** : `renderStatsChart()` recrée le canevas quand « Pas encore de données » l'avait remplacé (le graphique ne revenait jamais si Stats était ouvert avant la première donne).
+- **Fenêtres de confirmation** : `askConfirm(message, libellé, action)` (fenêtre `#confirm-modal`, passée au-dessus de la synchronisation, z-index 10010) remplace `confirm()` pour le tournoi (terminer, abandonner, supprimer, corriger), la restauration de sauvegarde (`restorePreImportBackup(onDone)`) et « Remplacer mes données ».
+- **Tournoi** : scores tapés gardés dans `T.appariements.matchs[i].draft1/draft2` (`onTScoreInput`, `saveTourDrafts()` avant Classement, Terminer et fermeture) ; `corrigerDernierTour()` rouvre le dernier tour validé avec ses scores et recalcule les équipes (`recalculerEquipesTournoi()`), y compris après la fin (le tournoi repart et quitte l'historique jusqu'à sa nouvelle fin) ; tours enregistrés sans brouillons ; historique des tournois sans plafond (avant 20) et trié comme le classement ; nom et date protégés (`escapeHtml`) ; titres en blanc (`.t-title`), légende lisible ; colonne centrée de 820px et texte plus grand dès 900px de large ; « ← Retour à l’accueil » quand aucune partie n'est en cours ; « Nouveau tournoi » sans confirmation après la fin ; raccourci « Saisir scores du tournoi » seulement pendant un tournoi (`updateTournoiShortcut()`).
+- **Aide** : note de la configuration (icônes en haut) ; nouvelle partie 11 « Mode tournoi ».
+- **Vérification** : géométrie des écrans de jeu comparée à `v20261101_2140` sur 5 formats : seules différences voulues (grille 2 × 2 en début de partie sur iPad/PC, noms sur deux lignes en iPhone portrait).
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1656,9 +1671,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261101_2140` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261106_1340` |
 | Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 427 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261101_2140 |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 458 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261106_1340 |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
@@ -1709,6 +1724,8 @@ Statuts utilisés :
 | Suppression de la saisie classique | Garder la saisie rapide comme seul mode, retirer le code classique. | Fait | Haute | Livré en `v20261101_2045` |
 | Historique sans plafond | Ne plus effacer les parties au-delà de 50 ; prévenir quand la mémoire se remplit. | Fait | Haute | Livré en `v20261101_2120` |
 | Import par code en fusion | Bouton « Ajouter à mes données » qui fusionne au lieu de remplacer. | Fait | Haute | Livré en `v20261101_2140` |
+| Passe générale, lot 1 | Bandeau du bas supprimé, défauts et incohérences du tournoi et de la table corrigés. | Fait | Haute | Livré en `v20261106_1340` |
+| Tournoi, règles et lien avec les parties | Exemption (victoire ou non) ; bouton « Jouer ce match ici » reportant le score. | À préciser | Moyen terme | En attente des réponses de l'utilisateur |
 | Simplification CSS progressive | Retirer le préfixe `body.fast-input`, réduire les blocs par appareil au profit de tailles fluides. | À faire | Moyen terme | Écran par écran, en commençant par Manche en cours |
 | Choix définitif du mode de saisie | Garder classique ou rapide, supprimer l'autre. | Fait | Moyen terme | Saisie rapide conservée en `v20261101_2045` |
 | Aide contextuelle | Petits boutons `?` sur contrat, belote, capot, tournoi. | À faire | Moyen terme | Faible risque si ciblé |

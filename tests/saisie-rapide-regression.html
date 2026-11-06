@@ -64,7 +64,6 @@
       let st = state();
       check(st.contract && st.contract.preneurTeam === 't2' && st.contract.value === 110 && st.contract.suit === '♠' && st.contract.contre === 'contre', 'Couleur : contrat non validé correctement');
       check(app.getActiveScreenName() === 'mancheencours', 'Couleur : écran « Manche en cours » attendu après validation du contrat');
-      check(app.getComputedStyle(el('bottom-nav')).display === 'none', 'Manche en cours : le bandeau du bas doit rester masqué');
       app.showScreen('game'); app.showTab('enjeu');
 
       // Rouvrir le contrat : déjà rempli
@@ -168,19 +167,20 @@
       el('btn-action-contrat').dispatchEvent(new app.PointerEvent('pointerdown', {bubbles:true}));
       check(el('btn-action-contrat').classList.contains('is-flash'), 'Retour visuel : éclair absent à l’appui');
 
-      // ── Bandeau du bas masqué en saisie rapide, Parties / Stats en haut ──
+      // ── Plus de bandeau du bas (supprimé en v20261106) ; Parties / Stats en haut ──
       app.showScreen('game'); app.showTab('enjeu');
-      check(app.getComputedStyle(el('bottom-nav')).display === 'none', 'Rapide : le bandeau du bas doit être masqué sur l’écran de jeu');
+      check(!el('bottom-nav') && !doc.querySelector('.bottom-nav, .nav-item'), 'Le bandeau du bas doit avoir disparu');
       check(visible(el('fast-hdr-right')) && !visible(el('fast-hdr-back')), 'Rapide TABLE : icônes Parties / Stats attendues en haut');
       app.showTab('stats');
       check(visible(el('fast-hdr-back')) && !visible(el('fast-hdr-right')), 'Rapide Stats : bouton Retour attendu');
       el('fast-hdr-back').click();
       check(app.getActiveGameTab() === 'enjeu', 'Rapide : Retour doit ramener à la TABLE');
-      app.showSettingsScreen();
-      check(app.getComputedStyle(el('bottom-nav')).display === 'none', 'Rapide : le bandeau doit rester masqué dans les Réglages');
-      app.hideSettingsScreen();
       app.showScreen('setup');
-      check(app.getComputedStyle(el('bottom-nav')).display !== 'none', 'Rapide : le bandeau reste visible sur l’écran de configuration');
+      check(visible(el('setup-hdr-right')) && el('setup-hdr-right').querySelectorAll('.fast-hdr-icon').length === 2, 'Configuration : icônes Parties / Stats attendues en haut à droite');
+      el('setup-hdr-right').querySelector('[aria-label="Parties"]').click();
+      check(app.getActiveScreenName() === 'game' && app.getActiveGameTab() === 'parties' && visible(el('fast-hdr-back')), 'Configuration › Parties : écran Parties avec Retour attendu');
+      el('fast-hdr-back').click();
+      check(app.getActiveScreenName() === 'setup', 'Parties ouvert depuis la configuration : Retour doit ramener à la configuration');
       app.showScreen('game'); app.showTab('enjeu');
 
       // ── Garder l'écran allumé ──

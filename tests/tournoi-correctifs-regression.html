@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tests correctifs tournoi et passe générale ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<script>
+  // Couvre (v20261106) : scores du tour conservés (Classement, sortie), correction du dernier tour
+  // (y compris après la fin), historique des tournois sans plafond, nom du tournoi protégé,
+  // raccourci « Saisir scores du tournoi » seulement pendant un tournoi, fenêtres de confirmation
+  // de l'application (aucune fenêtre du système), graphique des stats recréé.
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+    const check = (condition, message) => { checks += 1; if(!condition) failures.push(message); };
+    const el = id => doc.getElementById(id);
+    const T = () => app.eval('T');
+    const okConfirm = () => { check(el('confirm-modal').style.display === 'flex', 'Fenêtre de confirmation de l’application attendue'); el('confirm-ok').click(); };
+    const type = (i, a, b) => { el(`t-score-${i}-1`).value = String(a); el(`t-score-${i}-2`).value = String(b); app.onTScoreInput(i); };
+
+    setTimeout(() => {
+    try {
+      let nativeDialogs = 0;
+      app.confirm = () => { nativeDialogs++; return true; };
+      app.alert = () => { nativeDialogs++; };
+      app.localStorage.removeItem('belote_tournoi');
+      app.localStorage.removeItem('belote_tournois_history');
+      app.eval(`S.players = ['A','B','C','D','E','F','G','H']; savePlayers();`);
+
+      // Raccourci : mode activé mais pas de tournoi → masqué
+      app.toggleTournoiMode(true);
+      check(el('btn-tournoi-shortcut').style.display === 'none', 'Raccourci tournoi visible sans tournoi en cours');
+
+      // Tournoi de 4 équipes, 2 tours, nom avec caractères spéciaux
+      app.showTournoi();
+      app.eval(`_tSetup = { nbTours: 2, equipes: ['A & B','C & D','E & F','G & H'] };`);
+      el('t-nom-input').value = 'Coupe <b>test</b>';
+      app.demarrerTournoi();
+      check(el('btn-tournoi-shortcut').style.display === 'block', 'Raccourci tournoi absent pendant un tournoi');
+
+      // Scores conservés après Classement et après sortie de l'écran
+      type(0, 2010, 1500);
+      el('tournoi-body').querySelector('button[onclick*="renderTournoiClassement"]').click();
+      app.renderTournoiTour();
+      check(el('t-score-0-1').value === '2010' && el('t-score-0-2').value === '1500', 'Scores perdus après le Classement');
+      check(el('t-result-0').textContent.includes('gagne'), 'Résultat du match non réaffiché');
+      type(1, 1800, 2050);
+      app.hideTournoi(); app.showTournoi();
+      check(el('t-score-1-1').value === '1800', 'Scores perdus après la sortie du tournoi');
+
+      // Validation du tour 1, puis correction
+      const m1 = T().appariements.matchs.map(m => m.eq1 + '|' + m.eq2);
+      app.validerTour();
+      check(T().tourActuel === 2 && T().tours.length === 1, 'Tour 1 non validé');
+      const winner = T().tours[0].matchs[0].eq1;
+      check(T().equipes.find(e => e.name === winner).victoires === 1, 'Victoire du tour 1 non comptée');
+      check(!!el('tournoi-body').querySelector('button[onclick="corrigerDernierTour()"]'), 'Bouton « Corriger le tour 1 » absent');
+      app.corrigerDernierTour(); okConfirm();
+      check(T().tourActuel === 1 && T().tours.length === 0, 'Correction : retour au tour 1 attendu');
+      check(T().appariements.matchs.map(m => m.eq1 + '|' + m.eq2).join() === m1.join(), 'Correction : appariements du tour 1 non conservés');
+      check(el('t-score-0-1').value === '2010', 'Correction : scores du tour 1 non remis');
+      check(T().equipes.every(e => e.victoires === 0 && e.goalAvg === 0 && e.rencontres.length === 0), 'Correction : statistiques non recalculées');
+      type(0, 1000, 2001);
+      app.validerTour();
+      check(T().equipes.find(e => e.name === winner).victoires === 0, 'Correction : le score corrigé doit changer le vainqueur');
+
+      // Fin du tournoi, puis correction du dernier tour : il repart et quitte l'historique
+      T().appariements.matchs.forEach((m, i) => type(i, 2001, 1200));
+      app.validerTour();
+      check(T().status === 'done', 'Tournoi non terminé');
+      check(el('btn-tournoi-shortcut').style.display === 'none', 'Raccourci tournoi encore visible après la fin');
+      check(el('tournoi-body').innerHTML.includes('Coupe &lt;b&gt;test&lt;/b&gt;') && !el('tournoi-body').querySelector('.t-title b'), 'Nom du tournoi non protégé dans le résultat');
+      check(/Retour à l’accueil/.test(el('tournoi-body').textContent), 'Sans partie en cours, le bouton doit dire « Retour à l’accueil »');
+      let hist = JSON.parse(app.localStorage.getItem('belote_tournois_history'));
+      check(hist.length === 1, 'Tournoi terminé absent de l’historique');
+      app.corrigerDernierTour(); okConfirm();
+      check(T().status === 'running' && T().tourActuel === 2, 'Correction après la fin : le tournoi doit repartir au tour 2');
+      check(JSON.parse(app.localStorage.getItem('belote_tournois_history')).length === 0, 'Correction après la fin : le tournoi doit quitter l’historique');
+      app.validerTour();
+      check(JSON.parse(app.localStorage.getItem('belote_tournois_history')).length === 1, 'Tournoi re-terminé : une seule entrée dans l’historique');
+
+      // « Nouveau tournoi » après la fin : pas de question « Abandonner »
+      app.resetTournoi();
+      check(el('confirm-modal').style.display !== 'flex' && app.eval('T') === null, 'Nouveau tournoi après la fin : aucune confirmation attendue');
+
+      // Historique sans plafond de 20
+      const many = Array.from({length:25}, (_, i) => ({ id: 100 + i, status:'done', nom:'T' + i, date:'', nbTours:1, tourActuel:1, equipes:[], tours:[] }));
+      app.localStorage.setItem('belote_tournois_history', JSON.stringify(many));
+      app.eval(`T = { status:'done', id: 999, nom:'Dernier', date:'', nbTours:1, tourActuel:1, equipes:[{name:'A & B',victoires:0,goalAvg:0,scoreTotal:0,exemptions:0,rencontres:[]},{name:'C & D',victoires:0,goalAvg:0,scoreTotal:0,exemptions:0,rencontres:[]},{name:'E & F',victoires:0,goalAvg:0,scoreTotal:0,exemptions:0,rencontres:[]}], tours:[] }; saveTournoiHistorique();`);
+      check(JSON.parse(app.localStorage.getItem('belote_tournois_history')).length === 26, 'Historique des tournois recoupé à 20');
+
+      // Suppression d'un tournoi : fenêtre de l'application
+      app.deleteTournoiHistorique(100); okConfirm();
+      check(JSON.parse(app.localStorage.getItem('belote_tournois_history')).length === 25, 'Suppression d’un tournoi non effectuée');
+      app.hideTournoi();
+
+      // Graphique des stats : ouvert avant la première donne, il doit apparaître ensuite
+      app.eval(`
+        resetGameProgress();
+        S.pos = {nord:'A',sud:'B',est:'C',ouest:'D'};
+        S.t1 = {name:'A & B',players:['A','B']}; S.t2 = {name:'C & D',players:['C','D']};
+        S.gameMode = 'points'; S.winningPts = 2001; S.dealerIdx = 0;
+        showScreen('game'); initGameUI(); showTab('stats');
+      `);
+      check(!el('stats-chart'), 'Stats sans donne : message « Pas encore de données » attendu');
+      app.eval(`showTab('contrat'); updateContractForm(); fastPickTeam('t1'); fastPickValue(100); selectSuit('♥','h','red',true); confirmContract();
+                showTab('saisie'); updateSaisieForm(); fastKey('1'); fastKey('1'); fastKey('0'); fastValidate(); showTab('stats');`);
+      check(!!el('stats-chart'), 'Stats : le graphique doit réapparaître après la première donne');
+
+      check(nativeDialogs === 0, 'Fenêtres du système utilisées (' + nativeDialogs + ')');
+
+      app.toggleTournoiMode(false);
+      ['belote_tournoi','belote_tournois_history','belote_autosave','belote_history'].forEach(k => app.localStorage.removeItem(k));
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message + ' ' + (error.stack||'').split('\n')[1];
+      result.dataset.status = 'error';
+    }
+    }, 300);
+  });
+</script>
+</body>
+</html>

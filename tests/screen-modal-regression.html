@@ -27,7 +27,6 @@
 
       app.showSettingsScreen();
       check(activeScreen() === 'settings', 'Réglages non ouverts depuis Configuration');
-      check(doc.querySelector('.bottom-nav').style.pointerEvents === 'none', 'Navigation non bloquée dans Réglages');
 
       app.showHelpScreen();
       check(activeScreen() === 'help', 'Aide non ouverte');
@@ -39,7 +38,6 @@
 
       app.hideSettingsScreen();
       check(activeScreen() === 'setup', 'Réglages ne reviennent pas à Configuration');
-      check(doc.querySelector('.bottom-nav').style.pointerEvents === '', 'Navigation non restaurée');
 
       app.showScreen('game');
       check(activeScreen() === 'game', 'Partie non active');

@@ -67,7 +67,10 @@
         app.eval(`S.history = [{manche:1,total1:80,total2:90}]; updatePulseButtons();`);
         check(!undo.disabled, context.name + ' : annulation non activée avec historique');
       } else {
-        check(undoStyle.display === 'none', context.name + ' : comportement non-iPhone modifié sans historique');
+        // Même grille 2 × 2 partout : « Annuler la donne » reste visible, grisé sans historique
+        check(undoStyle.display !== 'none' && undo.disabled, context.name + ' : « Annuler la donne » doit rester visible et grisé sans historique');
+        const ru = undo.getBoundingClientRect(), re = end.getBoundingClientRect();
+        check(Math.abs(re.top - ru.top) <= 2 && Math.abs(re.width - ru.width) <= 2, context.name + ' : « Terminer la partie » doit être à côté d’« Annuler », même largeur');
       }
 
       // Écran Contrat : noms d'équipes « Prénom & / Prénom » sur les boutons de l'équipe preneuse
