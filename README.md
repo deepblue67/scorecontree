@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261106_1525`.
+Version applicative actuellement documentée : `v20261106_1555`.
 
 ---
 
@@ -414,13 +414,13 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `tournoi-toutes-rondes-regression.html` | calendrier tous contre tous de 3 à 12 équipes (chaque paire une fois, une équipe par tour, une exemption par équipe en impair), bouton et information dans la configuration, déroulé complet, correction d'un tour, page récapitulative (10 matchs annoncés, scores et écarts, en cours / à jouer, classement avec J), état relu, formule « selon le classement » inchangée | 63 |
 | `tournoi-correctifs-regression.html` | scores du tour conservés (Classement, sortie), correction du dernier tour (y compris après la fin, historique mis à jour), historique des tournois sans plafond, nom du tournoi protégé, « Retour à l’accueil », « Nouveau tournoi » sans confirmation après la fin, raccourci tournoi seulement pendant un tournoi, aucune fenêtre du système, graphique des stats recréé | 30 |
 | `historique-regression.html` | plus de plafond de 50 parties (sauvegarde et import fusionné), avertissement « mémoire presque pleine » une fois par session, « mémoire pleine » sans rien effacer, libellé du bouton de confirmation rétabli ; import par code « Ajouter à mes données » (fusion sans doublon, version de l'appareil prioritaire, joueurs complétés, thème conservé, deux imports sans doublon) | 18 |
-| `tournoi-jouer-ici-regression.html` | « Jouer ici » : un bouton par table, configuration pré-remplie (places, donneur, points), partie reliée (équipe du match en Nord/Sud ou Est/Ouest), score recopié dans le tour à la victoire, « Retour au tournoi », « Reprendre la partie », partie en cours abandonnée après confirmation, lien perdu si les joueurs changent ou si le tour a changé (avertissement), lien gardé par la sauvegarde automatique, équipe exemptée sans victoire, écran de victoire inchangé hors tournoi | 36 |
+| `tournoi-jouer-ici-regression.html` | « Jouer ici » : un bouton par table, configuration pré-remplie (places, donneur, points), partie reliée (équipe du match en Nord/Sud ou Est/Ouest), score recopié dans le tour à la victoire, « Retour au tournoi », « Reprendre la partie », partie en cours abandonnée après confirmation, lien perdu si les joueurs changent ou si le tour a changé (avertissement), lien gardé par la sauvegarde automatique, équipe exemptée sans victoire, écran de victoire inchangé hors tournoi ; cadre iPad paysage (1194 × 834) : victoire, tournoi, récapitulatif et aide défilent même si un onglet était ouvert, la table reste bloquée sur l'écran de jeu | 42 |
 | `pc-table-regression.html` | icône de l'onglet (favicon PNG) ; TABLE sur PC (cadre 1440 × 900, souris) : table et colonne de droite centrées ensemble, colonne éloignée du bord, pas de fond commun entre les cases d'équipes, nom au-dessus du score et centré | 11 |
 
 Total des contrôles disponibles :
 
 ```text
-557 contrôles navigateur (18 pages de test)
+563 contrôles navigateur (18 pages de test)
 + 10 cas de score (scoring-regression.js)
 + 58 contrôles PWA (offline-pwa-regression.js)
 ```
@@ -1207,6 +1207,14 @@ Version `v20261106_1525`. Demandé par l'utilisateur : jouer un match du tournoi
 - **Report** : `savePastGame` appelle `reporterScoreTournoi()` qui écrit le score dans les brouillons du match (`draft1/draft2`) si le tournoi, le tour et les équipes n'ont pas changé ; les scores restent à valider avec le tour. Écran de victoire : mention « Reporté dans le tournoi » ou « Score non reporté » (`tournoiWinnerNoteHtml`), bouton « 🏆 Retour au tournoi » en premier (`retourTournoiApresMatch`) ; « Nouvelle partie — mêmes équipes » passe en bouton secondaire seulement dans ce cas.
 - **Aide** (partie 11) : étape « Jouer ici » ajoutée.
 
+### 8.45 Défilement bloqué en paysage hors de l'écran de jeu
+
+Version `v20261106_1555`. Signalé par l'utilisateur (capture iPad paysage) : impossible de descendre en bas des pages Récapitulatif et Résultats du tournoi.
+
+- **Cause** : en paysage, ouvrir un onglet par-dessus la table (Contrat, Résultat, Parties, Stats…) active un verrou (`syncGameOverlayLock` : classe `body.ipad-overlay-active` avec `touch-action:none`, et un écouteur `touchmove` qui annule tout geste hors des onglets). Le verrou restait actif en quittant l'écran de jeu sans repasser par la table : victoire validée depuis Résultat, Tournoi, Réglages, Aide, Aide à la marque. Sur iPhone et iPad en paysage, aucune de ces pages ne défilait au doigt (sur PC, la molette était bloquée dans Réglages et Aide).
+- **Correction** : le verrou ne s'applique plus que sur l'écran de jeu (`body.ipad-overlay-active.on-game-screen` en CSS ; l'écouteur ne fait rien sans `on-game-screen`). Sur l'écran de jeu, rien ne change.
+- **Vérification** : glissés au doigt réels (événements tactiles Chromium) sur les 5 formats, en partant de la table ou d'un onglet ouvert, pour Tournoi (configuration, tour, récapitulatif, résultat), Aide, Réglages, Aide à la marque : tout défile ; l'ancienne version restait bloquée en iPhone et iPad paysage. Contrôles ajoutés à `tournoi-jouer-ici-regression.html` (le test échoue sur l'ancienne version).
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1695,9 +1703,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261106_1525` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261106_1555` |
 | Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 557 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261106_1525 |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 563 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261106_1555 |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |

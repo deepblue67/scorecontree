@@ -6,13 +6,14 @@
 </head>
 <body>
 <div id="result">Tests en attente</div>
-<iframe id="app" src="../index.html" style="display:none;"></iframe>
+<!-- Cadre au format iPad paysage (1194 × 834), hors écran : vérifie le verrou de défilement des onglets -->
+<iframe id="app" src="../index.html" style="position:absolute;left:-9999px;top:0;width:1194px;height:834px;border:0;"></iframe>
 <script>
   // Couvre : bouton « Jouer ici » sur chaque table, configuration pré-remplie (places, donneur, points),
   // partie reliée au match, score recopié dans le tour à la fin (équipe du match en Nord/Sud ou en Est/Ouest),
   // « Retour au tournoi », « Reprendre la partie », partie en cours abandonnée après confirmation,
   // lien perdu si les joueurs changent ou si le tour a changé, lien conservé par la sauvegarde automatique,
-  // équipe exemptée sans victoire.
+  // équipe exemptée sans victoire, défilement libre hors de l'écran de jeu en paysage (verrou des onglets).
   document.getElementById('app').addEventListener('load', function() {
     const result = document.getElementById('result');
     const app = this.contentWindow;
@@ -81,8 +82,20 @@
       check(/Reporté dans le tournoi · Tour 1 · Table 1/.test(el('w-summary').textContent), 'Écran de victoire : mention du report absente');
       const fin = app.eval('({t1:S.score.t1, t2:S.score.t2})');
       check(stored().appariements.matchs[0].draft1 === String(fin.t1) && stored().appariements.matchs[0].draft2 === String(fin.t2), 'Score non recopié dans le tour');
+      // Victoire validée depuis l'onglet Résultat (paysage) : verrou des onglets actif, mais seulement sur l'écran de jeu
+      const touchBloque = id => { const ev = new app.Event('touchmove', {bubbles:true, cancelable:true}); el(id).dispatchEvent(ev); return ev.defaultPrevented; };
+      check(doc.body.classList.contains('ipad-overlay-active'), 'Paysage : verrou des onglets attendu après une victoire depuis Résultat');
+      check(!touchBloque('w-summary') && app.getComputedStyle(doc.body).touchAction !== 'none', 'Écran de victoire : le défilement ne doit pas être bloqué');
       el('w-btn-tournoi').click();
       check(screen() === 'tournoi', 'Retour au tournoi : écran du tournoi attendu');
+      check(!touchBloque('tournoi-body') && app.getComputedStyle(doc.body).touchAction !== 'none', 'Tournoi : le défilement ne doit pas être bloqué (iPad paysage)');
+      app.renderTournoiRecap();
+      check(!touchBloque('tournoi-body'), 'Récapitulatif : le défilement ne doit pas être bloqué');
+      app.showHelpScreen();
+      check(!touchBloque('help-content'), 'Aide : le défilement ne doit pas être bloqué');
+      app.eval(`showScreen('game'); showTab('parties');`);
+      check(touchBloque('ej-table-wrap'), 'Écran de jeu avec un onglet ouvert : la table doit rester bloquée');
+      app.showTournoi(); app.renderTournoiTour();
       check(el('t-score-0-1').value === String(fin.t1) && el('t-score-0-2').value === String(fin.t2), 'Tour : scores pré-remplis absents');
       check(/gagne/.test(el('t-result-0').textContent), 'Tour : vainqueur du match non affiché');
       check(JSON.parse(app.localStorage.getItem('belote_history')).length === 1, 'La partie doit être dans l’historique');

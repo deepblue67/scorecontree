@@ -652,8 +652,9 @@ input[type="checkbox"] { min-width:44px; min-height:44px; cursor:pointer; }
 #splash-title { font-size:22px; font-weight:900; color:#fff; letter-spacing:-0.5px; text-shadow:0 2px 8px rgba(0,0,0,0.3); animation:splashCard 0.6s ease-out 0.15s both; }
 #splash-sub { font-size:13px; color:rgba(255,255,255,0.6); animation:splashCard 0.6s ease-out 0.25s both; }
 
-/* Overlay scroll lock (commun paysage) */
-body.ipad-overlay-active { overflow:hidden !important; touch-action:none !important; }
+/* Overlay scroll lock (commun paysage) — seulement sur l'écran de jeu : les autres écrans
+   (tournoi, victoire, réglages, aide…) doivent défiler même si un onglet était ouvert en partant */
+body.ipad-overlay-active.on-game-screen { overflow:hidden !important; touch-action:none !important; }
 body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-events:none !important; }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -1894,7 +1895,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261106_1525</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261106_1555</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -2515,6 +2516,8 @@ function syncGameOverlayLock(isOverlay) {
 
   if(shouldLock) {
     document._blockTouch = (e) => {
+      // Hors de l'écran de jeu (tournoi, victoire, réglages…) : rien n'est bloqué.
+      if(!document.body.classList.contains('on-game-screen')) return;
       // Laisser scroller à l'intérieur des tabs overlay.
       let el = e.target;
       while(el && el !== document.body) {
