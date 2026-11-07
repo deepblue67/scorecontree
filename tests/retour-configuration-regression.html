@@ -13,7 +13,8 @@
   // après un défilement et un redimensionnement pendant l'absence : Ouest et Est restent au milieu de la table
   // (ils se collaient en haut), la page revient en haut (elle gardait le décalage des Réglages).
   // Rotations (le cadre passe de 1194 × 834 à 834 × 1194 et inversement) : Ouest/Est reviennent au milieu en
-  // portrait, graphique des Stats redessiné à la bonne largeur au retour, Manche en cours sans reste du paysage.
+  // portrait, graphique des Stats redessiné à la bonne largeur au retour, Manche en cours sans reste du paysage,
+  // graphique de la fiche d'une partie passée redessiné quand on tourne l'appareil fiche ouverte.
   document.getElementById('app').addEventListener('load', function() {
     const result = document.getElementById('result');
     const app = this.contentWindow;
@@ -94,6 +95,25 @@
       check(el('mec-st1').style.borderColor !== '' , 'Manche en cours portrait : mise en avant de l’équipe en tête perdue');
       await tourner(1194, 834);
       app.eval(`showScreen('game'); showTab('enjeu'); localStorage.removeItem('belote_autosave');`);
+
+      // Fiche d'une partie passée ouverte pendant une rotation : graphique redessiné à la nouvelle largeur
+      const sauvegarde = app.localStorage.getItem('belote_history');
+      app.localStorage.setItem('belote_history', JSON.stringify([{ id: 777, date:'sam. 07/11/2026', time:'11:40', t1:'Fabrice & Chris', t2:'Aymeric & Florent',
+        score1:2010, score2:1500, winner:'Fabrice & Chris', manches:2,
+        history:[{manche:1,contract:'100 ♥',contre:'none',preneur:'Fabrice & Chris',chute:false,pts1:1000,pts2:700,total1:1000,total2:700},
+                 {manche:2,contract:'90 ♠',contre:'none',preneur:'Aymeric & Florent',chute:false,pts1:1010,pts2:800,total1:2010,total2:1500}] }]));
+      // (format iPhone : sur iPad la fenêtre garde 560 px de large dans les deux sens)
+      await tourner(393, 852);
+      app.showPastGameStats(777);
+      await wait(300);
+      let pc = el('past-stats-canvas-777');
+      check(pc && pc.width === pc.offsetWidth, 'Fiche partie passée : graphique mal dimensionné à l’ouverture');
+      await tourner(852, 393);
+      pc = el('past-stats-canvas-777');
+      check(pc && pc.width === pc.offsetWidth, 'Fiche partie passée : graphique non redessiné après rotation (' + (pc && pc.width) + ' / ' + (pc && pc.offsetWidth) + ')');
+      el('past-stats-modal').remove();
+      await tourner(1194, 834);
+      if(sauvegarde === null) app.localStorage.removeItem('belote_history'); else app.localStorage.setItem('belote_history', sauvegarde);
 
       app.toggleTournoiMode(false);
       result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
