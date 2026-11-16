@@ -1,0 +1,6 @@
+# GitHub Pages : fichiers du dépôt à ne pas publier sur le site.
+# README.md serait sinon transformé en page README.html, que les moteurs de recherche pourraient référencer
+# (une page générée ne porte pas la balise « noindex » d'index.html). v1/ : anciennes captures, inutiles au site.
+exclude:
+  - README.md
+  - v1

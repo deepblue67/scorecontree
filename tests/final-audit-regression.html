@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <title>Audit final ScoreContrée</title>
 </head>
 <body>
@@ -25,6 +26,8 @@
     };
 
     try {
+      const robots = doc.querySelector('meta[name="robots"]');
+      check(robots && /noindex/.test(robots.content) && /nofollow/.test(robots.content), 'Balise robots « noindex, nofollow » absente : le site pourrait être référencé');
       check(duplicateIds().length === 0, 'IDs du DOM initial dupliqués : ' + duplicateIds().join(', '));
       check(/^v\d{8}_\d{4}$/.test(doc.getElementById('settings-app-version')?.textContent.trim() || ''), 'Version dédiée absente des Réglages');
       check(!/v\d{8}_\d{4}/.test(doc.querySelector('#screen-settings .header')?.textContent || ''), 'Version encore présente dans le bandeau Réglages');

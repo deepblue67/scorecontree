@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261107_1140`.
+Version applicative actuellement documentée : `v20261116_1755`.
 
 ---
 
@@ -421,7 +421,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 Total des contrôles disponibles :
 
 ```text
-586 contrôles navigateur (19 pages de test)
+587 contrôles navigateur (19 pages de test)
 + 10 cas de score (scoring-regression.js)
 + 58 contrôles PWA (offline-pwa-regression.js)
 ```
@@ -1234,6 +1234,17 @@ Versions `v20261106_2359` et `v20261107_0050`. Signalé par l'utilisateur (captu
 - **Sans écart** après correction (hors l'animation de la carte de Manche en cours) : tous les écrans, toutes les rotations, sur place et en revenant d'un autre écran. Les seuls écarts restants concernent la table cachée derrière un onglet ouvert, invisible et recalculée dès qu'on ferme l'onglet.
 - **Fiche d'une partie passée** (corrigé en `v20261107_1140`) : son graphique gardait la largeur de l'ouverture si on tournait l'appareil fiche ouverte (étiré et flou ; visible sur iPhone, sur iPad la fenêtre garde 560 px dans les deux sens). Le dessin est maintenant une fonction gardée sur la fenêtre (`modal._redrawChart`), relancée par `handleViewportChange` (tout de suite et 350 ms après), à la largeur réelle du graphique.
 
+### 8.47 Site non référencé par les moteurs de recherche
+
+Version `v20261116_1755`. Demandé par l'utilisateur : le site (scorecontree.cdesmottes.fr) ne doit pas être référencé.
+
+- **`index.html`** : `<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">` (tous les moteurs) et la même balise pour `googlebot`. Pas d'indexation, pas de suivi des liens, pas de copie en cache, pas d'extrait ni d'image dans les résultats.
+- **Pages de test** (`tests/*.html`, publiées elles aussi) : même balise `robots`.
+- **`_config.yml`** (GitHub Pages) : `README.md` et `v1/` ne sont plus publiés. Sinon GitHub Pages transforme `README.md` en page `README.html`, sans balise `noindex`.
+- **Pas de `robots.txt`**, volontairement : un `Disallow` empêcherait les robots de lire la page, donc de voir le `noindex` ; une adresse trouvée par un lien ailleurs pourrait alors apparaître dans les résultats (sans contenu). La balise suffit et elle est lue à chaque passage.
+- Une page déjà référencée disparaît des résultats au passage suivant du robot ; pour aller plus vite, demande de suppression dans Google Search Console (propriété du domaine nécessaire).
+- Contrôle ajouté à `final-audit-regression.html` (balise présente avec `noindex` et `nofollow`).
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1722,9 +1733,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261107_1140` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261116_1755` |
 | Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 586 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261107_1140 |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 587 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261116_1755 |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
