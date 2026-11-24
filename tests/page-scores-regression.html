@@ -127,6 +127,21 @@
       check(el('sc-st2').getBoundingClientRect().top > el('sc-st1').getBoundingClientRect().bottom - 1, 'Portrait : scores empilés attendus');
       check(el('sc-btn-action').getBoundingClientRect().bottom <= app.innerHeight + 1, 'Portrait : bouton hors de l’écran');
       check(parseFloat(app.getComputedStyle(el('sc-s1')).fontSize) >= 90, 'Portrait : chiffres trop petits (' + app.getComputedStyle(el('sc-s1')).fontSize + ')');
+      // Noms d'équipes en grand ; les deux cases entourées, lisière dorée pour l'équipe en tête (v20261124_2320)
+      check(parseFloat(app.getComputedStyle(el('sc-n1')).fontSize) >= 24, 'Nom d’équipe trop petit (' + app.getComputedStyle(el('sc-n1')).fontSize + ')');
+      const lead = el('sc-st1').classList.contains('is-lead') ? el('sc-st1') : el('sc-st2');
+      const other = lead === el('sc-st1') ? el('sc-st2') : el('sc-st1');
+      check(app.getComputedStyle(lead).borderTopColor === 'rgb(200, 168, 74)' && parseFloat(app.getComputedStyle(lead).borderTopWidth) >= 4, 'Équipe en tête : lisière dorée attendue (' + app.getComputedStyle(lead).borderTopColor + ')');
+      check(parseFloat(app.getComputedStyle(other).borderTopWidth) >= 2 && app.getComputedStyle(other).borderTopColor !== 'rgba(0, 0, 0, 0)', 'Autre équipe : case entourée attendue');
+      // Pas de zoom au double appui (iOS) : touch-action « manipulation » partout, règles plus précises conservées
+      const ta = node => app.getComputedStyle(node).touchAction;
+      ['sc-st1','sc-btn-action'].forEach(id => check(ta(el(id)) === 'manipulation', 'Double appui : zoom possible sur ' + id + ' (' + ta(el(id)) + ')'));
+      app.eval(`showScreen('game'); showTab('enjeu');`);
+      ['ej-st1','game-header'].forEach(id => check(el(id) && ta(el(id)) === 'manipulation', 'Double appui : zoom possible sur ' + id));
+      check(ta(doc.documentElement) === 'manipulation' && ta(doc.body) === 'manipulation', 'Double appui : page entière non protégée');
+      app.eval(`showTab('saisie'); updateSaisieForm();`);
+      check(ta(doc.querySelector('#fast-saisie .fast-key')) === 'manipulation', 'Double appui : zoom possible sur le pavé');
+      app.eval(`showScreen('scores');`);
       const frame = document.getElementById('app');
       frame.style.width = '844px'; frame.style.height = '390px';
       await wait(700);

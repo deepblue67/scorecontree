@@ -1452,6 +1452,10 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 }
 
 
+/* iOS : pas de zoom au double appui (les appuis rapides sur le pavé ou la table zoomaient la page).
+   Le zoom à deux doigts reste possible. Les règles plus précises (pan-y, none) gardent la priorité. */
+* { touch-action:manipulation; }
+
 /* ═══════════════════════════════════════════════════════════
    PAGE SCORES — les deux scores en grand, donneur et entame.
    Ouverte en touchant un score sous la table, et après Valider.
@@ -1473,15 +1477,17 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 #screen-scores .sc-pos { font-size:.58em; font-weight:700; color:rgba(255,255,255,0.6); white-space:nowrap; }
 #screen-scores .sc-cards { display:flex; flex-direction:column; gap:clamp(10px, 2.2vmin, 22px); min-height:0; min-width:0; }
 #screen-scores .sc-card { container-type:size; flex:1 1 0; min-height:0; min-width:0; position:relative; box-sizing:border-box;
-  border:2px solid transparent; border-radius:clamp(16px, 2.4vmin, 24px); background:#3a6b38; color:#fff; font-family:inherit;
+  border:2px solid rgba(255,255,255,0.5); border-radius:clamp(16px, 2.4vmin, 24px); background:rgba(0,0,0,0.22); color:#fff; font-family:inherit;
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:12px 10px; margin:0;
   cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform .1s; }
-#screen-scores .sc-card.is-lead { background:#245a20; border-color:#4caf50; }
+/* Les deux cases sont entourées ; l'équipe en tête a une lisière dorée, plus épaisse */
+#screen-scores .sc-card.is-lead { background:#245a20; border:4px solid var(--gold, #c8a84a); box-shadow:0 0 0 3px rgba(200,168,74,0.28), 0 6px 18px rgba(0,0,0,0.25); }
 #screen-scores .sc-card:active { transform:scale(0.985); }
-#screen-scores .sc-name { display:block; max-width:100%; font-size:clamp(11px, 1.3vmin + 6px, 22px); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,0.85); text-align:center; line-height:1.2; }
-#screen-scores .sc-score { display:block; font-size:15vmin; font-size:min(36cqw, 50cqh); font-weight:900; line-height:1; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; color:#fff; }
+/* Nom d'équipe en grand : il suit la taille de la case (environ deux fois plus grand qu'avant) */
+#screen-scores .sc-name { display:block; max-width:100%; font-size:clamp(16px, 2vmin + 10px, 40px); font-size:clamp(16px, min(8.5cqw, 11cqh), 52px); font-weight:800; letter-spacing:.01em; color:#fff; text-align:center; line-height:1.15; overflow-wrap:break-word; }
+#screen-scores .sc-score { display:block; font-size:15vmin; font-size:min(36cqw, 44cqh); font-weight:900; line-height:1; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; color:#fff; }
 #screen-scores .sc-card.is-lead .sc-score { color:#7ddd82; }
-#screen-scores .sc-need { display:none; font-size:clamp(12px, 1.2vmin + 7px, 22px); font-weight:700; color:rgba(255,255,255,0.75); }
+#screen-scores .sc-need { display:none; font-size:clamp(12px, 1.2vmin + 7px, 22px); font-size:clamp(13px, min(4.5cqw, 6cqh), 26px); font-weight:700; color:rgba(255,255,255,0.75); }
 body.show-need #screen-scores .sc-need { display:block; }
 #screen-scores .sc-card .gain-badge { top:10px; right:10px; bottom:auto; font-size:clamp(14px, 1.2vmin + 9px, 24px); padding:.2em .7em; }
 #screen-scores .sc-hint { text-align:center; font-size:clamp(11px, 0.8vmin + 7px, 15px); color:rgba(255,255,255,0.6); }
@@ -1963,7 +1969,7 @@ body.show-need #screen-scores .sc-need { display:block; }
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261124_2220</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261124_2320</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>

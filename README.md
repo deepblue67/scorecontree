@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261124_2220`.
+Version applicative actuellement documentée : `v20261124_2320`.
 
 ---
 
@@ -413,7 +413,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `ameliorations-20261101-regression.html` | bouton « Saisir le score » de Manche en cours, points maximum d'une donne, alerte « dernière donne » (points, manches, contre, masquée en correction), tableaux agrandis en iPad portrait (cadre 834 × 1194), illustrations et textes de l'aide | 28 |
 | `tournoi-toutes-rondes-regression.html` | calendrier tous contre tous de 3 à 12 équipes (chaque paire une fois, une équipe par tour, une exemption par équipe en impair), bouton et information dans la configuration, déroulé complet, correction d'un tour, page récapitulative (10 matchs annoncés, scores et écarts, en cours / à jouer, classement avec J), état relu, formule « selon le classement » inchangée | 63 |
 | `tournoi-correctifs-regression.html` | scores du tour conservés (Classement, sortie), correction du dernier tour (y compris après la fin, historique mis à jour), historique des tournois sans plafond, nom du tournoi protégé, « Retour à l’accueil », « Nouveau tournoi » sans confirmation après la fin, raccourci tournoi seulement pendant un tournoi, aucune fenêtre du système, graphique des stats recréé | 30 |
-| `page-scores-regression.html` | Cadre iPhone 390 × 844 puis 844 × 390 : page Scores après Valider et en touchant un score de la table ; titre, donneur et entame de la donne suivante, scores, « manque », équipe en tête, points gagnés ; retour à la table ; « Saisir le contrat » / « Saisir le score » ; « Tout le monde passe » et victoire inchangés ; durée des points gagnés (sans limite par défaut, 5 s) ; pastilles effacées par l'annulation et la nouvelle partie ; « Entame » ; chiffres dans leur case, empilé en portrait, côte à côte en paysage | 40 |
+| `page-scores-regression.html` | Cadre iPhone 390 × 844 puis 844 × 390 : page Scores après Valider et en touchant un score de la table ; titre, donneur et entame de la donne suivante, scores, « manque », équipe en tête, points gagnés ; retour à la table ; « Saisir le contrat » / « Saisir le score » ; « Tout le monde passe » et victoire inchangés ; durée des points gagnés (sans limite par défaut, 5 s) ; pastilles effacées par l'annulation et la nouvelle partie ; « Entame » ; chiffres dans leur case, empilé en portrait, côte à côte en paysage ; noms d'équipes en grand, lisière dorée pour l'équipe en tête et autre case entourée ; `touch-action: manipulation` (pas de zoom au double appui) sur la page, la table et le pavé | 49 |
 | `historique-regression.html` | plus de plafond de 50 parties (sauvegarde et import fusionné), avertissement « mémoire presque pleine » une fois par session, « mémoire pleine » sans rien effacer, libellé du bouton de confirmation rétabli ; import par code « Ajouter à mes données » (fusion sans doublon, version de l'appareil prioritaire, joueurs complétés, thème conservé, deux imports sans doublon) | 18 |
 | `tournoi-jouer-ici-regression.html` | « Jouer ici » : un bouton par table, configuration pré-remplie (places, donneur, points), partie reliée (équipe du match en Nord/Sud ou Est/Ouest), score recopié dans le tour à la victoire, « Retour au tournoi », « Reprendre la partie », partie en cours abandonnée après confirmation, lien perdu si les joueurs changent ou si le tour a changé (avertissement), lien gardé par la sauvegarde automatique, équipe exemptée sans victoire, écran de victoire inchangé hors tournoi ; cadre iPad paysage (1194 × 834) : victoire, tournoi, récapitulatif et aide défilent même si un onglet était ouvert, la table reste bloquée sur l'écran de jeu | 42 |
 | `retour-configuration-regression.html` | Cadre 1194 × 834 : retour sur la configuration depuis Réglages, Aide, Tournoi et Aide à la marque après défilement et redimensionnement — Ouest/Est au milieu de la table, page en haut ; placement Ouest/Est ignoré quand la configuration est cachée ; Réglages ouverts en haut ; rotations du cadre (1194 × 834 ↔ 834 × 1194) : Ouest/Est au milieu en portrait, graphique Stats redessiné au retour, Manche en cours sans reste du paysage, graphique de la fiche d'une partie passée redessiné fiche ouverte (format iPhone) | 23 |
@@ -422,7 +422,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 Total des contrôles disponibles :
 
 ```text
-630 contrôles navigateur (20 pages de test)
+639 contrôles navigateur (20 pages de test)
 + 10 cas de score (scoring-regression.js)
 + 58 contrôles PWA (offline-pwa-regression.js)
 ```
@@ -1269,6 +1269,14 @@ Version `v20261124_2220`. Demandé par l'utilisateur : pouvoir remettre la saisi
 - **Aide** (partie 5, étape 2) mise à jour.
 - **Tests** : `saisie-rapide` (case de gauche par défaut, Effacer complet, correction pré-remplie à gauche), `ameliorations-20261031` (belote remise après Effacer), `tournoi-jouer-ici` (choix de la case avant de taper) adaptés.
 
+### 8.50 Page Scores plus lisible, plus de zoom au double appui
+
+Version `v20261124_2320`. Demandé par l'utilisateur (capture iPad paysage).
+
+- **Noms d'équipes** environ deux fois plus grands, en minuscules accentuées plutôt qu'en capitales espacées (plus courts, plus lisibles de loin) : `clamp(16px, min(8.5cqw, 11cqh), 52px)`, retour à la ligne entre les mots si le nom est long. « manque … » un peu plus grand aussi. Grands chiffres ajustés (`min(36cqw, 44cqh)`) pour laisser la place au nom.
+- **Cases** : les deux sont entourées (lisière blanche translucide de 2 px, fond sombre) ; l'équipe en tête a une **lisière dorée de 4 px** avec un halo doré. En cas d'égalité, aucune n'est dorée.
+- **Zoom au double appui (iOS)** : `* { touch-action: manipulation; }` pour toute l'application. Les appuis rapides (pavé, table, boutons) ne zooment plus ; le zoom à deux doigts reste possible. Les règles plus précises gardent la priorité (`none` du verrou des onglets en paysage, `pan-y` de certains panneaux) : défilement au doigt et verrou de la table vérifiés de nouveau.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1757,9 +1765,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261124_2220` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261124_2320` |
 | Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 630 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261124_2220 |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 639 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261124_2320 |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
