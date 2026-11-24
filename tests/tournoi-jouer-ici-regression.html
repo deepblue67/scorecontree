@@ -27,7 +27,7 @@
     const stored = () => JSON.parse(app.localStorage.getItem('belote_tournoi'));
     const screen = () => app.getActiveScreenName();
     const winRound = team => app.eval(`showTab('contrat'); updateContractForm(); fastPickTeam('${team}'); fastPickValue(100); selectSuit('♥','h','red',true); confirmContract();
-      showTab('saisie'); updateSaisieForm(); fastKey('1'); fastKey('1'); fastKey('0'); fastValidate();`);
+      showTab('saisie'); updateSaisieForm(); fastSetTarget('${team}'); fastKey('1'); fastKey('1'); fastKey('0'); fastValidate();`);
 
     setTimeout(() => {
     try {

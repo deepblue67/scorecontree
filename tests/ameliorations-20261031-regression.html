@@ -83,7 +83,7 @@
       check(app.eval('fastSaisie.digits') === '110' && app.eval('fastSaisie.bel1') === true && el('fast-pts-t2').textContent.trim() === '50', 'Édition : saisie non pré-remplie');
       check(!!el('fast-edit-banner').querySelector('.fast-edit-banner'), 'Édition : bandeau de modification absent');
       check(state().contract.suit === '♥', 'Édition : contrat de la donne non chargé');
-      app.fastClear(); app.fastKey('1'); app.fastKey('2'); app.fastKey('0');
+      app.fastClear(); app.fastToggleBelote('t1'); app.fastKey('1'); app.fastKey('2'); app.fastKey('0'); // Effacer remet aussi la belote à zéro
       check(el('fast-pts-t2').textContent.trim() === '40', 'Pavé : complément automatique absent');
       app.fastValidate();
       st = state();

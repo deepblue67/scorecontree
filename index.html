@@ -1963,7 +1963,7 @@ body.show-need #screen-scores .sc-need { display:block; }
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261124_1950</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261124_2220</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -7514,9 +7514,9 @@ function fastPickSuit(suit, key, color) {
 }
 
 // ── Résultat rapide ─────────────────────────────────────────
+// La case de gauche est toujours celle qu'on tape au départ (toucher l'autre case pour changer)
 function resetFastSaisie() {
-  const pre = S.contract && S.contract.preneurTeam === 't2' ? 't2' : 't1';
-  fastSaisie = { target:pre, digits:'', bel1:false, bel2:false, cap:null, total:160 };
+  fastSaisie = { target:'t1', digits:'', bel1:false, bel2:false, cap:null, total:160 };
 }
 
 function loadFastSaisieFromRaw(raw) {
@@ -7620,7 +7620,8 @@ function fastKey(d) {
   renderFastSaisie();
 }
 function fastBackspace() { haptic('light'); fastSaisie.digits = fastSaisie.digits.slice(0, -1); renderFastSaisie(); }
-function fastClear() { haptic('light'); fastSaisie.digits = ''; fastSaisie.cap = null; renderFastSaisie(); }
+// « Effacer » : remet toute la saisie à zéro (chiffres, belote, capot, total, case de gauche)
+function fastClear() { haptic('light'); resetFastSaisie(); renderFastSaisie(); }
 function fastSetTarget(t) {
   if(fastSaisie.target === t) return;
   haptic('light');
@@ -8220,7 +8221,7 @@ function renderHelpContent() {
     // ── 5. Résultat ──
     section('📊', '5. Saisir le score (Résultat)', [
       step(1, 'Touchez <strong>Saisir le score</strong> (sous la grande carte ou sur la table).'),
-      step(2, 'Tapez les points du <strong>preneur</strong> sur le pavé ; ceux de la défense se calculent seuls. Pour saisir la défense, touchez sa case.'),
+      step(2, 'Tapez les points de l\'équipe de <strong>gauche</strong> sur le pavé ; ceux de l\'autre équipe se calculent seuls. Pour taper ceux de droite, touchez sa case. <strong>Effacer</strong> remet toute la saisie à zéro (points, belote, capot).'),
       step(3, 'Touchez <strong>Belote</strong> ou <strong>Capot</strong> sous l\'équipe concernée, et <strong>Total 160 / 170</strong> si besoin.'),
       step(4, 'Le résultat <strong>FAIT</strong> ou <strong>CHUTE</strong> et les points de chaque équipe s\'affichent en direct : un seul appui sur <strong>Valider la manche</strong>.'),
       step(5, 'Quand une équipe peut atteindre l\'objectif sur la donne, le bandeau <strong>🎯 Dernière donne : au point près</strong> le rappelle : tapez les points exacts.'),

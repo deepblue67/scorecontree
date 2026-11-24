@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261124_1950`.
+Version applicative actuellement documentée : `v20261124_2220`.
 
 ---
 
@@ -422,7 +422,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 Total des contrôles disponibles :
 
 ```text
-628 contrôles navigateur (20 pages de test)
+630 contrôles navigateur (20 pages de test)
 + 10 cas de score (scoring-regression.js)
 + 58 contrôles PWA (offline-pwa-regression.js)
 ```
@@ -1259,6 +1259,16 @@ Version `v20261124_1950`. Demandé par l'utilisateur, d'après la maquette reten
 - **Aide** : partie « 4 ter. Les scores en grand » avec illustration ; note sur les points gagnés mise à jour.
 - **Vérification** : captures sur les 5 formats (chiffres dans leur case, bouton visible), test `page-scores-regression.html` ; `saisie-rapide` (durée par défaut) et `retour-configuration` (retour à la table avant l'onglet Stats) adaptés.
 
+### 8.49 Saisie du score : case de gauche par défaut, « Effacer » complet
+
+Version `v20261124_2220`. Demandé par l'utilisateur : pouvoir remettre la saisie à zéro, et toujours commencer par la case de gauche.
+
+- **Constat** : toucher une case choisit l'équipe saisie. Toucher l'autre case effaçait les chiffres (impression de remise à zéro) ; toucher la case déjà choisie ne faisait rien (d'où « ça marche, mais pas tout le temps »). La touche « Effacer » existait mais gardait la belote.
+- **Case de gauche par défaut** (`resetFastSaisie` : `target:'t1'`), même quand l'équipe de droite a pris. Le résultat ne change pas : l'autre équipe est toujours calculée (160/162 moins les points tapés). Toucher la case de droite reste possible. En correction d'une donne, les points enregistrés se chargent aussi dans la case de gauche (aucune trace du côté tapé à l'origine ; le calcul est identique).
+- **« Effacer » remet tout à zéro** (`fastClear` → `resetFastSaisie`) : chiffres, belote, capot, total 160, case de gauche. Pas de croix sur les cases (cible trop petite, en double avec Effacer) ; une case ne sert qu'à choisir l'équipe.
+- **Aide** (partie 5, étape 2) mise à jour.
+- **Tests** : `saisie-rapide` (case de gauche par défaut, Effacer complet, correction pré-remplie à gauche), `ameliorations-20261031` (belote remise après Effacer), `tournoi-jouer-ici` (choix de la case avant de taper) adaptés.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1747,9 +1757,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261124_1950` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261124_2220` |
 | Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 628 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261124_1950 |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 630 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261124_2220 |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |
