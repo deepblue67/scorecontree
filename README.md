@@ -9,7 +9,7 @@ Il doit être mis à jour à chaque modification fonctionnelle, visuelle ou tech
 
 Dernière mise à jour du README : 31 octobre 2026.
 
-Version applicative actuellement documentée : `v20261116_1755`.
+Version applicative actuellement documentée : `v20261124_1950`.
 
 ---
 
@@ -413,6 +413,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 | `ameliorations-20261101-regression.html` | bouton « Saisir le score » de Manche en cours, points maximum d'une donne, alerte « dernière donne » (points, manches, contre, masquée en correction), tableaux agrandis en iPad portrait (cadre 834 × 1194), illustrations et textes de l'aide | 28 |
 | `tournoi-toutes-rondes-regression.html` | calendrier tous contre tous de 3 à 12 équipes (chaque paire une fois, une équipe par tour, une exemption par équipe en impair), bouton et information dans la configuration, déroulé complet, correction d'un tour, page récapitulative (10 matchs annoncés, scores et écarts, en cours / à jouer, classement avec J), état relu, formule « selon le classement » inchangée | 63 |
 | `tournoi-correctifs-regression.html` | scores du tour conservés (Classement, sortie), correction du dernier tour (y compris après la fin, historique mis à jour), historique des tournois sans plafond, nom du tournoi protégé, « Retour à l’accueil », « Nouveau tournoi » sans confirmation après la fin, raccourci tournoi seulement pendant un tournoi, aucune fenêtre du système, graphique des stats recréé | 30 |
+| `page-scores-regression.html` | Cadre iPhone 390 × 844 puis 844 × 390 : page Scores après Valider et en touchant un score de la table ; titre, donneur et entame de la donne suivante, scores, « manque », équipe en tête, points gagnés ; retour à la table ; « Saisir le contrat » / « Saisir le score » ; « Tout le monde passe » et victoire inchangés ; durée des points gagnés (sans limite par défaut, 5 s) ; pastilles effacées par l'annulation et la nouvelle partie ; « Entame » ; chiffres dans leur case, empilé en portrait, côte à côte en paysage | 40 |
 | `historique-regression.html` | plus de plafond de 50 parties (sauvegarde et import fusionné), avertissement « mémoire presque pleine » une fois par session, « mémoire pleine » sans rien effacer, libellé du bouton de confirmation rétabli ; import par code « Ajouter à mes données » (fusion sans doublon, version de l'appareil prioritaire, joueurs complétés, thème conservé, deux imports sans doublon) | 18 |
 | `tournoi-jouer-ici-regression.html` | « Jouer ici » : un bouton par table, configuration pré-remplie (places, donneur, points), partie reliée (équipe du match en Nord/Sud ou Est/Ouest), score recopié dans le tour à la victoire, « Retour au tournoi », « Reprendre la partie », partie en cours abandonnée après confirmation, lien perdu si les joueurs changent ou si le tour a changé (avertissement), lien gardé par la sauvegarde automatique, équipe exemptée sans victoire, écran de victoire inchangé hors tournoi ; cadre iPad paysage (1194 × 834) : victoire, tournoi, récapitulatif et aide défilent même si un onglet était ouvert, la table reste bloquée sur l'écran de jeu | 42 |
 | `retour-configuration-regression.html` | Cadre 1194 × 834 : retour sur la configuration depuis Réglages, Aide, Tournoi et Aide à la marque après défilement et redimensionnement — Ouest/Est au milieu de la table, page en haut ; placement Ouest/Est ignoré quand la configuration est cachée ; Réglages ouverts en haut ; rotations du cadre (1194 × 834 ↔ 834 × 1194) : Ouest/Est au milieu en portrait, graphique Stats redessiné au retour, Manche en cours sans reste du paysage, graphique de la fiche d'une partie passée redessiné fiche ouverte (format iPhone) | 23 |
@@ -421,7 +422,7 @@ Ils servent uniquement au développement et aux vérifications avant livraison.
 Total des contrôles disponibles :
 
 ```text
-587 contrôles navigateur (19 pages de test)
+628 contrôles navigateur (20 pages de test)
 + 10 cas de score (scoring-regression.js)
 + 58 contrôles PWA (offline-pwa-regression.js)
 ```
@@ -1245,6 +1246,19 @@ Version `v20261116_1755`. Demandé par l'utilisateur : le site (scorecontree.cde
 - Une page déjà référencée disparaît des résultats au passage suivant du robot ; pour aller plus vite, demande de suppression dans Google Search Console (propriété du domaine nécessaire).
 - Contrôle ajouté à `final-audit-regression.html` (balise présente avec `noindex` et `nofollow`).
 
+### 8.48 Page Scores et durée des points gagnés
+
+Version `v20261124_1950`. Demandé par l'utilisateur, d'après la maquette retenue (proposition A, sur l'artefact « Maquette saisie rapide ScoreContrée »).
+
+- **Page Scores** (`#screen-scores`) : les deux scores en grand, avec « manque … », l'équipe en tête en vert et les points gagnés ; au-dessus (portrait) ou à gauche (paysage), le **donneur** et l'**entame** de la donne suivante, avec leur place. Titre « Manche N à venir » (« en cours » si un contrat est déjà choisi).
+  - Ouverte en touchant un score sous la table (`showScoresScreen`, cases `#ej-st1/2` avec `role="button"`) et **automatiquement après Valider la manche** (fin de `validateScore`, sauf victoire). « Tout le monde passe » reste sur la table.
+  - Toucher un score ramène à la table (`scoresBackToTable`). Bouton doré « Saisir le contrat » (`scoresMainAction` → onglet Contrat), ou « Saisir le score » si le contrat est déjà choisi.
+  - Mise en page fluide, sans bloc par appareil : une grille empilée en portrait, colonne d'infos + scores côte à côte en paysage (`@media (orientation:landscape)`), phrase d'aide masquée en iPhone paysage (`max-height:500px`). Les grands chiffres suivent la taille de leur case (`container-type:size`, `font-size:min(36cqw, 50cqh)`, repli `15vmin`).
+- **Entame** remplace « Premier à jouer » (Manche en cours, rappel au-dessus du contrat, aide).
+- **Points gagnés** : durée réglable dans Réglages (5 s, 10 s, 20 s, 30 s, 60 s, **sans limite par défaut**, `bct_gain_ms`). L'état est gardé (`gainState`) et affiché sur la table et sur la page Scores (`renderGainBadges`) ; il disparaît à la fin de la durée, à la donne suivante, à l'annulation de la donne et à la nouvelle partie. `GAIN_BADGE_MS` supprimé.
+- **Aide** : partie « 4 ter. Les scores en grand » avec illustration ; note sur les points gagnés mise à jour.
+- **Vérification** : captures sur les 5 formats (chiffres dans leur case, bouton visible), test `page-scores-regression.html` ; `saisie-rapide` (durée par défaut) et `retour-configuration` (retour à la table avant l'onglet Stats) adaptés.
+
 ---
 
 ## 9. Règles de maintenance importantes
@@ -1733,9 +1747,9 @@ Statuts utilisés :
 | Sujet | Description | Statut | Priorité | Version / remarque |
 |---|---|---:|---:|---|
 | README de reprise | Documenter fonctionnement, structure, tests, règles de maintenance et consignes de reprise. | Fait | Haute | Créé le 18 juin 2026 |
-| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261116_1755` |
+| Version synchronisée | Mettre à jour la version visible dans `index.html` et `CACHE_NAME` dans `service-worker.js` à chaque livraison applicative. | Fait | Permanente | Dernière version : `v20261124_1950` |
 | Suppression reconnaissance vocale | Retirer le code vocal inaccessible et l'appel IA sans clé. | Fait | Moyenne | Livré en `v20261031_2135` |
-| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 587 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261116_1755 |
+| Tests de non-régression | Maintenir et rejouer les tests avant livraison. | Fait | Permanente | 628 contrôles navigateur + 10 cas de score + 58 PWA, tous PASS en v20261124_1950 |
 | Guide utilisateur actualisé | Reprendre la page `Comment utiliser l'application`, ajouter des visuels explicatifs et faire clignoter les boutons Retour d'aide. | Fait | Haute | Livré en `v20260630_1615` |
 | Version en tête des Réglages | Retirer la version du bandeau et l'afficher dans un encart dédié en haut du contenu Réglages. | Fait | Haute | Livré en `v20260625_1457` |
 | Actions TABLE sur iPhone | Placer `Annuler dernière donne` sous `Contrat` et `Terminer la partie` sous `Saisir score`, avec annulation grisée si indisponible. | Fait | Haute | Livré en `v20260625_1457` |

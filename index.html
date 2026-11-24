@@ -1451,6 +1451,70 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
   }
 }
 
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE SCORES — les deux scores en grand, donneur et entame.
+   Ouverte en touchant un score sous la table, et après Valider.
+   Une seule mise en page fluide : empilée en portrait, en colonnes en paysage.
+   Les grands chiffres suivent la taille de leur case (unités cqw/cqh).
+   ═══════════════════════════════════════════════════════════ */
+#screen-scores { background:var(--bg); height:100vh; height:100dvh; overflow:hidden; }
+#screen-scores .sc-body { flex:1; min-height:0; width:100%; max-width:1300px; margin:0 auto; box-sizing:border-box;
+  display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:auto minmax(0,1fr) auto auto;
+  gap:clamp(10px, 2.2vmin, 22px);
+  padding:clamp(10px, 2.2vmin, 26px) clamp(14px, 3.5vmin, 36px) calc(clamp(14px, 3vmin, 30px) + env(safe-area-inset-bottom, 0px)); }
+#screen-scores .sc-info { display:flex; gap:clamp(8px, 1.8vmin, 18px); min-width:0; }
+#screen-scores .sc-info-box { flex:1 1 0; min-width:0; background:rgba(0,0,0,0.28); border-radius:14px; box-sizing:border-box;
+  padding:clamp(9px, 1.6vmin, 20px) clamp(12px, 2vmin, 24px); display:flex; flex-direction:column; justify-content:center; gap:4px; }
+#screen-scores .sc-label { display:flex; align-items:center; gap:6px; font-size:clamp(10px, 0.9vmin + 6px, 14px); font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,0.72); }
+#screen-scores .sc-label svg { width:1.3em; height:1.3em; flex-shrink:0; }
+#screen-scores .sc-who { font-size:clamp(18px, 1.8vmin + 11px, 32px); font-weight:800; line-height:1.15; color:#fff; overflow-wrap:anywhere; }
+#screen-scores .sc-who.is-entame { color:#f0c040; }
+#screen-scores .sc-pos { font-size:.58em; font-weight:700; color:rgba(255,255,255,0.6); white-space:nowrap; }
+#screen-scores .sc-cards { display:flex; flex-direction:column; gap:clamp(10px, 2.2vmin, 22px); min-height:0; min-width:0; }
+#screen-scores .sc-card { container-type:size; flex:1 1 0; min-height:0; min-width:0; position:relative; box-sizing:border-box;
+  border:2px solid transparent; border-radius:clamp(16px, 2.4vmin, 24px); background:#3a6b38; color:#fff; font-family:inherit;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:12px 10px; margin:0;
+  cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform .1s; }
+#screen-scores .sc-card.is-lead { background:#245a20; border-color:#4caf50; }
+#screen-scores .sc-card:active { transform:scale(0.985); }
+#screen-scores .sc-name { display:block; max-width:100%; font-size:clamp(11px, 1.3vmin + 6px, 22px); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,0.85); text-align:center; line-height:1.2; }
+#screen-scores .sc-score { display:block; font-size:15vmin; font-size:min(36cqw, 50cqh); font-weight:900; line-height:1; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; color:#fff; }
+#screen-scores .sc-card.is-lead .sc-score { color:#7ddd82; }
+#screen-scores .sc-need { display:none; font-size:clamp(12px, 1.2vmin + 7px, 22px); font-weight:700; color:rgba(255,255,255,0.75); }
+body.show-need #screen-scores .sc-need { display:block; }
+#screen-scores .sc-card .gain-badge { top:10px; right:10px; bottom:auto; font-size:clamp(14px, 1.2vmin + 9px, 24px); padding:.2em .7em; }
+#screen-scores .sc-hint { text-align:center; font-size:clamp(11px, 0.8vmin + 7px, 15px); color:rgba(255,255,255,0.6); }
+#screen-scores .sc-btn { justify-self:stretch; width:100%; min-height:clamp(52px, 6.5vmin, 70px); border:none; border-radius:99px; background:var(--gold, #c8a84a); color:#2a1f14;
+  font-family:inherit; font-size:clamp(17px, 1.4vmin + 11px, 22px); font-weight:900; display:flex; align-items:center; justify-content:center; gap:10px; padding:0 22px;
+  box-shadow:0 3px 0 rgba(0,0,0,0.22); cursor:pointer; -webkit-tap-highlight-color:transparent; }
+#screen-scores .sc-btn:active { transform:scale(0.97); filter:brightness(1.08); }
+#screen-scores .sc-btn .fast-ico { width:1.2em; height:1.2em; }
+@media (min-width:700px) {
+  #screen-scores .sc-btn { justify-self:center; width:min(480px, 100%); }
+}
+@media (orientation:landscape) {
+  #screen-scores .sc-body { grid-template-columns:clamp(170px, 22vw, 300px) minmax(0,1fr); grid-template-rows:minmax(0,1fr) auto auto;
+    grid-template-areas:"info cards" "info hint" "info btn"; }
+  #screen-scores .sc-info { grid-area:info; flex-direction:column; }
+  #screen-scores .sc-info-box { align-items:center; text-align:center; }
+  #screen-scores .sc-cards { grid-area:cards; flex-direction:row; }
+  #screen-scores .sc-hint { grid-area:hint; }
+  #screen-scores .sc-btn { grid-area:btn; justify-self:center; width:min(440px, 100%); }
+}
+/* iPhone paysage : peu de hauteur — pas de phrase d'aide, bouton sur toute la largeur */
+@media (orientation:landscape) and (max-height:500px) {
+  #screen-scores .sc-body { grid-template-rows:minmax(0,1fr) auto; grid-template-areas:"info cards" "info btn"; }
+  #screen-scores .sc-hint { display:none; }
+  #screen-scores .sc-btn { width:100%; min-height:48px; }
+}
+/* Cases de score de la table : elles ouvrent la page Scores */
+#ej-score-wrap .score-team { cursor:pointer; -webkit-tap-highlight-color:transparent; }
+#ej-score-wrap .score-team:focus:not(:focus-visible) { outline:none; }
+/* Réglage : durée d'affichage des points gagnés */
+#gain-duration-chips { display:flex; flex-wrap:wrap; gap:6px; }
+#gain-duration-chips button { min-height:36px; padding:6px 12px; border-radius:99px; border:1.5px solid var(--border-light, #ddd); background:transparent; color:var(--text); font-family:inherit; font-size:13px; font-weight:800; cursor:pointer; }
+#gain-duration-chips button.is-on { background:var(--green); border-color:var(--green); color:#fff; }
 </style>
 </head>
 <body class="fast-input">
@@ -1621,8 +1685,8 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
         <!-- Score -->
         <div id="ej-score-wrap">
           <div class="score-board">
-            <div class="score-team" id="ej-st1"><div class="t-name" id="ej-stn1"></div><div class="t-score" id="ej-sts1">0</div><div class="t-need" id="ej-stk1"></div></div>
-            <div class="score-team" id="ej-st2"><div class="t-name" id="ej-stn2"></div><div class="t-score" id="ej-sts2">0</div><div class="t-need" id="ej-stk2"></div></div>
+            <div class="score-team" id="ej-st1" role="button" tabindex="0" aria-label="Scores en grand" onclick="showScoresScreen()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showScoresScreen();}"><div class="t-name" id="ej-stn1"></div><div class="t-score" id="ej-sts1">0</div><div class="t-need" id="ej-stk1"></div></div>
+            <div class="score-team" id="ej-st2" role="button" tabindex="0" aria-label="Scores en grand" onclick="showScoresScreen()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showScoresScreen();}"><div class="t-name" id="ej-stn2"></div><div class="t-score" id="ej-sts2">0</div><div class="t-need" id="ej-stk2"></div></div>
           </div>
         </div>
 
@@ -1899,7 +1963,7 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
               <div style="font-size:15px;font-weight:800;color:var(--text);">Version de l'application</div>
               <div style="font-size:12px;color:var(--text2);margin-top:3px;">Belote Contrée</div>
             </div>
-            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261116_1755</div>
+            <div id="settings-app-version" style="background:rgba(61,139,61,0.12);border:1px solid rgba(61,139,61,0.28);border-radius:99px;padding:7px 12px;color:var(--green);font-size:13px;font-weight:900;white-space:nowrap;">v20261124_1950</div>
           </div>
           <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:14px;padding-top:12px;font-size:12px;color:var(--text2);line-height:1.45;">✅ Fonctionne hors ligne. Une nouvelle version est proposée automatiquement lorsqu'une mise à jour est disponible.</div>
         </div>
@@ -1956,13 +2020,28 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
           <div class="fast-setting" style="align-items:center;gap:14px;padding:14px 16px;">
             <div style="flex:1;">
               <div style="font-size:15px;font-weight:700;color:var(--text);">Afficher les points gagnés</div>
-              <div style="font-size:12px;color:var(--text2);margin-top:2px;">« +202 », « +80 »… pendant 10 secondes après chaque donne</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:2px;">« +202 », « +80 »… à côté des scores après chaque donne</div>
             </div>
             <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;">
               <input type="checkbox" id="toggle-show-gain" onchange="setTablePref('show-gain', this.checked)" style="opacity:0;width:0;height:0;" aria-label="Afficher les points gagnés">
               <span id="toggle-show-gain-track" style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:99px;transition:.3s;"></span>
               <span id="toggle-show-gain-thumb" style="position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;pointer-events:none;"></span>
             </label>
+          </div>
+          <div class="fast-setting" style="height:1px;background:var(--border-light);margin:0 16px;"></div>
+          <div class="fast-setting gain-duration-row" style="flex-direction:column;align-items:stretch;gap:8px;padding:14px 16px;">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--text);">Durée d'affichage des points gagnés</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:2px;">« Sans limite » : jusqu'à la donne suivante</div>
+            </div>
+            <div id="gain-duration-chips" role="group" aria-label="Durée d'affichage des points gagnés">
+              <button type="button" data-ms="5000" onclick="setGainDuration(5000)">5 s</button>
+              <button type="button" data-ms="10000" onclick="setGainDuration(10000)">10 s</button>
+              <button type="button" data-ms="20000" onclick="setGainDuration(20000)">20 s</button>
+              <button type="button" data-ms="30000" onclick="setGainDuration(30000)">30 s</button>
+              <button type="button" data-ms="60000" onclick="setGainDuration(60000)">60 s</button>
+              <button type="button" data-ms="0" onclick="setGainDuration(0)">Sans limite</button>
+            </div>
           </div>
         </div>
 
@@ -2151,6 +2230,31 @@ body.ipad-overlay-active #tab-enjeu { visibility:hidden !important; pointer-even
 
   </div>
 
+  <!-- ══ PAGE SCORES : toucher un score sur la table, ou arrivée directe après Valider ══ -->
+  <div id="screen-scores" class="screen">
+    <div class="header">
+      <h1 id="sc-title">Manche à venir</h1>
+    </div>
+    <div class="sc-body">
+      <div class="sc-info">
+        <div class="sc-info-box">
+          <div class="sc-label"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="12" height="16" rx="2"/><path d="M9 21h10a2 2 0 0 0 2-2V8"/></svg>Donneur</div>
+          <div class="sc-who" id="sc-dealer"></div>
+        </div>
+        <div class="sc-info-box">
+          <div class="sc-label"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M7 4l13 8-13 8z"/></svg>Entame</div>
+          <div class="sc-who is-entame" id="sc-entame"></div>
+        </div>
+      </div>
+      <div class="sc-cards">
+        <button type="button" class="sc-card" id="sc-st1" onclick="scoresBackToTable()"><span class="sc-name" id="sc-n1"></span><span class="sc-score" id="sc-s1">0</span><span class="sc-need" id="sc-k1"></span></button>
+        <button type="button" class="sc-card" id="sc-st2" onclick="scoresBackToTable()"><span class="sc-name" id="sc-n2"></span><span class="sc-score" id="sc-s2">0</span><span class="sc-need" id="sc-k2"></span></button>
+      </div>
+      <div class="sc-hint">Touchez un score pour revenir à la table</div>
+      <button type="button" class="sc-btn" id="sc-btn-action" onclick="scoresMainAction()">Saisir le contrat</button>
+    </div>
+  </div>
+
   <!-- MODALE CONFIRMATION — niveau app pour être visible partout -->
   <!-- MODAL AIDE À LA MARQUE -->
 
@@ -2280,6 +2384,7 @@ function resetGameProgress() {
   S._gameSaved = false;
   S._savedGameId = null;
   S.tournoiMatch = null; // partie reliée à un match du tournoi
+  if(typeof clearGainBadges === 'function') clearGainBadges();
   pendingTournoiMatch = null;
   pendingScore = null;
   updateSetupTournoiLabel();
@@ -2622,7 +2727,7 @@ function updateDealerInfo() {
   const firstIdx = (S.dealerIdx+1)%4;
   const firstPos = S.dealerOrder[firstIdx];
   const firstName = S.pos[firstPos];
-  el.innerHTML = `Donneur : <strong>${escapeHtml(dName)}</strong> (${cap(dPos)}) — Premier à jouer : <strong>${escapeHtml(firstName)}</strong> (${cap(firstPos)})`;
+  el.innerHTML = `Donneur : <strong>${escapeHtml(dName)}</strong> (${cap(dPos)}) — Entame : <strong>${escapeHtml(firstName)}</strong> (${cap(firstPos)})`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2984,6 +3089,8 @@ function validateScore() {
   showScreen('game');
   showTab('enjeu');
   showGainBadges(h.pts1, h.pts2);
+  // Les scores en grand, avec le donneur et l'entame de la donne suivante
+  showScoresScreen();
 }
 
 function showWinner(team) {
@@ -3283,6 +3390,7 @@ function askUndoLastRound() {
 function undoLastRound(silent) {
   if(!S.history.length) return;
   const last = S.history.pop();
+  clearGainBadges(); // les points gagnés affichés étaient ceux de la donne annulée
   recalculateGameFromHistory();
   if(last && last.before && Number.isInteger(last.before.dealerIdx)) {
     S.manche = Math.max(1, Number(last.before.manche) || 1);
@@ -5968,7 +6076,7 @@ function showMancheEnCours() {
       <div style="font-size:16px;font-weight:700;color:rgba(255,255,255,0.9);">${dealerPlayer}</div>
     </div>
     <div id="mec-fp-premier" style="background:rgba(0,0,0,0.28);border-radius:12px;padding:10px 14px;">
-      <div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">🎯 Premier à jouer</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">🎯 Entame</div>
       <div style="font-size:16px;font-weight:800;color:#f0c040;">${firstPlayer}</div>
     </div>`;
   // Adapter le layout mec-body selon l'appareil
@@ -7201,6 +7309,8 @@ function renderTablePrefs() {
     const thumb = eid('toggle-' + name + '-thumb'); if(thumb) thumb.style.transform = on ? 'translateX(20px)' : '';
   });
   document.body.classList.toggle('show-need', getTablePref('show-need'));
+  renderGainDurationChips();
+  if(typeof renderGainBadges === 'function') renderGainBadges();
 }
 function setTablePref(name, on) {
   try { localStorage.setItem(TABLE_PREFS[name], on ? '1' : '0'); } catch(e) {}
@@ -7208,20 +7318,116 @@ function setTablePref(name, on) {
   haptic('light');
 }
 
-const GAIN_BADGE_MS = 10000;
+// Durée d'affichage des points gagnés (Réglages) : 0 = sans limite (par défaut),
+// jusqu'à la donne suivante, une annulation ou une nouvelle partie.
+const GAIN_DURATIONS = [5000, 10000, 20000, 30000, 60000, 0];
+function getGainDurationMs() {
+  try {
+    const v = localStorage.getItem('bct_gain_ms');
+    if(v === null) return 0;
+    const n = Number(v);
+    return GAIN_DURATIONS.includes(n) ? n : 0;
+  } catch(e) { return 0; }
+}
+function setGainDuration(ms) {
+  try { localStorage.setItem('bct_gain_ms', String(ms)); } catch(e) {}
+  renderGainDurationChips();
+  scheduleGainHide();
+  haptic('light');
+}
+function renderGainDurationChips() {
+  const box = eid('gain-duration-chips');
+  if(!box) return;
+  const cur = getGainDurationMs();
+  box.querySelectorAll('button[data-ms]').forEach(b => {
+    const on = Number(b.dataset.ms) === cur;
+    b.classList.toggle('is-on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+var gainState = null, gainTimer = null;
 function showGainBadges(p1, p2) {
-  if(!getTablePref('show-gain')) return;
-  [['ej-st1', p1, 't1'], ['ej-st2', p2, 't2']].forEach(([id, pts, team]) => {
+  gainState = { p1: Number(p1) || 0, p2: Number(p2) || 0, at: Date.now() };
+  scheduleGainHide();
+  renderGainBadges();
+}
+function clearGainBadges() {
+  gainState = null;
+  clearTimeout(gainTimer);
+  renderGainBadges();
+}
+function scheduleGainHide() {
+  clearTimeout(gainTimer);
+  if(!gainState) return;
+  const d = getGainDurationMs();
+  if(!d) return;
+  const st = gainState;
+  const fade = () => {
+    if(gainState !== st) return;
+    document.querySelectorAll('.gain-badge').forEach(b => { b.style.opacity = '0'; });
+    setTimeout(() => { if(gainState === st) { gainState = null; renderGainBadges(); } }, 400);
+  };
+  const left = st.at + d - Date.now();
+  if(left <= 0) fade(); else gainTimer = setTimeout(fade, left);
+}
+// Pastilles « +202 » sur la table et sur la page Scores, selon l'état courant
+function renderGainBadges() {
+  const show = !!gainState && getTablePref('show-gain');
+  [['ej-st1','t1'], ['ej-st2','t2'], ['sc-st1','t1'], ['sc-st2','t2']].forEach(([id, team]) => {
     const box = eid(id);
     if(!box) return;
-    box.querySelectorAll('.gain-badge').forEach(b => b.remove());
-    const badge = document.createElement('div');
-    const n = Number(pts) || 0;
+    let badge = box.querySelector('.gain-badge');
+    if(!show) { if(badge) badge.remove(); return; }
+    const n = team === 't1' ? gainState.p1 : gainState.p2;
+    if(!badge) { badge = document.createElement('span'); box.appendChild(badge); }
     badge.className = 'gain-badge' + (team === 't2' ? ' is-t2' : '') + (n > 0 ? '' : ' is-zero');
     badge.textContent = '+' + n;
-    box.appendChild(badge);
-    setTimeout(() => { badge.style.opacity = '0'; setTimeout(() => badge.remove(), 400); }, GAIN_BADGE_MS);
+    badge.style.opacity = '';
   });
+}
+
+// ── PAGE SCORES ──
+function renderScoresScreen() {
+  if(!S.t1 || !S.t2 || !S.pos) return;
+  const dealerPos = S.dealerOrder[S.dealerIdx];
+  const firstPos = S.dealerOrder[(S.dealerIdx + 1) % 4];
+  const cap = p => p ? p.charAt(0).toUpperCase() + p.slice(1) : '';
+  const who = pos => `${escapeHtml(S.pos[pos] || '?')} <span class="sc-pos">· ${cap(pos)}</span>`;
+  eid('sc-title').textContent = 'Manche ' + S.manche + (S.contract ? ' en cours' : ' à venir');
+  eid('sc-dealer').innerHTML = who(dealerPos);
+  eid('sc-entame').innerHTML = who(firstPos);
+  const s1 = S.score.t1, s2 = S.score.t2;
+  eid('sc-n1').textContent = S.t1.name;
+  eid('sc-n2').textContent = S.t2.name;
+  eid('sc-s1').textContent = s1;
+  eid('sc-s2').textContent = s2;
+  // Même texte que sous les scores de la table (manque … / manches restantes)
+  eid('sc-k1').textContent = eid('ej-stk1') ? eid('ej-stk1').textContent : '';
+  eid('sc-k2').textContent = eid('ej-stk2') ? eid('ej-stk2').textContent : '';
+  eid('sc-st1').className = 'sc-card' + (s1 > s2 ? ' is-lead' : '');
+  eid('sc-st2').className = 'sc-card' + (s2 > s1 ? ' is-lead' : '');
+  eid('sc-st1').setAttribute('aria-label', `${S.t1.name} : ${s1} points. Retour à la table`);
+  eid('sc-st2').setAttribute('aria-label', `${S.t2.name} : ${s2} points. Retour à la table`);
+  // Contrat déjà choisi (page ouverte depuis la table pendant la donne) : saisir le score
+  eid('sc-btn-action').innerHTML = S.contract ? fastSvg('chart') + 'Saisir le score' : fastSvg('pencil') + 'Saisir le contrat';
+  renderGainBadges();
+}
+function showScoresScreen() {
+  if(!S.t1 || !S.t1.name) return;
+  haptic('light');
+  renderScoresScreen();
+  showScreen('scores');
+}
+function scoresBackToTable() {
+  haptic('light');
+  showScreen('game');
+  showTab('enjeu');
+}
+function scoresMainAction() {
+  if(S.contract) { mecSaisirScore(); return; }
+  haptic('light');
+  showScreen('game');
+  showTab('contrat');
 }
 
 // Point 3 : éclair doré sur le bouton touché (iOS ne vibre pas dans une application web)
@@ -7794,7 +8000,7 @@ function renderHelpContent() {
     <text x="52" y="56" text-anchor="middle" font-size="6.5" font-weight="700" fill="rgba(255,255,255,0.6)" letter-spacing="1">🃏 DONNEUR</text>
     <text x="52" y="74" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">Paul</text>
     <rect x="10" y="102" width="84" height="64" rx="9" fill="rgba(0,0,0,0.28)"/>
-    <text x="52" y="126" text-anchor="middle" font-size="6.5" font-weight="700" fill="rgba(255,255,255,0.6)" letter-spacing="1">🎯 PREMIER À JOUER</text>
+    <text x="52" y="126" text-anchor="middle" font-size="6.5" font-weight="700" fill="rgba(255,255,255,0.6)" letter-spacing="1">🎯 ENTAME</text>
     <text x="52" y="144" text-anchor="middle" font-size="12" font-weight="800" fill="#f5a623">Anna</text>
     <!-- Carte -->
     <rect x="114" y="30" width="92" height="124" rx="9" fill="#faf6ee" stroke="#c8a84a" stroke-width="1.5"/>
@@ -7815,6 +8021,32 @@ function renderHelpContent() {
     <rect x="226" y="102" width="84" height="64" rx="9" fill="rgba(0,0,0,0.25)"/>
     <text x="268" y="126" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(255,255,255,0.85)">ANNA &amp; LUC</text>
     <text x="268" y="150" text-anchor="middle" font-size="20" font-weight="900" fill="#fff">50</text>
+  </svg>`;
+
+  const svgScores = `<svg viewBox="0 0 320 196" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" font-family="-apple-system,system-ui,sans-serif">
+    <rect width="320" height="196" fill="#2e6b28"/>
+    <rect width="320" height="22" fill="#1e4a1c"/>
+    <text x="160" y="15" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">Manche 4 à venir</text>
+    <rect x="10" y="32" width="84" height="64" rx="9" fill="rgba(0,0,0,0.28)"/>
+    <text x="52" y="56" text-anchor="middle" font-size="6.5" font-weight="700" fill="rgba(255,255,255,0.6)" letter-spacing="1">DONNEUR</text>
+    <text x="52" y="74" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">Anna</text>
+    <rect x="10" y="102" width="84" height="64" rx="9" fill="rgba(0,0,0,0.28)"/>
+    <text x="52" y="126" text-anchor="middle" font-size="6.5" font-weight="700" fill="rgba(255,255,255,0.6)" letter-spacing="1">ENTAME</text>
+    <text x="52" y="144" text-anchor="middle" font-size="12" font-weight="800" fill="#f0c040">Marie</text>
+    <rect x="104" y="32" width="100" height="128" rx="11" fill="#245a20" stroke="#4caf50" stroke-width="1.5"/>
+    <text x="154" y="62" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(255,255,255,0.85)">MARIE &amp; PAUL</text>
+    <text x="154" y="102" text-anchor="middle" font-size="34" font-weight="900" fill="#7ddd82">690</text>
+    <text x="154" y="120" text-anchor="middle" font-size="7.5" font-weight="700" fill="rgba(255,255,255,0.75)">manque 1311</text>
+    <rect x="170" y="26" width="32" height="14" rx="7" fill="#c8a84a"/>
+    <text x="186" y="36" text-anchor="middle" font-size="8.5" font-weight="900" fill="#2a1f14">+210</text>
+    <rect x="212" y="32" width="100" height="128" rx="11" fill="#3a6b38"/>
+    <text x="262" y="62" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(255,255,255,0.85)">ANNA &amp; LUC</text>
+    <text x="262" y="102" text-anchor="middle" font-size="34" font-weight="900" fill="#fff">420</text>
+    <text x="262" y="120" text-anchor="middle" font-size="7.5" font-weight="700" fill="rgba(255,255,255,0.75)">manque 1581</text>
+    <rect x="280" y="26" width="28" height="14" rx="7" fill="#fff"/>
+    <text x="294" y="36" text-anchor="middle" font-size="8.5" font-weight="900" fill="#1a5295">+50</text>
+    <rect x="148" y="170" width="120" height="20" rx="10" fill="#c8a84a"/>
+    <text x="208" y="184" text-anchor="middle" font-size="9" font-weight="900" fill="#2a1f14">Saisir le contrat</text>
   </svg>`;
 
   const svgParties = `<svg viewBox="0 0 320 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" font-family="-apple-system,system-ui,sans-serif">
@@ -7957,12 +8189,12 @@ function renderHelpContent() {
       step(3, '<strong>Tout le monde passe</strong> et <strong>Annuler la donne</strong> agissent tout de suite : un message <strong>Annuler</strong> reste affiché quelques secondes en cas d\'erreur.'),
       step(4, '<strong>Terminer la partie</strong> permet d\'arrêter manuellement la partie, même si l\'objectif n\'est pas atteint.'),
       step(5, 'Appuyez sur un joueur pour proposer une permutation avec son partenaire : les équipes ne changent pas, seules les places autour de la table changent.'),
-      note('<strong>📋 Parties</strong> et <strong>📈 Stats</strong> sont en haut à droite de la table ; <strong>← Retour</strong> ramène à la table. Après chaque donne, les points gagnés (<strong>+202</strong>…) s\'affichent dix secondes et <strong>manque …</strong> indique les points restants : chacun se désactive dans les Réglages.'),
+      note('<strong>📋 Parties</strong> et <strong>📈 Stats</strong> sont en haut à droite de la table ; <strong>← Retour</strong> ramène à la table. Après chaque donne, les points gagnés (<strong>+202</strong>…) restent affichés jusqu\'à la donne suivante (durée réglable : 5 s à 60 s ou sans limite) et <strong>manque …</strong> indique les points restants : chacun se désactive dans les Réglages.'),
     ].join(''), svgTable) +
 
     // ── 4. Contrat ──
     section('✏️', '4. Saisir le contrat', [
-      step(1, 'Appuyez sur <strong>Contrat</strong> sur la table. Le donneur et le premier à jouer sont rappelés en haut.'),
+      step(1, 'Appuyez sur <strong>Contrat</strong> sur la table. Le donneur et l\'entame (premier joueur) sont rappelés en haut.'),
       step(2, 'Choisissez l\'<strong>équipe preneuse</strong>, puis la <strong>hauteur</strong> (80 → Capot).'),
       step(3, 'S\'il y a un <strong>contre</strong> ou un <strong>surcontre</strong>, touchez-le (sinon rien à faire).'),
       step(4, 'Touchez la <strong>couleur</strong> : elle valide le contrat directement et affiche la grande carte <strong>Manche en cours</strong>.'),
@@ -7971,11 +8203,19 @@ function renderHelpContent() {
 
     // ── 4 bis. Manche en cours ──
     section('🔎', '4 bis. Manche en cours', [
-      step(1, 'Touchez la carte au centre de la table : la grande carte affiche le contrat, l\'équipe preneuse, le <strong>donneur</strong> et le <strong>premier à jouer</strong>, avec les scores.'),
+      step(1, 'Touchez la carte au centre de la table : la grande carte affiche le contrat, l\'équipe preneuse, le <strong>donneur</strong> et l\'<strong>entame</strong> (premier joueur), avec les scores.'),
       step(2, 'Une fois la donne jouée, <strong>📊 Saisir le score</strong> (sous la carte) ouvre directement l\'écran Résultat.'),
       step(3, 'Touchez la carte pour revenir à la table.'),
       note('Cet écran s\'affiche tout seul dès que la couleur du contrat est choisie.'),
     ].join(''), svgMancheEnCours) +
+
+    // ── 4 ter. Scores ──
+    section('🔢', '4 ter. Les scores en grand', [
+      step(1, 'Touchez un des deux scores sous la table : les scores s\'affichent en grand, avec le <strong>donneur</strong> et l\'<strong>entame</strong> de la donne suivante.'),
+      step(2, '<strong>Saisir le contrat</strong> ouvre directement la saisie du contrat (<strong>Saisir le score</strong> si le contrat est déjà choisi).'),
+      step(3, 'Touchez un des scores pour revenir à la table.'),
+      note('Cet écran s\'affiche tout seul après <strong>Valider la manche</strong>, avec les points gagnés sur la donne.'),
+    ].join(''), svgScores) +
 
     // ── 5. Résultat ──
     section('📊', '5. Saisir le score (Résultat)', [

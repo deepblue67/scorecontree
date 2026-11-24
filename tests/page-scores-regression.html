@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<title>Tests page Scores ScoreContrée</title>
+</head>
+<body>
+<div id="result">Tests en attente</div>
+<!-- Cadre au format iPhone portrait (390 × 844), hors écran ; tourné en paysage en fin de test -->
+<iframe id="app" src="../index.html" style="position:absolute;left:-9999px;top:0;width:390px;height:844px;border:0;"></iframe>
+<script>
+  // Couvre (v20261124) : page Scores — ouverte après Valider et en touchant un score de la table ;
+  // titre, donneur et entame de la donne suivante, scores, « manque », équipe en tête, points gagnés ;
+  // toucher un score → table ; « Saisir le contrat » (ou « Saisir le score » pendant une donne) ;
+  // « Tout le monde passe » et victoire inchangés ; durée des points gagnés (sans limite par défaut, 5 s…60 s) ;
+  // pastilles effacées par l'annulation et la nouvelle partie ; « Entame » au lieu de « Premier à jouer » ;
+  // mise en page : chiffres dans leur case, empilé en portrait, côte à côte en paysage.
+  document.getElementById('app').addEventListener('load', function() {
+    const result = document.getElementById('result');
+    const app = this.contentWindow;
+    const doc = app.document;
+    const failures = [];
+    let checks = 0;
+    const check = (condition, message) => { checks += 1; if(!condition) failures.push(message); };
+    const el = id => doc.getElementById(id);
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const screen = () => app.getActiveScreenName();
+    const newGame = () => app.eval(`localStorage.removeItem('belote_autosave'); localStorage.removeItem('bct_gain_ms');
+      S.players = ['Christophe','Cynthia','Eric','Daniel']; savePlayers(); refreshSelects();
+      ['nord','sud','est','ouest'].forEach((p,i)=>document.getElementById('sel-'+p).value=['Christophe','Cynthia','Eric','Daniel'][i]);
+      document.getElementById('sel-first-dealer').value='Christophe'; startGame();`);
+    const contract = (team, value) => app.eval(`showTab('contrat'); updateContractForm(); fastPickTeam('${team}'); fastPickValue(${value}); selectSuit('♥','h','red',true); confirmContract();`);
+    const score = digits => app.eval(`showTab('saisie'); updateSaisieForm(); ${digits.split('').map(d => `fastKey('${d}');`).join(' ')} fastValidate();`);
+
+    setTimeout(async () => {
+    try {
+      let nativeDialogs = 0;
+      app.confirm = () => { nativeDialogs++; return true; };
+      app.alert = () => { nativeDialogs++; };
+
+      // ── Arrivée directe après Valider ──
+      newGame();
+      contract('t1', 100);
+      score('130');
+      check(screen() === 'scores', 'Après Valider : page Scores attendue (' + screen() + ')');
+      check(el('sc-title').textContent === 'Manche 2 à venir', 'Titre : ' + el('sc-title').textContent);
+      const dealer = app.eval('S.pos[S.dealerOrder[S.dealerIdx]]'), first = app.eval('S.pos[S.dealerOrder[(S.dealerIdx+1)%4]]');
+      check(el('sc-dealer').textContent.startsWith(dealer) && el('sc-entame').textContent.startsWith(first), 'Donneur / entame de la donne suivante incorrects : ' + el('sc-dealer').textContent + ' / ' + el('sc-entame').textContent);
+      check(/Ouest|Nord|Est|Sud/.test(el('sc-dealer').textContent), 'Position du donneur absente');
+      const sc = app.eval('({t1:S.score.t1, t2:S.score.t2})');
+      check(el('sc-s1').textContent === String(sc.t1) && el('sc-s2').textContent === String(sc.t2), 'Scores incorrects');
+      check(el('sc-n1').textContent === 'Christophe & Cynthia' && el('sc-n2').textContent === 'Eric & Daniel', 'Noms d’équipes incorrects');
+      check(el('sc-k1').textContent === 'manque ' + (2001 - sc.t1), '« manque » incorrect : ' + el('sc-k1').textContent);
+      check(el('sc-st1').classList.contains('is-lead') && !el('sc-st2').classList.contains('is-lead'), 'Équipe en tête non marquée');
+      const b1 = el('sc-st1').querySelector('.gain-badge'), b2 = el('sc-st2').querySelector('.gain-badge');
+      check(b1 && b1.textContent === '+' + sc.t1 && b2 && b2.textContent === '+' + sc.t2, 'Points gagnés absents de la page Scores');
+      check(!!doc.querySelector('#ej-st1 .gain-badge'), 'Points gagnés absents de la table');
+      check(/Saisir le contrat/.test(el('sc-btn-action').textContent) && !!el('sc-btn-action').querySelector('svg'), 'Bouton « Saisir le contrat » absent');
+
+      // ── Toucher un score : retour à la table ──
+      el('sc-st2').click();
+      check(screen() === 'game' && app.eval('currentGameTab') === 'enjeu', 'Toucher un score : retour à la table attendu');
+      // ── Toucher un score de la table : page Scores ──
+      el('ej-st2').click();
+      check(screen() === 'scores', 'Score de la table : page Scores attendue');
+      // ── Saisir le contrat ──
+      el('sc-btn-action').click();
+      check(screen() === 'game' && app.eval('currentGameTab') === 'contrat', '« Saisir le contrat » : saisie du contrat attendue');
+
+      // ── Pendant une donne : « Saisir le score » ──
+      contract('t2', 90);
+      app.showScoresScreen();
+      check(el('sc-title').textContent === 'Manche 2 en cours' && /Saisir le score/.test(el('sc-btn-action').textContent), 'Contrat choisi : titre « en cours » et « Saisir le score » attendus');
+      el('sc-btn-action').click();
+      check(screen() === 'game' && app.eval('currentGameTab') === 'saisie', '« Saisir le score » : écran Résultat attendu');
+      app.eval(`showScreen('game'); showTab('enjeu');`);
+
+      // ── Durée des points gagnés ──
+      check(app.getGainDurationMs() === 0, 'Durée par défaut : sans limite attendu');
+      app.eval('gainState.at = Date.now() - 600000; scheduleGainHide();');
+      await wait(600);
+      check(!!doc.querySelector('#ej-st1 .gain-badge'), 'Sans limite : les points gagnés ne doivent pas disparaître');
+      app.showSettingsScreen();
+      const chips = [...el('gain-duration-chips').querySelectorAll('button')].map(b => b.textContent.trim());
+      check(chips.join('|') === '5 s|10 s|20 s|30 s|60 s|Sans limite', 'Choix de durée : ' + chips.join('|'));
+      check(el('gain-duration-chips').querySelector('.is-on').dataset.ms === '0', 'Réglages : « Sans limite » doit être sélectionné');
+      el('gain-duration-chips').querySelector('[data-ms="5000"]').click();
+      check(app.localStorage.getItem('bct_gain_ms') === '5000' && el('gain-duration-chips').querySelector('.is-on').dataset.ms === '5000', 'Réglages : 5 s non enregistré');
+      await wait(700);
+      check(!doc.querySelector('.gain-badge'), '5 s : les points gagnés (affichés depuis plus de 5 s) doivent disparaître');
+      app.hideSettingsScreen();
+      app.showGainBadges(40, 120);
+      check(!!doc.querySelector('#ej-st2 .gain-badge'), '5 s : nouveaux points gagnés affichés');
+      app.eval('gainState.at = Date.now() - 4900; scheduleGainHide();');
+      await wait(700);
+      check(!doc.querySelector('.gain-badge'), '5 s : disparition après 5 secondes');
+      app.setGainDuration(0);
+
+      // ── Annulation et nouvelle partie : pastilles effacées ──
+      contract('t1', 80); app.eval(`showTab('saisie'); updateSaisieForm(); fastKey('9'); fastKey('0'); fastValidate();`);
+      check(screen() === 'scores' && !!el('sc-st1').querySelector('.gain-badge'), 'Deuxième donne : points gagnés attendus');
+      app.eval(`showScreen('game'); showTab('enjeu'); undoLastRound(true);`);
+      check(!doc.querySelector('.gain-badge'), 'Annuler la donne : points gagnés à effacer');
+      score('100');
+      newGame();
+      check(!doc.querySelector('.gain-badge'), 'Nouvelle partie : points gagnés à effacer');
+
+      // ── « Tout le monde passe » : reste sur la table ; victoire : écran du vainqueur ──
+      app.eval(`showScreen('game'); showTab('enjeu'); passeGenerale();`);
+      check(screen() === 'game', 'Tout le monde passe : la table doit rester affichée');
+      app.eval('S.score = {t1:1950, t2:700}');
+      contract('t1', 100); score('130');
+      check(screen() === 'winner', 'Victoire : écran du vainqueur attendu (' + screen() + ')');
+
+      // ── « Entame » ──
+      newGame(); contract('t1', 100); app.showMancheEnCours();
+      check(/Entame/i.test(el('mec-first-player').textContent) && !/Premier à jouer/i.test(el('mec-first-player').textContent), 'Manche en cours : « Entame » attendu');
+      app.renderHelpContent();
+      check(!/premier à jouer/i.test(el('help-content').textContent) && /4 ter\. Les scores en grand/.test(el('help-content').textContent), 'Aide : « entame » et partie « Les scores en grand » attendus');
+
+      // ── Mise en page iPhone portrait puis paysage ──
+      app.eval(`showScreen('game'); showTab('enjeu');`); score('130');
+      await wait(400);
+      const fits = id => { const s = el('sc-s' + id).getBoundingClientRect(), c = el('sc-st' + id).getBoundingClientRect(); return s.width < c.width && s.left >= c.left && s.right <= c.right && s.top >= c.top && s.bottom <= c.bottom; };
+      check(fits(1) && fits(2), 'Portrait : chiffres hors de leur case');
+      check(el('sc-st2').getBoundingClientRect().top > el('sc-st1').getBoundingClientRect().bottom - 1, 'Portrait : scores empilés attendus');
+      check(el('sc-btn-action').getBoundingClientRect().bottom <= app.innerHeight + 1, 'Portrait : bouton hors de l’écran');
+      check(parseFloat(app.getComputedStyle(el('sc-s1')).fontSize) >= 90, 'Portrait : chiffres trop petits (' + app.getComputedStyle(el('sc-s1')).fontSize + ')');
+      const frame = document.getElementById('app');
+      frame.style.width = '844px'; frame.style.height = '390px';
+      await wait(700);
+      check(Math.abs(el('sc-st1').getBoundingClientRect().top - el('sc-st2').getBoundingClientRect().top) < 2, 'Paysage : scores côte à côte attendus');
+      check(fits(1) && fits(2), 'Paysage : chiffres hors de leur case');
+      check(app.getComputedStyle(doc.querySelector('#screen-scores .sc-hint')).display === 'none', 'iPhone paysage : phrase d’aide masquée attendue');
+      check(el('sc-btn-action').getBoundingClientRect().bottom <= app.innerHeight + 1, 'Paysage : bouton hors de l’écran');
+      frame.style.width = '390px'; frame.style.height = '844px';
+      await wait(300);
+
+      check(nativeDialogs === 0, 'Fenêtres du système utilisées (' + nativeDialogs + ')');
+      app.eval(`showScreen('setup');`);
+      ['belote_autosave','belote_history','bct_gain_ms'].forEach(k => app.localStorage.removeItem(k));
+      result.textContent = failures.length ? 'FAIL ' + failures.join(' | ') : 'PASS ' + checks;
+      result.dataset.status = failures.length ? 'fail' : 'pass';
+    } catch(error) {
+      result.textContent = 'ERROR ' + error.message + ' ' + (error.stack||'').split('\n')[1];
+      result.dataset.status = 'error';
+    }
+    }, 300);
+  });
+</script>
+</body>
+</html>

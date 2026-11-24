@@ -77,7 +77,7 @@
       // Graphique des Stats : rotation pendant qu'un autre écran est ouvert
       app.eval(`['nord','sud','est','ouest'].forEach((p,i)=>document.getElementById('sel-'+p).value=['Fabrice','Chris','Aymeric','Florent'][i]); document.getElementById('sel-first-dealer').value='Fabrice'; startGame();
         showTab('contrat'); updateContractForm(); fastPickTeam('t1'); fastPickValue(100); selectSuit('♥','h','red',true); confirmContract();
-        showTab('saisie'); updateSaisieForm(); fastKey('1'); fastKey('1'); fastKey('0'); fastValidate(); showTab('stats');`);
+        showTab('saisie'); updateSaisieForm(); fastKey('1'); fastKey('1'); fastKey('0'); fastValidate(); scoresBackToTable(); showTab('stats');`);
       await wait(300);
       app.showHelpScreen();
       await tourner(834, 1194);
